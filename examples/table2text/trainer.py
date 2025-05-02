@@ -21,7 +21,6 @@ from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from tqdm.auto import tqdm, trange
 from transformers.data.data_collator import DataCollator, DataCollatorWithPadding, default_data_collator
 from transformers.file_utils import is_datasets_available
-from transformers.integrations import is_torch_tpu_available
 from transformers.utils.import_utils import is_torch_tpu_available
 from transformers.modeling_utils import PreTrainedModel
 from transformers.models.auto.modeling_auto import MODEL_FOR_QUESTION_ANSWERING_MAPPING
