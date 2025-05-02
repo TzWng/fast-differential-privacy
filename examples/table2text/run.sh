@@ -38,7 +38,7 @@ fi
 gradient_accumulation_steps=$((${batch_size} / ${physical_batch_size}))
 
 # Arguments in the last two lines are the most important.
-python examples/table2text/run_language_modeling.py \
+python /content/fast-differential-privacy/examples/table2text/run_language_modeling.py \
   --output_dir ${output_dir} --overwrite_output_dir \
   --task_mode ${task_mode} \
   --model_name_or_path ${model_name_or_path} \
