@@ -208,7 +208,7 @@ if __name__ == '__main__':
     parser.add_argument('--mini_bs', type=int, default=512)
     parser.add_argument('--epsilon', default=2, type=float, help='target epsilon')
     parser.add_argument('--noise', default=1, type=float, help='target sigma')
-    parser.add_argument('--clipping_mode', default='BK-MixOpt', type=str)
+    parser.add_argument('--clipping_mode', default='BK-ghost', type=str)
     parser.add_argument('--clipping_style', default='layer-wise', nargs='+', type=str)
     parser.add_argument('--scale', default=1, type=int)
     parser.add_argument('--cifar_data', type=str, default='CIFAR10')
