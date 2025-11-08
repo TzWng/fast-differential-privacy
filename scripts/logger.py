@@ -1,3 +1,5 @@
+import os
+
 class ExecutionLogger:
     def __init__(self, path):
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
