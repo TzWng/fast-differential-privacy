@@ -205,8 +205,7 @@ import torch.optim as optim
 import torch.nn.functional as F 
 from torchvision import datasets, transforms 
 from opacus.validators import ModuleValidator 
-from opacus.accountants.utils 
-import get_noise_multiplier 
+from opacus.accountants.utils import get_noise_multiplier 
 from torch import nn 
 from tqdm import tqdm 
 import warnings; 
