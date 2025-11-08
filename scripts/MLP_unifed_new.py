@@ -82,23 +82,49 @@ def main(args):
         for n, p in net.named_parameters()
     ]
 
-    optimizer = optim.SGD(param_groups, lr=base_lr)
+    if args.optimizer == 'SGD':
+        optimizer = optim.SGD(param_groups, lr=base_lr)
+    elif args.optimizer == 'Adam':
+        optimizer = optim.Adam(param_groups, lr=base_lr)
+        
 
-    
-    sigma = get_noise_multiplier(
-        target_epsilon=args.epsilon,
-        target_delta=1e-5,
-        sample_rate=args.bs / len(trainset),
-        epochs=args.epochs,
+    if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
+        for name, param in net.named_parameters():
+            if '.bias' not in name:
+                param.requires_grad_(False)
+
+    # Privacy engine
+    if 'nonDP' not in args.clipping_mode:
+        sigma = get_noise_multiplier(
+            target_epsilon=args.epsilon,
+            target_delta=1e-5,
+            sample_rate=args.bs / len(trainset),
+            epochs=args.epochs,
         )
-    
-    clip_value = 1.0    
+        
+        if 'BK' in args.clipping_mode:
+            clipping_mode = args.clipping_mode[3:]
+        else:
+            clipping_mode = 'ghost'
 
+        if args.clipping_style in [['all-layer'], ['layer-wise'], ['param-wise']]:
+            args.clipping_style = args.clipping_style[0]
+        privacy_engine = PrivacyEngine(
+            net,
+            batch_size=args.bs,
+            sample_size=len(trainset),
+            noise_multiplier=args.noise,
+            epochs=args.epochs,
+            clipping_mode=clipping_mode,
+            clipping_style=args.clipping_style,
+            origin_params=args.origin_params,  # ['patch_embed.proj.bias'],
+        )
+        privacy_engine.attach(optimizer)
+        print("Noise multiplier (σ):", privacy_engine.noise_multiplier)
 
     def train(epoch):
 
         net.train()
-        optimizer.zero_grad()
         train_loss = 0
         correct = 0
         total = 0
@@ -112,7 +138,7 @@ def main(args):
 
             # forward + loss
             outputs = net(inputs)
-            loss = criterion(outputs, targets)
+            loss = criterion(outputs, targets) / n_acc_steps
             loss.backward()
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
@@ -120,44 +146,36 @@ def main(args):
                 # first clipping + noise
                 # optimizer.step()
 
+                
                 for group in optimizer.param_groups:
                     param = group["params"][0]
-                    # n_out, n_in = param.shape[0], param.shape[1]
-                    # Cl = clip_value * math.sqrt(n_out / n_in)
-
-                    
-                    # current_norm = torch.norm(param.grad.detach(), p=2).item()
-                    # clip_coef = min(1.0, Cl / (current_norm + eps))
-                    
-                    # param.grad.mul_(clip_coef)
-
-                    # grad = param.grad.detach().clone()
-                    # clip_norm = torch.linalg.norm(grad, ord=2).item()
-                    # n_out, n_in = grad.shape[0], grad.shape[1]
-                    # noise_spec_approx = (math.sqrt(n_out) + math.sqrt(n_in)) * (sigma * clip_value)
-                    # denom = math.sqrt(clip_norm**2 + noise_spec_approx**2)
-
-
-                    # noise = torch.normal(mean=0, std=sigma*Cl,
-                    #                      size=param.grad.shape, device=param.grad.device,
-                    #                     )
-                    # param.grad += noise
-                    grad = param.grad
+                    grad = param.private_grad
+                    # grad = param.grad
 
                     lr_scale = 1.0
+                    dp_scale = args.bs / sigma
+   
                     if grad is not None and grad.ndim in (1, 2):
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
+                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                        # spec = (param.shape[0]**0.5 + param.shape[1]**0.5) * sigma
                         if grad.ndim == 2:
-                            lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
+                            if args.optimizer == 'SGD':
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 * dp_scale
+                            elif args.optimizer == 'Adam':
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5   
                         else:
-                            lr_scale = (param.shape[0]) ** 0.5 / spec
+                            if args.optimizer == 'SGD':
+                                lr_scale = (param.shape[0]) ** 0.5 # / spec
+                            elif args.optimizer == 'Adam':
+                                lr_scale = 1
+                            
                     group["lr"] = base_lr * lr_scale
 
 
                 optimizer.step()
                 optimizer.zero_grad()
 
-            train_loss += loss.item()
+            train_loss += loss.item() * n_acc_steps
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
@@ -175,7 +193,7 @@ def main(args):
 
     os.makedirs("/content/drive/MyDrive/DP_muP/logs", exist_ok=True)
     with open(args.log_path, "a") as f:
-        f.write(f"log2lr = {args.lr:.4f}, train_loss = {train_loss:.4f}, width = {args.bs}\n")
+        f.write(f"log2lr = {args.lr:.4f}, train_loss = {train_loss:.4f}, width = {args.width}, sigma = {args.noise}\n")
 
 
 if __name__ == '__main__':
@@ -189,11 +207,13 @@ if __name__ == '__main__':
     parser.add_argument('--bs', default=512, type=int, help='batch size')
     parser.add_argument('--mini_bs', type=int, default=512)
     parser.add_argument('--epsilon', default=2, type=float, help='target epsilon')
+    parser.add_argument('--noise', default=1, type=float, help='target sigma')
     parser.add_argument('--clipping_mode', default='BK-MixOpt', type=str)
     parser.add_argument('--clipping_style', default='layer-wise', nargs='+', type=str)
     parser.add_argument('--scale', default=1, type=int)
     parser.add_argument('--cifar_data', type=str, default='CIFAR10')
     parser.add_argument('--dimension', type=int, default=32)
+    parser.add_argument('--optimizer', type=str, default='SGD')
     parser.add_argument('--origin_params', nargs='+', default=None)
     parser.add_argument('--log_path', type=str, default='/content/drive/MyDrive/DP_muP/logs/MLP_Adam_DP_noise.txt',
                         help='Path to save training log')
