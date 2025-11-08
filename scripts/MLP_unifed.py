@@ -2,7 +2,7 @@
 
 import torch.nn as nn
 import torch.nn.functional as F
-form .logger import ExecutionLogger
+from .logger import ExecutionLogger
 
 
 class MLP(nn.Module):
