@@ -23,6 +23,6 @@ for wid in 512 1024 2048 4096; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffbs_clipping_only.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_clipping_only.txt"
   done
 done
