@@ -3,7 +3,7 @@
 PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
-LRS=(-9 -8.5 -8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5)
+LRS=(-8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5 -4)
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
