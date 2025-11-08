@@ -10,7 +10,7 @@ LRS=(-2 -1.5 -1 -0.5 0 0.5 1 1.5 2)
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-for BS in 2048 4096; do
+for BS in 256 512 1024; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width 4096 \
