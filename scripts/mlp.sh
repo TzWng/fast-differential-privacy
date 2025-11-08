@@ -17,7 +17,7 @@ for BS in 256 512 1024 2048 4096; do
       --lr "$lr" \
       --epochs 20 \
       --bs "$BS" \
-      --mini_bs "$BS" \
+      --mini_bs 256 \
       --epsilon 2 \
       --noise 0 \
       --clipping_mode BK-MixOpt \
