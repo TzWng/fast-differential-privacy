@@ -2,6 +2,7 @@
 
 import torch.nn as nn
 import torch.nn.functional as F
+form .logger import ExecutionLogger
 
 
 class MLP(nn.Module):
@@ -192,9 +193,8 @@ def main(args):
         if math.isnan(train_loss):
             break
 
-    os.makedirs("/content/drive/MyDrive/DP_muP/logs", exist_ok=True)
-    with open(args.log_path, "a") as f:
-        f.write(f"log2lr = {args.lr:.4f}, train_loss = {train_loss:.4f}, width = {args.width}, sigma = {args.noise}\n")
+    logger = ExecutionLogger(args.log_path)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, sigma=args.noise)
 
 
 if __name__ == '__main__':
