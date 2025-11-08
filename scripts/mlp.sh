@@ -8,7 +8,7 @@ LRS=(-16, -15.5, -15, -14.5, -14)
 
 for wid in 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
-    $PYTHON MLP_unifed.py \
+    python scripts/MLP_unifed.py \
       --width "$wid" \
       --lr "$lr" \
       --epochs 20 \
