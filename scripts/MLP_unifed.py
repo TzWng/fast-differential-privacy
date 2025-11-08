@@ -197,19 +197,21 @@ def main(args):
     logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, sigma=args.noise)
 
 
-import os
-import math
-import warnings
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision
-from tqdm import tqdm
-from fastDP import PrivacyEngine
-from opacus.accountants.utils import get_noise_multiplier
-from .logger import ExecutionLogger
-
+from fastDP import PrivacyEngine 
+import math, torch, os, torchvision 
+torch.manual_seed(2) 
+import torch.nn as nn 
+import torch.optim as optim 
+import torch.nn.functional as F 
+from torchvision import datasets, transforms 
+from opacus.validators import ModuleValidator 
+from opacus.accountants.utils 
+import get_noise_multiplier 
+from torch import nn 
+from tqdm import tqdm 
+import warnings; 
 warnings.filterwarnings("ignore")
+
 
 if __name__ == '__main__':
     import argparse
