@@ -197,18 +197,31 @@ def main(args):
     logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, sigma=args.noise)
 
 
+import os
+import math
+import warnings
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision
+from tqdm import tqdm
+from fastDP import PrivacyEngine
+from opacus.accountants.utils import get_noise_multiplier
+from .logger import ExecutionLogger
+
+warnings.filterwarnings("ignore")
+
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='PyTorch CIFAR Training')
     parser.add_argument('--width', default=256, type=int)
     parser.add_argument('--lr', default=0.0005, type=float, help='learning rate')
-    parser.add_argument('--epochs', default=20, type=int,
-                        help='numter of epochs')
-    parser.add_argument('--bs', default=512, type=int, help='batch size')
+    parser.add_argument('--epochs', default=20, type=int)
+    parser.add_argument('--bs', default=512, type=int)
     parser.add_argument('--mini_bs', type=int, default=512)
-    parser.add_argument('--epsilon', default=2, type=float, help='target epsilon')
-    parser.add_argument('--noise', default=1, type=float, help='target sigma')
+    parser.add_argument('--epsilon', default=2, type=float)
+    parser.add_argument('--noise', default=1, type=float)
     parser.add_argument('--clipping_mode', default='BK-ghost', type=str)
     parser.add_argument('--clipping_style', default='layer-wise', nargs='+', type=str)
     parser.add_argument('--scale', default=1, type=int)
@@ -216,29 +229,12 @@ if __name__ == '__main__':
     parser.add_argument('--dimension', type=int, default=32)
     parser.add_argument('--optimizer', type=str, default='SGD')
     parser.add_argument('--origin_params', nargs='+', default=None)
-    parser.add_argument('--log_path', type=str, default='/content/drive/MyDrive/DP_muP/logs/MLP_Adam_DP_noise.txt',
-                        help='Path to save training log')
+    parser.add_argument(
+        '--log_path',
+        type=str,
+        default='/content/drive/MyDrive/DP_muP/logs/MLP_Adam_DP_noise.txt',
+    )
 
     args = parser.parse_args()
-
-    from fastDP import PrivacyEngine
-
-    import math
-    import torch
-    import os
-    import torchvision
-
     torch.manual_seed(2)
-    import torch.nn as nn
-    import torch.optim as optim
-    import torch.nn.functional as F
-    from torchvision import datasets, transforms
-    from opacus.validators import ModuleValidator
-    from opacus.accountants.utils import get_noise_multiplier
-    from torch import nn
-    from tqdm import tqdm
-    import warnings;
-
-    warnings.filterwarnings("ignore")
-
     main(args)
