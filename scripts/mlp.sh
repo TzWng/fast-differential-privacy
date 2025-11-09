@@ -15,7 +15,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 for BS in 256 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
-      --width 4096 \
+      --width 1024 \
       --lr "$lr" \
       --epochs 20 \
       --bs "$BS" \
