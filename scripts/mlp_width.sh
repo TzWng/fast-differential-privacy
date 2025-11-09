@@ -1,3 +1,5 @@
+#!/bin/bash
+
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
