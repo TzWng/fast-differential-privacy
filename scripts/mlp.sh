@@ -33,3 +33,22 @@ for BS in 125 250 500 1000 2000; do
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_sig05.txt"
   done
 done
+
+# for BS in 256 512 1024 2048 4096 8192; do
+#   for lr in "${LRS[@]}"; do
+#     $PYTHON -m scripts.MLP_unifed \
+#       --width 4096 \
+#       --lr "$lr" \
+#       --epochs 20\
+#       --bs 2000 \
+#       --mini_bs 2000 \
+#       --epsilon 2 \
+#       --noise 0.5 \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer Adam \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_sig05.txt"
+#   done
+# done
