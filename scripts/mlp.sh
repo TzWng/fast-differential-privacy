@@ -7,22 +7,41 @@ LRS=(-8 -7.5 -7 -6.5 -6 -5.5 -5)
 # LRS=(-5 -4.5 -4 -3.5 -3 -2.5 -2 -1.5 -1 -0.5 0 0.5 1 1.5 2)
 # LRS=(-2 -1.5 -1 -0.5 0 0.5 1)
 # LRS=(-6 -5.5 -5 -4.5 -4 -3.5 -3)
-# LRS=(-4 -3.5 -3 -2.5 -2 -1.5 -1)
+LRS=(-4 -3.5 -3 -2.5 -2 -1.5 -1)
 # LRS=(1.5 2)
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-# for BS in 500 1000 2000; do
-#   epoch=$(( 5 * BS / 125 ))
+for BS in 125 250 500 1000 2000; do
+  epoch=$(( 5 * BS / 125 ))
+  for lr in "${LRS[@]}"; do
+    $PYTHON -m scripts.MLP_unifed \
+      --width 4096 \
+      --lr "$lr" \
+      --epochs "$epoch"\
+      --bs "$BS" \
+      --mini_bs "$BS" \
+      --epsilon 2 \
+      --noise 1 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffbs_sig10.txt"
+  done
+done
+
+# for wid in 512 1024 2048 4096 8192; do
 #   for lr in "${LRS[@]}"; do
 #     $PYTHON -m scripts.MLP_unifed \
-#       --width 4096 \
+#       --width "$wid" \
 #       --lr "$lr" \
-#       --epochs "$epoch"\
-#       --bs "$BS" \
-#       --mini_bs "$BS" \
+#       --epochs 20\
+#       --bs 2000 \
+#       --mini_bs 2000 \
 #       --epsilon 2 \
 #       --noise 0.5 \
 #       --clipping_mode BK-MixOpt \
@@ -30,25 +49,6 @@ export PYTHONPATH="$PROJECT_ROOT"
 #       --cifar_data CIFAR10 \
 #       --dimension 32 \
 #       --optimizer Adam \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_sig05.txt"
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwidth_sig05.txt"
 #   done
 # done
-
-for wid in 512 1024 2048 4096 8192; do
-  for lr in "${LRS[@]}"; do
-    $PYTHON -m scripts.MLP_unifed \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 20\
-      --bs 2000 \
-      --mini_bs 2000 \
-      --epsilon 2 \
-      --noise 0.5 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwidth_sig05.txt"
-  done
-done
