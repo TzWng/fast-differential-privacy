@@ -131,8 +131,6 @@ def main(args):
         total = 0
         eps = 1e-6
 
-        # optimizer.zero_grad()
-
         for batch_idx, (inputs, targets) in enumerate(tqdm(trainloader)):
             inputs, targets = inputs.to(device), targets.to(device)
             inputs = inputs.view(inputs.size(0), -1)
@@ -144,24 +142,19 @@ def main(args):
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
                 
-                # first clipping + noise
-                # optimizer.step()
-
-                
                 for group in optimizer.param_groups:
                     param = group["params"][0]
                     grad = param.private_grad
-                    # grad = param.grad
 
                     lr_scale = 1.0
                     dp_scale = args.bs / sigma
    
                     if grad is not None and grad.ndim in (1, 2):
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
+                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
                         # spec = (param.shape[0]**0.5 + param.shape[1]**0.5) * sigma
                         if grad.ndim == 2:
                             if args.optimizer == 'SGD':
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 # / spec
                             elif args.optimizer == 'Adam':
                                 # lr_scale = (param.shape[0] / param.shape[1]) ** 0.5   
                                 lr_scale = 1 / param.shape[1]  
@@ -172,7 +165,6 @@ def main(args):
                                 lr_scale = 1
                             
                     group["lr"] = base_lr * lr_scale
-
 
                 optimizer.step()
                 optimizer.zero_grad()
