@@ -15,7 +15,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 for BS in 125 250 500 1000 2000; do
-  epoch=$(( 10 * BS / 125 ))
+  epoch=$(( 5 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width 4096 \
@@ -29,7 +29,7 @@ for BS in 125 250 500 1000 2000; do
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_clipping_only.txt"
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffbs_clipping_only.txt"
   done
 done
