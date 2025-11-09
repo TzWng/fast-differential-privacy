@@ -4,13 +4,13 @@ PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
 LRS=(-7 -6.5 -6 -5.5 -5 -4.5 -4 -3.5)
-LRS=(-4.5 -4 -3.5)
+
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-for BS in 250 500 1000 2000; do
+for BS in 500 1000 2000; do
   epoch=$(( 5 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
