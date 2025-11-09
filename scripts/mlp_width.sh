@@ -1,4 +1,5 @@
 #!/bin/bash
+PYTHON=python3.10
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
