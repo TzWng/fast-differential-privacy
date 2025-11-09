@@ -14,7 +14,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-for BS in 125 250 500 1000 2000; do
+for BS in 250 500 1000 2000; do
   epoch=$(( 5 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
