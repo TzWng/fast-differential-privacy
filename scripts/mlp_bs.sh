@@ -3,16 +3,13 @@
 PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
-LRS=(-6 -5.5 -5 -4.5 -4 -3.5 -3)
-LRS=(-8 -7.5)
-LRS=(-6)
-
+LRS=(-5 -4.5 -4 -3.5 -3 -2.5 -2)
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-for BS in 1000; do
+for BS in 125 250 500 1000 2000; do
   epoch=$(( 5 * BS / 125 ))
   # ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
   for lr in "${LRS[@]}"; do
@@ -30,7 +27,7 @@ for BS in 1000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_sig10.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwidth_sig10.txt"
   done
 done
 
