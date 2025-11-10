@@ -141,8 +141,8 @@ def main(args):
                     if grad is not None:
                         if grad.ndim == 2:
                             lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
-                        elif grad.ndim == 1:
-                            lr_scale = (param.shape[0]) ** 0.5
+                        # elif grad.ndim == 1:
+                        #     lr_scale = (param.shape[0]) ** 0.5
 
                     group["lr"] = base_lr * lr_scale
 
