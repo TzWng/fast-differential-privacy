@@ -141,12 +141,20 @@ def main(args):
                         if grad.ndim == 2:
                             if not any(k in name for k in ["norm", "attn.qkv"]):
                                 out_dim, in_dim = param.shape
-                                lr_scale = (out_dim / in_dim) ** 0.5 * args.bs
+                                if args.optimizer == 'SGD':
+                                    lr_scale = (out_dim / in_dim) ** 0.5 * args.bs
+                                elif args.optimizer == 'Adam':
+                                    lr_scale = (out_dim / in_dim) ** 0.5
                             else:
                                 lr_scale = 1.0
                                 
                         elif grad.ndim == 1:
-                            lr_scale = (param.shape[0]) ** 0.5 * args.bs
+                            if args.optimizer == 'SGD':
+                                lr_scale = (param.shape[0]) ** 0.5 * args.bs
+                            elif args.optimizer == 'Adam':
+                                lr_scale = (param.shape[0]) ** 0.5
+                                
+                            
 
                             
                     group["lr"] = base_lr * lr_scale
