@@ -24,11 +24,12 @@ for s in 1 2 3 4 5; do
       --epsilon 2 \
       --noise 1 \
       --scale "$s" \
-      --clipping_mode BK-MixOpt \
+      # --clipping_mode BK-MixOpt \
+      --clipping_mode nonDP \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_sig10.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_nonDP.txt"
   done
 done
