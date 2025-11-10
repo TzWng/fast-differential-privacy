@@ -3,8 +3,7 @@
 PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
-LRS=(-14 -13.5 -13 -12.5 -12 -11.5 -11)
-LRS=(-10.5 -10)
+LRS=(-13 -12.5 -12 -11.5 -11 -10.5 -10)
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
@@ -28,7 +27,7 @@ for BS in 250 500 1000 2000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_sig10.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_sig10_new.txt"
   done
 done
 
