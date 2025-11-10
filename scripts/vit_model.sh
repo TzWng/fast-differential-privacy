@@ -13,16 +13,16 @@ MODELS=(
   vit_large_patch16_224
 )
 
-for model in "${MODELS[@]}"; do
+for s in 1 2 3 4 5; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.vit_unifed \
-      --model "$model" \
       --lr "$lr" \
       --epochs 3\
       --bs 200 \
       --mini_bs 200 \
       --epsilon 2 \
       --noise 1 \
+      --scale "$s" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
