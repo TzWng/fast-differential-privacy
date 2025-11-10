@@ -26,7 +26,7 @@ for model in "${MODELS[@]}"; do
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
-      --dimension 32 \
+      --dimension 224 \
       --optimizer SGD \
       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_sig10.txt"
   done
