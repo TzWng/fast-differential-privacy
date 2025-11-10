@@ -163,7 +163,7 @@ def main(args):
                             elif args.optimizer == 'Adam':
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5   
                                 # lr_scale = 1 / param.shape[1]  
-                        else:
+                        elif grad.ndim == 1:
                             if args.optimizer == 'SGD':
                                 lr_scale = (param.shape[0]) ** 0.5 # / spec
                             elif args.optimizer == 'Adam':
