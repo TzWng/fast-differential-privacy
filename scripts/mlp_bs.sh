@@ -12,12 +12,12 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 for BS in 125 250 500 1000 2000; do
   epoch=$(( 5 * BS / 125 ))
-  ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
+  # ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
   for lr in "${LRS[@]}"; do
-    scaled_lr=$(echo "$lr + $ratio" | bc -l)
+    # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_unifed \
       --width 4096 \
-      --lr "$scaled_lr" \
+      --lr "$lr" \
       --epochs "$epoch"\
       --bs "$BS" \
       --mini_bs "$BS" \
