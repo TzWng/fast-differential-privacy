@@ -5,7 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-3 -2.5 -2 -1.5 -1 -0.5 0)
-LRS=(-7 -6.5 -6 -5.5 -5 -4.5 -4)
+LRS=(-10 -9.5 -9 -8.5 -8 -7.5)
 
 MODELS=(
   vit_tiny_patch16_224
