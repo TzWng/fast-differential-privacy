@@ -4,6 +4,7 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
+# --clipping_mode BK-MixOpt \
 LRS=(-3 -2.5 -2 -1.5 -1)
 LRS=(-9 -8.5 -8 -7.5 -7)
 
@@ -24,11 +25,11 @@ for s in 1 2 3 4 5; do
       --epsilon 2 \
       --noise 1 \
       --scale "$s" \
-      --clipping_mode nonDP \
+      --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_nonDP.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_DP.txt"
   done
 done
