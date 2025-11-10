@@ -18,7 +18,7 @@ for BS in 125; do
   for lr in "${LRS[@]}"; do
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_unifed \
-      --width 512 \
+      --width 4096 \
       --lr "$lr" \
       --epochs "$epoch"\
       --bs "$BS" \
