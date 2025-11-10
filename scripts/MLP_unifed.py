@@ -78,8 +78,8 @@ def main(args):
     
     criterion = F.cross_entropy
 
-    bs_factor = np.log2(args.bs / 125)  # 125->0, 250->1, 500->2, ...
-    base_lr = 2 ** (args.lr - bs_factor)
+    # bs_factor = np.log2(args.bs / 125)  # 125->0, 250->1, 500->2, ...
+    # base_lr = 2 ** (args.lr - bs_factor)
     base_lr = 2 ** args.lr
 
     param_groups = [
@@ -161,8 +161,8 @@ def main(args):
                             if args.optimizer == 'SGD':
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 # / spec
                             elif args.optimizer == 'Adam':
-                                # lr_scale = (param.shape[0] / param.shape[1]) ** 0.5   
-                                lr_scale = 1 / param.shape[1]  
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5   
+                                # lr_scale = 1 / param.shape[1]  
                         else:
                             if args.optimizer == 'SGD':
                                 lr_scale = (param.shape[0]) ** 0.5 # / spec
