@@ -11,7 +11,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-for BS in 2000; do
+for BS in 125 250 500 1000; do
   epoch=$(( 5 * BS / 125 ))
   # ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
   for lr in "${LRS[@]}"; do
