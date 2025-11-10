@@ -7,6 +7,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 # --clipping_mode BK-MixOpt \
 LRS=(-3.5 -3 -2.5 -2 -1.5 -1)
 # LRS=(-12 -11.5 -11 -10.5 -10)
+LRS=(-6 -5.5 -5 -4.5 -4)
 
 MODELS=(
   vit_tiny_patch16_224
