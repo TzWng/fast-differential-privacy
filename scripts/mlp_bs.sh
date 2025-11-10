@@ -5,14 +5,14 @@ BS=1024  # 你要的 batch size
 
 LRS=(-13 -12.5 -12 -11.5 -11 -10.5 -10)
 LRS=(-9.5 -9)
-LRS=(-8.5 -8)
-# LRS=(-8.5 -8 -7.5 -7)
+# LRS=(-8.5 -8)
+LRS=(-8.5 -8 -7.5 -7 -6.5)
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-for BS in 1000; do
+for BS in 2000; do
   epoch=$(( 5 * BS / 125 ))
   # ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
   for lr in "${LRS[@]}"; do
