@@ -207,7 +207,7 @@ if __name__ == "__main__":
     parser.add_argument("--clipping_style", nargs="+", type=str, default="layer-wise")
     parser.add_argument('--scale', default=1, type=float)
     parser.add_argument("--cifar_data", type=str, default="CIFAR10")
-    parser.add_argument("--dimension", type=int, default=32)
+    parser.add_argument("--dimension", type=int, default=224)
     parser.add_argument("--optimizer", type=str, default="Adam")
     parser.add_argument("--origin_params", nargs="+", default=None)
     parser.add_argument(
