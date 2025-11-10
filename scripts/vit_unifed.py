@@ -135,22 +135,16 @@ def main(args):
                     param = group["params"][0]
                     grad = param.private_grad
                     lr_scale = 1.0
-                  
+
                     if grad is not None and grad.ndim in (1, 2):
-                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
-                        # print("spectral norm is", spec)
-                        # spec = (param.shape[0]**0.5 + param.shape[1]**0.5) * sigma
                         if grad.ndim == 2:
-                            if args.optimizer == 'SGD':
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 # / spec
-                            elif args.optimizer == 'Adam':
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5   
-                                # lr_scale = 1 / param.shape[1]  
-                        else:
-                            if args.optimizer == 'SGD':
-                                lr_scale = (param.shape[0]) ** 0.5 # / spec
-                            elif args.optimizer == 'Adam':
+                            if not any(k in name for k in ["norm", "attn.qkv"]):
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 
+                            else:
                                 lr_scale = (param.shape[0]) ** 0.5
+                        else:
+                            lr_scale = 1.0
+
                             
                     group["lr"] = base_lr * lr_scale
 
