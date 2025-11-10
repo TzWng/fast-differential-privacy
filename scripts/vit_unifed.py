@@ -58,7 +58,7 @@ def main(args):
     print('==> Building model..', args.model, '; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
     net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
                             embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
-    # net.apply(kaiming_init_weights)
+    net.apply(kaiming_init_weights)
     net = ModuleValidator.fix(net)
     net = net.to(device)
 
