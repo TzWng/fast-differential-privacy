@@ -4,8 +4,8 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-# LRS=(-2 -1.5 -1 -0.5 0)
-LRS=(-16 -15.5 -15 -14.5 -14 -13.5 -13)
+
+LRS=(-13 -12.5 -12 -11.5 -11 -10.5 -10)
 
 MODELS=(
   vit_tiny_patch16_224
