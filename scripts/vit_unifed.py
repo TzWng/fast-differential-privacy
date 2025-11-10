@@ -173,7 +173,7 @@ def main(args):
             break
 
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, model=args.model, batch=args.bs, sigma=args.noise)
 
 
 
@@ -197,7 +197,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, default="vit_tiny_patch16_224")
-    parser.add_argument("--width", type=int, default=256)
     parser.add_argument("--lr", type=float, default=-11.0)  # 和你画图保持一致
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--bs", type=int, default=512)
@@ -205,7 +204,6 @@ if __name__ == "__main__":
     parser.add_argument("--epsilon", type=float, default=2.0)
     parser.add_argument("--clipping_mode", type=str, default="BK-ghost")
     parser.add_argument("--clipping_style", nargs="+", type=str, default="layer-wise")
-    parser.add_argument("--scale", type=int, default=1)
     parser.add_argument("--cifar_data", type=str, default="CIFAR10")
     parser.add_argument("--dimension", type=int, default=32)
     parser.add_argument("--optimizer", type=str, default="Adam")
