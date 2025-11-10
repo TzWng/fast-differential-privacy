@@ -178,7 +178,7 @@ def main(args):
 
 
 from fastDP import PrivacyEngine 
-import math, torch, os, torchvision 
+import math, torch, os, torchvision, timm
 torch.manual_seed(2) 
 import torch.nn as nn 
 import torch.optim as optim 
