@@ -135,7 +135,8 @@ def main(args):
                     param = group["params"][0]
                     grad = param.grad
                     lr_scale = 1.0
-
+                    
+                    name = group.get("name", "")
                     if grad is not None and grad.ndim in (1, 2):
                         if grad.ndim == 2:
                             if not any(k in name for k in ["norm", "attn.qkv"]):
