@@ -28,7 +28,7 @@ for BS in 250 500 1000 2000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_sig10_new.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_sig10.txt"
   done
 done
 
