@@ -25,7 +25,7 @@ for s in 1 2 3 4 5; do
       --noise 1 \
       --scale "$s" \
       --clipping_mode BK-MixOpt \
-      --clipping_mode nonDP \
+      # --clipping_mode nonDP \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 224 \
