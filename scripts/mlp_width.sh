@@ -4,9 +4,9 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-2.5 -3 -3.5 -4)
+LRS=(-7 -6.5 -6 -5.5 -5 -4.5 -4)
 
-for wid in 1024 2048 4096; do
+for wid in 256 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
@@ -20,7 +20,7 @@ for wid in 1024 2048 4096; do
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_sig10.txt"
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwidth_sig10.txt"
   done
 done
