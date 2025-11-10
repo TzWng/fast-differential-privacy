@@ -3,6 +3,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from .logger import ExecutionLogger
+import numpy as np
 
 
 class MLP(nn.Module):
@@ -77,7 +78,9 @@ def main(args):
     
     criterion = F.cross_entropy
 
-    base_lr = 2 ** args.lr
+    bs_factor = np.log2(args.bs / 125)  # 125->0, 250->1, 500->2, ...
+    base_lr = 2 ** (args.lr + bs_factor)
+
     param_groups = [
         {"params": [p], "lr": base_lr, "name": n}
         for n, p in net.named_parameters()
