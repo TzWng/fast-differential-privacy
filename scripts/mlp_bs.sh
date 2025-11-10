@@ -29,8 +29,8 @@ for BS in 1000; do
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/temp.txt"
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_sig10.txt"
   done
 done
 
