@@ -41,16 +41,16 @@ def main(args):
             if m.bias is not None:
                 nn.init.zeros_(m.bias)
 
-    def kaiming_init_weights(m):
-        if isinstance(m, nn.Linear):
-            if m is net.head:
-                nn.init.zeros_(m.weight)
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
-            else:
-                nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
+    # def kaiming_init_weights(m):
+    #     if isinstance(m, nn.Linear):
+    #         if m is net.head:
+    #             nn.init.zeros_(m.weight)
+    #             if m.bias is not None:
+    #                 nn.init.zeros_(m.bias)
+    #         else:
+    #             nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
+    #             if m.bias is not None:
+    #                 nn.init.zeros_(m.bias)
 
 
 
