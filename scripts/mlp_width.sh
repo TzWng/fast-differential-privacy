@@ -4,9 +4,9 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-0.5 0 -2.5 -3 -3.5 -4)
+LRS=(-2.5 -3 -3.5 -4)
 
-for wid in 8192; do
+for wid in 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
