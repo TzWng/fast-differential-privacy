@@ -104,7 +104,7 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=sigma,
+            noise_multiplier=args.noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
             clipping_style=args.clipping_style,
