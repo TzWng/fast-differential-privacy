@@ -78,8 +78,8 @@ def main(args):
     
     criterion = F.cross_entropy
 
-    # bs_factor = np.log2(args.bs / 125)  # 125->0, 250->1, 500->2, ...
-    # base_lr = 2 ** (args.lr + bs_factor)
+    bs_factor = np.log2(args.bs / 125)  # 125->0, 250->1, 500->2, ...
+    base_lr = 2 ** (args.lr - bs_factor)
     base_lr = 2 ** args.lr
 
     param_groups = [
