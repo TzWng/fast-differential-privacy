@@ -30,6 +30,6 @@ for s in 1 2 3 4 5; do
       --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_DP.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_SP.txt"
   done
 done
