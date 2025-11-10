@@ -131,30 +131,30 @@ def main(args):
             loss.backward()
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
-                # for group in optimizer.param_groups:
-                #     param = group["params"][0]
-                #     grad = param.grad
-                #     lr_scale = 1.0
+                for group in optimizer.param_groups:
+                    param = group["params"][0]
+                    grad = param.grad
+                    lr_scale = 1.0
                     
-                #     name = group.get("name", "")
-                #     if grad is not None:
-                #         if grad.ndim == 2:
-                #             # if not any(k in name for k in ["norm", "attn.qkv"]):
-                #             out_dim, in_dim = param.shape
-                #             if args.optimizer == 'SGD':
-                #                 lr_scale = (out_dim / in_dim) ** 0.5 * args.bs
-                #             elif args.optimizer == 'Adam':
-                #                 lr_scale = (out_dim / in_dim) ** 0.5
-                #             # else:
-                #             #     lr_scale = 1.0
+                    name = group.get("name", "")
+                    if grad is not None:
+                        if grad.ndim == 2:
+                            # if not any(k in name for k in ["norm", "attn.qkv"]):
+                            out_dim, in_dim = param.shape
+                            if args.optimizer == 'SGD':
+                                lr_scale = (out_dim / in_dim) ** 0.5 * args.bs
+                            elif args.optimizer == 'Adam':
+                                lr_scale = (out_dim / in_dim) ** 0.5
+                            # else:
+                            #     lr_scale = 1.0
                                 
-                #         elif grad.ndim == 1:
-                #             if args.optimizer == 'SGD':
-                #                 lr_scale = (param.shape[0]) ** 0.5 * args.bs
-                #             elif args.optimizer == 'Adam':
-                #                 lr_scale = (param.shape[0]) ** 0.5
+                        elif grad.ndim == 1:
+                            if args.optimizer == 'SGD':
+                                lr_scale = (param.shape[0]) ** 0.5 * args.bs
+                            elif args.optimizer == 'Adam':
+                                lr_scale = (param.shape[0]) ** 0.5
                             
-                #     group["lr"] = base_lr * lr_scale
+                    group["lr"] = base_lr * lr_scale
 
                 optimizer.step()
                 optimizer.zero_grad()
