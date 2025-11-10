@@ -4,8 +4,7 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-2.5 -3 -3.5)
-LRS=(-0.5 0 0.5)
+LRS=(-2.5 -3 -3.5 -4)
 
 for wid in 8192; do
   for lr in "${LRS[@]}"; do
