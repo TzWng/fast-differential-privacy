@@ -4,8 +4,8 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-3 -2.5 -2 -1.5 -1 -0.5 0)
-LRS=(-10 -9.5 -9 -8.5 -8 -7.5)
+LRS=(-2 -1.5 -1 -0.5 0)
+# LRS=(-10 -9.5 -9 -8.5 -8 -7.5)
 
 MODELS=(
   vit_tiny_patch16_224
@@ -19,8 +19,8 @@ for s in 1 2 3 4 5; do
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
       --epochs 3\
-      --bs 500 \
-      --mini_bs 500 \
+      --bs 200 \
+      --mini_bs 200 \
       --epsilon 2 \
       --noise 1 \
       --scale "$s" \
@@ -28,8 +28,8 @@ for s in 1 2 3 4 5; do
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 224 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_Adam_diffwidth_sig10.txt"
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_sig10.txt"
   done
 done
 
