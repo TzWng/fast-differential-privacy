@@ -202,6 +202,7 @@ if __name__ == "__main__":
     parser.add_argument("--bs", type=int, default=512)
     parser.add_argument("--mini_bs", type=int, default=512)
     parser.add_argument("--epsilon", type=float, default=2.0)
+    parser.add_argument('--noise', default=1, type=float)
     parser.add_argument("--clipping_mode", type=str, default="BK-ghost")
     parser.add_argument("--clipping_style", nargs="+", type=str, default="layer-wise")
     parser.add_argument("--cifar_data", type=str, default="CIFAR10")
