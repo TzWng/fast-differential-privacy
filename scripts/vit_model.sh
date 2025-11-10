@@ -19,8 +19,8 @@ for s in 1 2 3 4 5; do
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
       --epochs 3\
-      --bs 200 \
-      --mini_bs 200 \
+      --bs 500 \
+      --mini_bs 500 \
       --epsilon 2 \
       --noise 1 \
       --scale "$s" \
