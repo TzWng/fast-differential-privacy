@@ -177,27 +177,20 @@ def main(args):
                     name = group.get("name", "")
                     param = group["params"][0]
                     grad = param.private_grad
-                    lr_scale = 1.0
-                    if param.shape[0] == 10:
-                        group["lr"] = base_lr
-                        continue
+                    lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):
                         spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
                         # print("spectral norm is", spec)
                         # spec = (param.shape[0]**0.5 + param.shape[1]**0.5) * args.noise / args.bs
                         # print("Approximate norm is", spec)
-                        if grad.ndim == 2:
-                            if args.optimizer == 'SGD':
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
-                            elif args.optimizer == 'Adam':
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
-                                # lr_scale = 1 / param.shape[1]  
+                        if param.shape[0] == 10:
+                            lr_scale = (1/ param.shape[1]) ** 0.5 / spec
+                        elif grad.ndim == 2:
+                            lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
                         elif grad.ndim == 1:
-                            if args.optimizer == 'SGD':
-                                lr_scale = (param.shape[0]) ** 0.5 / spec
-                            elif args.optimizer == 'Adam':
-                                lr_scale = 1
+                            lr_scale = (param.shape[0]) ** 0.5 / spec
+
                             
                     group["lr"] = base_lr * lr_scale
 
