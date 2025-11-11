@@ -23,6 +23,6 @@ for wid in 256 512 1024 2048 4096; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_sig10.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio.txt"
   done
 done
