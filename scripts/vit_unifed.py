@@ -1,6 +1,7 @@
 '''Train CIFAR10/CIFAR100 with PyTorch.'''
 from .logger import ExecutionLogger
 import numpy as np
+import torch.nn.functional as F
 
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
@@ -65,7 +66,8 @@ def main(args):
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
 
-    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss()
+    criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
     param_groups = [
@@ -127,7 +129,7 @@ def main(args):
 
             # forward + loss
             outputs = net(inputs)
-            loss = criterion(outputs, targets)
+            loss = criterion(outputs, targets) / n_acc_steps
             loss.backward()
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
@@ -139,9 +141,11 @@ def main(args):
                     name = group.get("name", "")
                     lr_scale = 1.0
                     if any(k in name for k in ["norm", "bias", "pos_embed", "cls_token"]):
-                        lr_scale = 1.0
+                        lr_scale = 1.0  
                     else:
                         if grad is not None and grad.ndim in (1, 2):
+                            spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
+                            print("spectral norm is", spec)
                             if grad.ndim == 2:
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
                             elif grad.ndim == 1:
@@ -168,7 +172,7 @@ def main(args):
             break
 
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=192*args.scale, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=int(192*args.scale), batch=args.bs, sigma=args.noise)
 
 
 
