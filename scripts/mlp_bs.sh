@@ -25,6 +25,6 @@ for BS in 125 250 500 1000 2000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffbs_truenorm_sig10.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffbs_truenorm_sig10_1.txt"
   done
 done
