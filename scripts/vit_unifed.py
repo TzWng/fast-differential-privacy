@@ -134,12 +134,11 @@ def main(args):
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
                 for group in optimizer.param_groups:
+                    name = group.get("name", "")
                     param = group["params"][0]
                     grad = param.grad
                     lr_scale = 1.0
                     
-                    name = group.get("name", "")
-                    lr_scale = 1.0
                     if any(k in name for k in ["head", "norm", "bias", "pos_embed", "cls_token"]):
                         lr_scale = 1.0  
                     else:
