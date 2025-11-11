@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-7 -6.5 -6 -5.5 -5) # SGD
 
-for wid in 512 1024 2048 4096; do
+for wid in 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr"
     $PYTHON -m scripts.MLP_unifed \
