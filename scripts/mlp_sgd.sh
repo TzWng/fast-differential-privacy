@@ -8,6 +8,7 @@ LRS=(-8 -7.5 -7 -6.5 -6 -5.5) # SGD
 
 for wid in 256 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
+    echo "Running width=$wid, lr=$lr"
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
       --lr "$lr" \
