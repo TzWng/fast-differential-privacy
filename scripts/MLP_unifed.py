@@ -184,7 +184,7 @@ def main(args):
                    
                     if grad is not None and grad.ndim in (1, 2):
                         spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                        print("spectral norm is", spec)
+                        # print("spectral norm is", spec)
                         # spec = (param.shape[0]**0.5 + param.shape[1]**0.5) * args.noise / args.bs
                         # print("Approximate norm is", spec)
                         if grad.ndim == 2:
