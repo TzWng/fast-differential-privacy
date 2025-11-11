@@ -27,4 +27,3 @@ for wid in 512 1024 2048 4096; do
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_sig10.txt"
   done
 done
-512 1024 2048 4096 8192
