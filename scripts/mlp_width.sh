@@ -7,9 +7,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 LRS=(-13 -12.5 -12 -11.5 -11)
 # LRS=(-13)
 LRS=(-16.5 -16 -15.5)
-LRS=(-3)
+LRS=(-7 -6 -5)
 
-for wid in 512 1024 2048 4096; do
+for wid in 256 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
@@ -24,6 +24,6 @@ for wid in 512 1024 2048 4096; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_sig10.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/temp_1.txt"
   done
 done
