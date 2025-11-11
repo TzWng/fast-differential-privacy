@@ -7,7 +7,7 @@ BS=1024  # 你要的 batch size
 
 LRS=(-4)
 
-for BS in 125 do
+for BS in 125; do
   epoch=$(( 5 * BS / 125 ))
   # ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
   for lr in "${LRS[@]}"; do
