@@ -58,7 +58,7 @@ def main(args):
     print('==> Building model..', args.model, '; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
     net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
                             embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
-    # net.apply(kaiming_init_weights)
+    net.apply(kaiming_init_weights)
     net = ModuleValidator.fix(net)
     net = net.to(device)
 
@@ -131,23 +131,23 @@ def main(args):
             loss.backward()
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
-                # for group in optimizer.param_groups:
-                #     param = group["params"][0]
-                #     grad = param.grad
-                #     lr_scale = 1.0
+                for group in optimizer.param_groups:
+                    param = group["params"][0]
+                    grad = param.grad
+                    lr_scale = 1.0
                     
-                #     name = group.get("name", "")
-                #     lr_scale = 1.0
-                #     if any(k in name for k in ["norm", "bias", "pos_embed", "cls_token"]):
-                #         lr_scale = 1.0
-                #     else:
-                #         if grad is not None and grad.ndim in (1, 2):
-                #             if grad.ndim == 2:
-                #                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
-                #             elif grad.ndim == 1:
-                #                 lr_scale = (param.shape[0]) ** 0.5
+                    name = group.get("name", "")
+                    lr_scale = 1.0
+                    if any(k in name for k in ["norm", "bias", "pos_embed", "cls_token"]):
+                        lr_scale = 1.0
+                    else:
+                        if grad is not None and grad.ndim in (1, 2):
+                            if grad.ndim == 2:
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
+                            elif grad.ndim == 1:
+                                lr_scale = (param.shape[0]) ** 0.5
 
-                #     group["lr"] = base_lr * lr_scale
+                    group["lr"] = base_lr * lr_scale
 
                 optimizer.step()
                 optimizer.zero_grad()
