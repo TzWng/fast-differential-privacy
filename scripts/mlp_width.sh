@@ -8,7 +8,7 @@ LRS=(-13 -12.5 -12 -11.5 -11)
 # LRS=(-13)
 LRS=(-15 -14.5 -14 -13.5 -13)
 
-for wid in 256 512 1024 2048 4096; do
+for wid in 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
