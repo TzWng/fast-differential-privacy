@@ -5,9 +5,10 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-7 -7.5) # SGD
-LRS=(-17 -16.5 -15.5 -14.5 -13.5) # Adam
 
-for wid in 256; do
+LRS=(-16.5 -16 -15.5 -15 -14.5 -14 -13.5) # Adam
+
+for wid in 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
@@ -26,9 +27,10 @@ for wid in 256; do
   done
 done
 
-LRS=(-17 16.5 -16 -15.5 -15 -14.5 -14 -13.5) # Adam
 
-for wid in 512 1024 2048 4096; do
+LRS=(-17 -16.5 -16 -15.5 -15 -14.5 -14 -13.5) # Adam
+
+for wid in 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
