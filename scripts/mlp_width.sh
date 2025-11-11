@@ -7,7 +7,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 LRS=(-13 -12.5 -12 -11.5 -11)
 # LRS=(-13)
 LRS=(-16.5 -16 -15.5)
-LRS=(-7 -6 -5)
+LRS=(-7 -6 -5 -4)
 
 for wid in 256 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
@@ -24,6 +24,6 @@ for wid in 256 512 1024 2048 4096; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/temp_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/mlp_true.txt"
   done
 done
