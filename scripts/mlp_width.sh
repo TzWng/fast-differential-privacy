@@ -5,7 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-7 -7.5) # SGD
-LRS=(-10 -9 -8 -7 -6) # Adam
+LRS=(-16 -15 -14 -13 -12) # Adam
 
 for wid in 256 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
