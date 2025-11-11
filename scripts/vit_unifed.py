@@ -140,7 +140,7 @@ def main(args):
                     
                     name = group.get("name", "")
                     lr_scale = 1.0
-                    if any(k in name for k in ["norm", "bias", "pos_embed", "cls_token"]):
+                    if any(k in name for k in ["head", "norm", "bias", "pos_embed", "cls_token"]):
                         lr_scale = 1.0  
                     else:
                         if grad is not None and grad.ndim in (1, 2):
