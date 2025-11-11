@@ -7,6 +7,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 # --clipping_mode BK-MixOpt \
 LRS=(-3 -2.5 -2 -1.5 -1)
 # LRS=(-12 -11.5 -11 -10.5 -10)
+LRS=(-5.5 -5 -4.5 -4 -3.5 -3 -2.5)
 
 
 MODELS=(
@@ -31,6 +32,6 @@ for s in 1 2 3 4 5; do
       --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_DP.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_SP.txt"
   done
 done
