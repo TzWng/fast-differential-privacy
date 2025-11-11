@@ -184,12 +184,10 @@ def main(args):
                         continue
                    
                     if grad is not None and grad.ndim in (1, 2):
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
+                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
                         print("spectral norm is", spec)
-                        spec = torch.linalg.norm(param.grad, ord=2).clamp(min=eps)
-                        print("grad norm is", spec)
-                        spec = (param.shape[0]**0.5 + param.shape[1]**0.5) * args.noise / args.bs
-                        print("Approximate norm is", spec)
+                        # spec = (param.shape[0]**0.5 + param.shape[1]**0.5) * args.noise / args.bs
+                        # print("Approximate norm is", spec)
                         if grad.ndim == 2:
                             if args.optimizer == 'SGD':
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
