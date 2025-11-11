@@ -15,8 +15,8 @@ for wid in 256; do
       --width "$wid" \
       --lr "$lr" \
       --epochs 20\
-      --bs 1000 \
-      --mini_bs 1000 \
+      --bs 500 \
+      --mini_bs 500 \
       --epsilon 2 \
       --noise 0 \
       --clipping_mode BK-MixOpt \
