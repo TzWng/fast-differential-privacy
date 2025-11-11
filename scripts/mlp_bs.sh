@@ -10,8 +10,8 @@ LRS=(-4)
 for BS in 125 do
   epoch=$(( 5 * BS / 125 ))
   # ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
-  echo "Running BS=$BS, lr=$lr" 
   for lr in "${LRS[@]}"; do
+    echo "Running BS=$BS, lr=$lr" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_unifed \
       --width 1024 \
@@ -36,8 +36,8 @@ LRS=(-6 -5.5 -5 -4.5 -4)
 for BS in 250 500 1000 2000; do
   epoch=$(( 5 * BS / 125 ))
   # ratio=$(echo "scale=6; x = $BS/125; l(x)/l(2)" | bc -l)
-  echo "Running BS=$BS, lr=$lr" 
   for lr in "${LRS[@]}"; do
+    echo "Running BS=$BS, lr=$lr" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_unifed \
       --width 1024 \
