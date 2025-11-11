@@ -25,7 +25,7 @@ for s in 2 3 4 5; do
       --bs 200 \
       --mini_bs 200 \
       --epsilon 2 \
-      --noise 1 \
+      --noise 2 \
       --scale "$s" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
