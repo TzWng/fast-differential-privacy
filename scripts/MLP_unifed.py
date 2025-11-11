@@ -178,9 +178,8 @@ def main(args):
                     param = group["params"][0]
                     grad = param.private_grad
                     lr_scale = 1.0
-                    if any(k in name for k in ["head", "fc_3"]):
-                        lr_scale = 1.0
-                        group["lr"] = base_lr * lr_scale
+                    if param.shape[0] == 10:
+                        group["lr"] = base_lr
                         continue
                    
                     if grad is not None and grad.ndim in (1, 2):
