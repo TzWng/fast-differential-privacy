@@ -4,7 +4,7 @@ PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
 
-LRS=(-8 -7.5 -7 -6.5 -6)
+LRS=(-5.5 -5 -4.5 -4)
 
 for BS in 125 250 500 1000 2000; do
   epoch=$(( 5 * BS / 125 ))
