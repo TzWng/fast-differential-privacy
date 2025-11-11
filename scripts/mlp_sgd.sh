@@ -4,9 +4,9 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-6.5 -6 -5.5) # SGD
+LRS=(-8 -7.5 -7 -6.5 -6) # SGD
 
-for wid in 2048; do
+for wid in 128; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print sqrt(128.0/$wid)*16}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
