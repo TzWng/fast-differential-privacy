@@ -5,6 +5,33 @@ import torch.nn.functional as F
 from .logger import ExecutionLogger
 import numpy as np
 
+# class MLP(nn.Module):
+#     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
+#         super(MLP, self).__init__()
+#         self.nonlin = nonlin
+#         self.input_mult = input_mult
+#         self.output_mult = output_mult
+#         self.fc_1 = nn.Linear(input_dim, width, bias=False)
+#         self.fc_2 = nn.Linear(width, width, bias=False)
+#         self.fc_3 = nn.Linear(width, width, bias=False)
+#         self.fc_4 = nn.Linear(width, num_classes, bias=False) 
+#         self.reset_parameters()
+
+#     def reset_parameters(self):
+#         nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
+#         self.fc_1.weight.data /= self.input_mult**0.5
+#         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
+#         nn.init.kaiming_normal_(self.fc_3.weight, a=1, mode='fan_in')
+#         nn.init.zeros_(self.fc_4.weight)
+
+#     def forward(self, x):
+#         if x.dim() > 2:
+#             x = x.view(x.size(0), -1)
+#         out = self.nonlin(self.fc_1(x) * self.input_mult**0.5)
+#         out = self.nonlin(self.fc_2(out))
+#         out = self.nonlin(self.fc_3(out))
+#         return self.fc_4(out) * self.output_mult
+
 
 class MLP(nn.Module):
     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
@@ -147,12 +174,15 @@ def main(args):
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
                 
                 for group in optimizer.param_groups:
+                    name = group.get("name", "")
                     param = group["params"][0]
                     grad = param.private_grad
-
                     lr_scale = 1.0
-                    dp_scale = args.bs / sigma
-   
+                    if any(k in name for k in ["head", "fc_3"]):
+                        lr_scale = 1.0
+                        group["lr"] = base_lr * lr_scale
+                        continue
+                   
                     if grad is not None and grad.ndim in (1, 2):
                         # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
                         # print("spectral norm is", spec)
