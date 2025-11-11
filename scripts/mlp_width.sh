@@ -8,14 +8,15 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-7.5 -7 -6.5 -6 -5.5) # SGD
 
-for wid in 512 1024 2048 4096; do
+for wid in 128 512 1152 2048; do
   for lr in "${LRS[@]}"; do
-    sig=$(awk "BEGIN {print sqrt(256.0/$wid)}")
-    echo "Running width=$wid, lr=$lr, noise=$sig"
+    sig=$(awk "BEGIN {print sqrt(128.0/$wid)}")
+    dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
     $PYTHON -m scripts.MLP_unifed \
       --width "$wid" \
       --lr "$lr" \
-      --epochs 20\
+      --epochs 20 \
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
@@ -23,8 +24,9 @@ for wid in 512 1024 2048 4096; do
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
-      --dimension 32 \
+      --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio_1_${wid}_${lr}.txt"
   done
 done
+
