@@ -6,7 +6,7 @@ BS=1024  # 你要的 batch size
 LRS=(-12.5 -12 -11.5 -11 -10.5 -10 -9.5 -9 -8.5 -7.5)
 LRS=(-9.8) # 500
 LRS=(-6 -11 -11.5 -12) #2000
-LRS=(-9 -8.5 -8 -7.5)
+LRS=(-10 -9 -8 -7 -6)
 
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
@@ -18,7 +18,7 @@ for BS in 125 250 500 1000 2000; do
   for lr in "${LRS[@]}"; do
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_unifed \
-      --width 4096 \
+      --width 1024 \
       --lr "$lr" \
       --epochs "$epoch"\
       --bs "$BS" \
