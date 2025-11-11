@@ -15,7 +15,7 @@ MODELS=(
 
 LRS=(-4.5 -4 -3.5 -3 -2.5 -2)
 # LRS=(-12 -11.5 -11 -10.5 -10)
-# LRS=(-4 -3.5 -3 -2.5 -2)
+LRS=(-4 -3.5 -3 -2.5 -2)
 
 for s in 1 2 3 4 5; do
   for lr in "${LRS[@]}"; do
@@ -32,6 +32,6 @@ for s in 1 2 3 4 5; do
       --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_DP.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_diffwidth_truenorm_sig10.txt"
   done
 done
