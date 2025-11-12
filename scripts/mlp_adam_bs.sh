@@ -13,7 +13,7 @@ for BS in 125 250 500 1000 2000; do
     $PYTHON -m scripts.MLP_unifed \
       --width 512 \
       --lr "$lr" \
-      --epochs 20 \
+      --epochs "$epoch" \
       --bs "$BS" \
       --mini_bs "$BS" \
       --epsilon 2 \
