@@ -29,7 +29,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 #288 512 1152 2048 3200 4608
 LRS=(-14 -13.5 -13 -12.5)
-for wid in 288 512; do
+for wid in 128 1152; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print 128.0/$wid*3.0}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
