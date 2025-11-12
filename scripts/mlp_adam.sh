@@ -47,6 +47,6 @@ for wid in 288 512 1152 2048 3200 4608; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwidth_truenorm_ratio.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwidth_truenorm_ratio_1.txt"
   done
 done
