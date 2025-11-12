@@ -5,9 +5,9 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-7.5 -8) # SGD
+LRS=(-8 -7.5 -7 -6.5 -5 -5.5 -5 -4.5 -4 -3.5) # SGD
 
-for wid in 2048 3200 4608; do
+for wid in 288; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
@@ -25,7 +25,7 @@ for wid in 2048 3200 4608; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio_temp.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio_1.txt"
   done
 done
 
