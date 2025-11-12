@@ -12,7 +12,7 @@ for sig in 2 4 8 16; do
     $PYTHON -m scripts.MLP_unifed \
       --width 256 \
       --lr "$lr" \
-      --epochs "$epoch"\
+      --epochs 20\
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
