@@ -4,9 +4,9 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-12 -11.5 -11 -10.5 -10)
+LRS=(-12.5 -13 -13.5 -14)
 
-for BS in 250 500 1000 2000; do
+for BS in 125 250 500 1000 2000; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print 2*$BS/125.0}")
@@ -24,7 +24,7 @@ for BS in 250 500 1000 2000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_truenorm.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_truenorm_1.txt"
   done
 done
 
