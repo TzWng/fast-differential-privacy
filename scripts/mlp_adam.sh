@@ -28,8 +28,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 #288 512 1152 2048 3200 4608
-LRS=(-15.5 -15 -14.5 -14)
-for wid in 512 1152 2048 3200 4608; do
+LRS=(-16 -15.5 -15 -14.5)
+for wid in 1152 2048 3200 4608; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
