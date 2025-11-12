@@ -1,3 +1,9 @@
+#!/bin/bash
+PYTHON=python3.10
+
+PROJECT_ROOT=/content/fast-differential-privacy
+export PYTHONPATH="$PROJECT_ROOT"
+
 LRS=(-14 -13.5 -13 -12.5)
 
 for BS in 125 250 500 1000 2000; do
