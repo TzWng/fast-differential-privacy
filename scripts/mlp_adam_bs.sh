@@ -11,7 +11,7 @@ for BS in 125 250 500 1000 2000; do
   for lr in "${LRS[@]}"; do
     echo "Running BS=$BS, lr=$lr, epoch=$epoch" 
     $PYTHON -m scripts.MLP_unifed \
-      --width 512 \
+      --width 256 \
       --lr "$lr" \
       --epochs "$epoch" \
       --bs "$BS" \
