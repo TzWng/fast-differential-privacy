@@ -4,7 +4,7 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-14 -13.5 -13 -12.5)
+LRS=(-12 -11.5 -11 -10.5 -10)
 
 for BS in 125 250 500 1000 2000; do
   epoch=$(( 4 * BS / 125 ))
