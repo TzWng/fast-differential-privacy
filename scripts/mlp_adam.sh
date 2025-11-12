@@ -49,7 +49,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 #       --optimizer Adam \
 #       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwidth_truenorm_ratio_2.txt"
 #   done
-done
+# done
 
 
 #288 512 1152 2048 3200 4608
