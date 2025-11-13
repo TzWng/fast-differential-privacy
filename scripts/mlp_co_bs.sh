@@ -81,12 +81,12 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-7 -6.5 -6 -5.5 -5) # SGD
 
-for BS in 250 500 1000 2000; do
+for BS in 125; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     echo "Running bs=$BS, epoch=$epoch, lr=$lr"
     $PYTHON -m scripts.MLP_clipping_only \
-      --width 512 \
+      --width 256 \
       --lr "$lr" \
       --epochs "$epoch" \
       --bs "$BS" \
@@ -98,7 +98,7 @@ for BS in 250 500 1000 2000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_approx.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_truenorm.txt"
   done
 done
 
