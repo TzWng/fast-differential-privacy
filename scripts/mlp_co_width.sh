@@ -31,9 +31,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 # LRS=(-2.5 -2 -1.5 -1 -0.5) # SGD
-LRS=(-7 -7.5 -8 -8.5 -9) # Adam
+LRS=(-9 -8.5 -8 -7.5 -7 -6.5) # Adam
 
-for wid in 256; do
+for wid in 512 1024 2048; do
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr"
     $PYTHON -m scripts.MLP_clipping_only \
