@@ -206,8 +206,8 @@ def main(args):
                         elif args.optimizer == 'Adam':
                             if param.shape[1] == 3 * args.dimension * args.dimension:
                                 lr_scale = (1.0 / param.shape[1]) ** 0.5 / args.dimension
-                            elif param.shape[0] == 10:
-                                lr_scale = (1.0 / param.shape[0]) ** 0.5 / param.shape[1]
+                            # elif param.shape[0] == 10:
+                            #     lr_scale = (1.0 / param.shape[0]) ** 0.5 / param.shape[1]
                             elif grad.ndim == 2:
                                 lr_scale = 1 / param.shape[1]        
                             elif grad.ndim == 1:
