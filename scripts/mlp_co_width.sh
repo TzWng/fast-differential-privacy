@@ -6,8 +6,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-3 -2.5 -2 -1.5 -1) # SGD
+LRS=(-6 -5.5 -5 -4.5 -4) # SGD
 
-for wid in 2048; do
+for wid in 128; do
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr"
     $PYTHON -m scripts.MLP_clipping_only \
@@ -23,6 +24,6 @@ for wid in 2048; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwid_co.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwid_truenorm.txt"
   done
 done
