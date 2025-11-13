@@ -33,11 +33,11 @@ LRS=(-8 -7.5 -7 -6.5)
 for BS in 125; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
-    sig=$(awk "BEGIN {print $BS/125.0}")
+    sig=$(awk "BEGIN {print 4*$BS/125.0}")
     echo "Running BS=$BS, lr=$lr, noise=$sig" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_unifed \
-      --width 512 \
+      --width 256 \
       --lr "$lr" \
       --epochs "$epoch"\
       --bs "$BS" \
