@@ -5,9 +5,33 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-6 -5.5 -5 -4.5 -4) # SGD
+# LRS=(-6 -5.5 -5 -4.5 -4) # SGD
 
-for wid in 288 2048; do
+# for wid in 288 2048; do
+#   for lr in "${LRS[@]}"; do
+#     sig=$(awk "BEGIN {print 4.0*sqrt(128.0/$wid)}")
+#     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
+#     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+#     $PYTHON -m scripts.MLP_unifed \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 20 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --epsilon 2 \
+#       --noise "$sig" \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension "$dim" \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio.txt"
+#   done
+# done
+
+LRS=(-6.5 -7) # SGD
+
+for wid in 288 1152; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print 4.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
