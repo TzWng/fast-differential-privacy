@@ -184,14 +184,14 @@ def main(args):
                         if args.optimizer == 'SGD':
                             if param.shape[1] == 3 * args.dimension * args.dimension:
                                 # lr_scale = (param.shape[0] / args.dimension) / (1 / param.shape[1]) ** 0.5
-                                lr_scale = param.shape[0] / args.dimension
+                                lr_scale = (param.shape[0] / args.dimension) ** 0.5
                             elif param.shape[0] == 10:
                                 # lr_scale = param.shape[0] ** 0.5 / param.shape[1]
-                                lr_scale = 1 / param.shape[1]
+                                lr_scale = (1.0 / param.shape[1]) ** 0.5
                             elif grad.ndim == 2:
-                                lr_scale = param.shape[0] / param.shape[1]
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
                             elif grad.ndim == 1:
-                                lr_scale = param.shape[0]
+                                lr_scale = (param.shape[0]) ** 0.5
                         elif args.optimizer == 'Adam':
                             if param.shape[1] == 3 * args.dimension * args.dimension:
                                 lr_scale = (1.0 / param.shape[1]) ** 0.5 / args.dimension
