@@ -185,7 +185,7 @@ def main(args):
                         if param.shape[1] == 3 * args.dimension * args.dimension:
                             lr_scale = (param.shape[0]) ** 0.5 / args.dimension / spec
                         elif param.shape[0] == 10:
-                            lr_scale = (1.0 / param.shape[1]) ** 0.5 / spec
+                            lr_scale = (10 / param.shape[1]) ** 0.5 / spec
                         elif grad.ndim == 2:
                             lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec             
                         elif grad.ndim == 1:
