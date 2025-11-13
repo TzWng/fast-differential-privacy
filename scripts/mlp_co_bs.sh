@@ -56,7 +56,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-1.5 -1 -0.5 0) # SGD
 
-for BS in 1000; do
+for BS in 125 1000; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     echo "Running bs=$BS, epoch=$epoch, lr=$lr"
