@@ -7,7 +7,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-3 -2.5 -2 -1.5 -1) # SGD
 
-for wid in 256; do
+for wid in 2048; do
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr"
     $PYTHON -m scripts.MLP_clipping_only \
