@@ -4,10 +4,10 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-10.5 -10 -9.5 -9)
+LRS=(-12 -11.5 -11 -10.5)
 #  250 500 1000 2000 5000
 
-for BS in 125; do
+for BS in 500 1000 2000 5000; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print 4*$BS/125.0}")
