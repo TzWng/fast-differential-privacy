@@ -10,9 +10,9 @@ LRS=(-8 -7.5 -7 -6.5 -5 -5.5 -5 -4.5 -4 -3.5) # SGD
 for BS in 125; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
-    echo "Running width=$wid, bs=$BS"
+    echo "Running width=$wid, bs=$BS, epoch=$epoch"
     $PYTHON -m scripts.MLP_clipping_only \
-      --width "$wid" \
+      --width 1024 \
       --lr "$lr" \
       --epochs "$epoch" \
       --bs "$BS" \
