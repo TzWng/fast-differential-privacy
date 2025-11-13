@@ -49,7 +49,7 @@ for wid in 288 512; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio_1.txt"
   done
 done
 
@@ -74,7 +74,7 @@ for wid in 512; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_truenorm_ratio_1.txt"
   done
 done
 
