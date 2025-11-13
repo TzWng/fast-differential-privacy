@@ -54,7 +54,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 
-LRS=(-4 -3.5 -3 -2.5) # SGD
+LRS=(-2 -1.5 -1 -0.5) # SGD
 
 for BS in 125 1000; do
   epoch=$(( 4 * BS / 125 ))
