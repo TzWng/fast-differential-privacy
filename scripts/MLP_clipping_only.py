@@ -206,6 +206,7 @@ def main(args):
                                 lr_scale = (param.shape[0]) ** 0.5 # / spec                      
                         elif args.optimizer == 'Adam':
                             if param.shape[1] == 3 * args.dimension * args.dimension:
+                                print("spectral norm for first is", spec)
                                 lr_scale = (param.shape[0]) ** 0.5 / args.dimension / spec
                             elif param.shape[0] == 10:
                                 print("spectral norm for last is", spec)
