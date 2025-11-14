@@ -12,7 +12,7 @@ for BS in 250 500; do
   for lr in "${LRS[@]}"; do
     echo "Running bs=$BS, epoch=$epoch, lr=$lr"
     $PYTHON -m scripts.MLP_clipping_only \
-      --width 512 \
+      --width 2048 \
       --lr "$lr" \
       --epochs "$epoch" \
       --bs "$BS" \
