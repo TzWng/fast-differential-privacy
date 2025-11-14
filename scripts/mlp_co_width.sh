@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-3 -2.5 -2 -1.5 -1) # Adam
-LRS=(-1 -0.5 0 0.5 1) # Adam
+LRS=(-2 0 -3 1) # Adam
 
 for wid in 512; do
   for lr in "${LRS[@]}"; do
