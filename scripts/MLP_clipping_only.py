@@ -194,7 +194,8 @@ def main(args):
                     #         elif grad.ndim == 1:
                     #             lr_scale = 1
                         
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs       
+                        sgn = grad.sign()  
+                        spec = torch.linalg.norm(sgn, ord=2).clamp(min=eps) / args.bs       
                         if args.optimizer == 'SGD':
                             if param.shape[1] == 3 * args.dimension * args.dimension:
                                 lr_scale = (param.shape[0] / args.dimension) ** 0.5 / spec
