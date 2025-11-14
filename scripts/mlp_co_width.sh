@@ -31,7 +31,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 # LRS=(-2.5 -2 -1.5 -1 -0.5) # SGD
-LRS=(-9 -8.5 -8 -7.5 -7 -6.5) # Adam
+LRS=(-6) # Adam
 
 for wid in 512 1024 2048; do
   for lr in "${LRS[@]}"; do
