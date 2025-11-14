@@ -26,7 +26,7 @@ for BS in 125 250 500; do
       --optimizer Adam \
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_approx.txt"
   done
-
+done
 
 # LRS=(-1 -0.5 0) # SGD
 
