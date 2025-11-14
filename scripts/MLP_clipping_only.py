@@ -181,23 +181,13 @@ def main(args):
                    
                     if grad is not None and grad.ndim in (1, 2):
                         if args.optimizer == 'SGD':
-                            if param.shape[1] == 3 * args.dimension * args.dimension:
-                                # lr_scale = (param.shape[0] / args.dimension) / (1 / param.shape[1]) ** 0.5 / spec
-                                lr_scale = (param.shape[0]) ** 0.5 / args.dimension # / spec
-                            elif param.shape[0] == 10:
-                                # lr_scale = param.shape[0] ** 0.5 / param.shape[1]
-                                lr_scale = (10 / param.shape[1]) ** 0.5 # / spec
-                            elif grad.ndim == 2:
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 # / spec
+                            if grad.ndim == 2:
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
                             elif grad.ndim == 1:
-                                lr_scale = (param.shape[0]) ** 0.5 # / spec
+                                lr_scale = (param.shape[0]) ** 0.5
 
                         elif args.optimizer == 'Adam':
-                            if param.shape[1] == 3 * args.dimension * args.dimension:
-                                lr_scale = (1.0 / param.shape[1]) ** 0.5 / args.dimension
-                            elif param.shape[0] == 10:
-                                lr_scale = (1 / param.shape[0]) ** 0.5 / param.shape[1]
-                            elif grad.ndim == 2:
+                            if grad.ndim == 2:
                                 lr_scale = 1 / param.shape[1]        
                             elif grad.ndim == 1:
                                 lr_scale = 1
