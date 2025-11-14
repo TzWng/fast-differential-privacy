@@ -5,9 +5,9 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-2.5 -3 -3.5 -4) # Adam
+LRS=(-3 -2.5 -2 -1.5 -1) # Adam
 
-for wid in 256; do
+for wid in 512 1024 2048 4096; do
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr"
     $PYTHON -m scripts.MLP_clipping_only \
