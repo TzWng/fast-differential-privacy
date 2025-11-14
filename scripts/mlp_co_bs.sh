@@ -5,33 +5,9 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-10) # SGD
+LRS=(-9 -8 -7 -6 -5 -4 -3) # SGD
 
-for BS in 250 500 1000; do
-  epoch=$(( 4 * BS / 125 ))
-  for lr in "${LRS[@]}"; do
-    echo "Running bs=$BS, epoch=$epoch, lr=$lr"
-    $PYTHON -m scripts.MLP_clipping_only \
-      --width 2048 \
-      --lr "$lr" \
-      --epochs "$epoch" \
-      --bs "$BS" \
-      --mini_bs "$BS" \
-      --epsilon 2 \
-      --noise 0 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_approx_10.txt"
-  done
-done
-
-
-LRS=(-11 -9 -8 -7 -6 -5 -4 -3) # SGD
-
-for BS in 500 1000; do
+for BS in 1000 2000; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     echo "Running bs=$BS, epoch=$epoch, lr=$lr"
