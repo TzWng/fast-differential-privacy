@@ -29,7 +29,7 @@ for BS in 250 500 1000; do
 done
 
 
-LRS=(-11 -9 -8 -7 -6 -5 -4) # SGD
+LRS=(-11 -9 -8 -7 -6 -5 -4 -3) # SGD
 
 for BS in 500 1000; do
   epoch=$(( 4 * BS / 125 ))
