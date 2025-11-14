@@ -5,9 +5,9 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-9 -8 -7 -6 -5 -4 -3) # SGD
+LRS=(-8 -7 -6 -5 -4 -3) # SGD
 
-for BS in 1000 2000; do
+for BS in 500 2000; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     echo "Running bs=$BS, epoch=$epoch, lr=$lr"
