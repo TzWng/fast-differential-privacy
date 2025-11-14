@@ -180,7 +180,7 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs       
+                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs       
                         if args.optimizer == 'SGD':
                             if param.shape[1] == 3 * args.dimension * args.dimension:
                                 # lr_scale = (param.shape[0] / args.dimension) / (1 / param.shape[1]) ** 0.5 / spec
@@ -188,10 +188,18 @@ def main(args):
                             elif param.shape[0] == 10:
                                 # lr_scale = param.shape[0] ** 0.5 / param.shape[1]
                                 lr_scale = (10 / param.shape[1]) ** 0.5 # / spec
-                            if grad.ndim == 2:
+                            elif grad.ndim == 2:
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 # / spec
                             elif grad.ndim == 1:
                                 lr_scale = (param.shape[0]) ** 0.5 # / spec
+
+                        elif args.optimizer == 'Adam':
+                            if param.shape[1] == 3 * args.dimension * args.dimension:
+                                lr_scale = (1.0 / param.shape[1]) ** 0.5 / args.dimension
+                            elif grad.ndim == 2:
+                                lr_scale = 1 / param.shape[1]        
+                            elif grad.ndim == 1:
+                                lr_scale = 1
                         
                         # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs       
                         # if args.optimizer == 'SGD':
@@ -202,25 +210,16 @@ def main(args):
                         #     elif grad.ndim == 2:
                         #         lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
                         #     elif grad.ndim == 1:
-                        #         lr_scale = (param.shape[0]) ** 0.5 # / spec
-                           
-                        elif args.optimizer == 'Adam':
-                            if param.shape[1] == 3 * args.dimension * args.dimension:
-                                lr_scale = (param.shape[0]) ** 0.5 / args.dimension / spec
-                            if grad.ndim == 2:
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec     
-                            elif grad.ndim == 1:
-                                lr_scale = 1
+                        #         lr_scale = (param.shape[0]) ** 0.5 # / spec                      
+                        # elif args.optimizer == 'Adam':
+                        #     if param.shape[1] == 3 * args.dimension * args.dimension:
+                        #         lr_scale = (param.shape[0]) ** 0.5 / args.dimension / spec
+                        #     if grad.ndim == 2:
+                        #         lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec     
+                        #     elif grad.ndim == 1:
+                        #         lr_scale = 1
                                 
-                       # elif args.optimizer == 'Adam':
-                       #      if param.shape[1] == 3 * args.dimension * args.dimension:
-                       #          lr_scale = (1.0 / param.shape[1]) ** 0.5 / args.dimension
-                       #      elif param.shape[0] == 10:
-                       #          lr_scale = (1.0 / param.shape[0]) ** 0.5 / param.shape[1]
-                       #      if grad.ndim == 2:
-                       #          lr_scale = 1 / param.shape[1]        
-                       #      elif grad.ndim == 1:
-                       #          lr_scale = 1
+                      
                         
                             
                     group["lr"] = base_lr * lr_scale
