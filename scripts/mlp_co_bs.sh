@@ -5,7 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-7 -6.5 -6 -5.5 -5) # SGD
+LRS=(-17 -16.5) # SGD
 
 for BS in 125 250 500; do
   epoch=$(( 4 * BS / 125 ))
