@@ -45,7 +45,7 @@ for wid in 256 512 1024 2048 4096; do
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 32 \
-      --optimizer Adam \
+      --optimizer SGD \
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwid_approx_10.txt"
   done
 done
