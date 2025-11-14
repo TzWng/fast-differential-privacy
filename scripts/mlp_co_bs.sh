@@ -5,28 +5,28 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-7 -6.5 -6 -5.5 -5) # SGD
+# LRS=(-7 -6.5 -6 -5.5 -5) # SGD
 
-for BS in 125 250 500; do
-  epoch=$(( 4 * BS / 125 ))
-  for lr in "${LRS[@]}"; do
-    echo "Running bs=$BS, epoch=$epoch, lr=$lr"
-    $PYTHON -m scripts.MLP_clipping_only \
-      --width 256 \
-      --lr "$lr" \
-      --epochs "$epoch" \
-      --bs "$BS" \
-      --mini_bs "$BS" \
-      --epsilon 2 \
-      --noise 0 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_approx.txt"
-  done
-done
+# for BS in 125 250 500; do
+#   epoch=$(( 4 * BS / 125 ))
+#   for lr in "${LRS[@]}"; do
+#     echo "Running bs=$BS, epoch=$epoch, lr=$lr"
+#     $PYTHON -m scripts.MLP_clipping_only \
+#       --width 256 \
+#       --lr "$lr" \
+#       --epochs "$epoch" \
+#       --bs "$BS" \
+#       --mini_bs "$BS" \
+#       --epsilon 2 \
+#       --noise 0 \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer Adam \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_approx.txt"
+#   done
+# done
 
 # LRS=(-1 -0.5 0) # SGD
 
@@ -101,28 +101,28 @@ done
 
 
 
-# LRS=(-16 -15 -14 -13) # SGD
+LRS=(-17 -16.5 -16 -15.5 15) # SGD
 
-# for BS in 125; do
-#   epoch=$(( 4 * BS / 125 ))
-#   for lr in "${LRS[@]}"; do
-#     echo "Running bs=$BS, epoch=$epoch, lr=$lr"
-#     $PYTHON -m scripts.MLP_clipping_only \
-#       --width 256 \
-#       --lr "$lr" \
-#       --epochs "$epoch" \
-#       --bs "$BS" \
-#       --mini_bs "$BS" \
-#       --epsilon 2 \
-#       --noise 0 \
-#       --clipping_mode BK-MixOpt \
-#       --clipping_style layer-wise \
-#       --cifar_data CIFAR10 \
-#       --dimension 32 \
-#       --optimizer Adam \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_truenorm.txt"
-#   done
-# done
+for BS in 125; do
+  epoch=$(( 4 * BS / 125 ))
+  for lr in "${LRS[@]}"; do
+    echo "Running bs=$BS, epoch=$epoch, lr=$lr"
+    $PYTHON -m scripts.MLP_clipping_only \
+      --width 256 \
+      --lr "$lr" \
+      --epochs "$epoch" \
+      --bs "$BS" \
+      --mini_bs "$BS" \
+      --epsilon 2 \
+      --noise 0 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_truenorm.txt"
+  done
+done
 
 
 
