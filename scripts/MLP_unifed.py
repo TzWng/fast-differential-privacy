@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .logger import ExecutionLogger
 import numpy as np
+import torch
+from torch.utils.data import DataLoader
 
 # class MLP(nn.Module):
 #     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
@@ -85,6 +87,28 @@ def main(args):
         testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
     else:
         return "Must specify datasets as CIFAR10 or CIFAR100"
+    
+    
+    # --- 放在 datasets 构造后 ---
+    def check_norms(dataset, name, d, max_batches=5, batch_size=256, device="cpu"):
+        loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+        all_stats = []
+    
+        with torch.no_grad():
+            for b_idx, (x, y) in enumerate(loader):
+                x = x.to(device)  # [B, 3, d, d]
+                norms = x.flatten(1).norm(p=2, dim=1).cpu()  # [B]
+                all_stats.append(norms)
+                if b_idx + 1 >= max_batches:  # 抽前 max_batches 批就够看了
+                    break
+    
+        norms = torch.cat(all_stats)  # [N']
+        print(f"[{name}] count={norms.numel()}, "
+              f"mean={norms.mean().item():.4f}, std={norms.std().item():.4f}, "
+              f"min={norms.min().item():.4f}, max={norms.max().item():.4f}")
+    
+    check_norms(trainset, "train", args.dimension)
+
 
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=args.mini_bs, shuffle=True, num_workers=4)
