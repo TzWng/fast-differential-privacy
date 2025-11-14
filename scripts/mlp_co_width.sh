@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-3 -2.5 -2 -1.5 -1) # Adam
-LRS=(-2 0 -3 1) # Adam
+LRS=(1 2 3) # Adam
 
 for wid in 512; do
   for lr in "${LRS[@]}"; do
@@ -24,7 +24,7 @@ for wid in 512; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwid_approx.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwid_approx_10.txt"
   done
 done
 
