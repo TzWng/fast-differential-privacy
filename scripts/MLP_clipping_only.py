@@ -208,9 +208,10 @@ def main(args):
                             if param.shape[1] == 3 * args.dimension * args.dimension:
                                 lr_scale = (param.shape[0]) ** 0.5 / args.dimension / spec
                             elif param.shape[0] == 10:
-                                print("spectral norm is", spec)
+                                print("spectral norm for last is", spec)
                                 lr_scale = (1.0 / param.shape[1]) ** 0.5 / spec
                             elif grad.ndim == 2:
+                                print("spectral norm for middle is", spec)
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec     
                             elif grad.ndim == 1:
                                 lr_scale = 1
