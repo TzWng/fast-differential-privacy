@@ -46,7 +46,7 @@ for wid in 256; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwid_approx.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffwid_approx_10.txt"
   done
 done
 
