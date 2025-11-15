@@ -30,7 +30,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-8) # SGD
 # 288 512 1152 2048 3200 4608
-for wid in 228; do
+for wid in 288; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print 4.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
@@ -48,13 +48,13 @@ for wid in 228; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_truenorm_ratio_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_truenorm_ratio.txt"
   done
 done
 
 LRS=(-7 -6 -5) # SGD
 # 288 512 1152 2048 3200 4608
-for wid in 3200; do
+for wid in 2048; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print 4.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
