@@ -37,6 +37,50 @@ class MLP(nn.Module):
         out = self.nonlin(self.fc_4(out))
         return self.fc_5(out) * self.output_mult
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class FlexibleMLP(nn.Module):
+    def __init__(self, width=128, input_dim=3072, num_classes=10, num_layers=5, nonlin=F.relu, input_mult=1.0, output_mult=1.0):
+        super().__init__()
+        self.nonlin = nonlin
+        self.input_mult = input_mult
+        self.output_mult = output_mult
+        self.num_layers = num_layers
+
+        # Build layers dynamically
+        in_dim = input_dim
+        for i in range(1, num_layers + 1):
+            layer = nn.Linear(in_dim, width, bias=False)
+            setattr(self, f"fc_{i}", layer)
+            in_dim = width
+        # Output layer
+        self.fc_out = nn.Linear(width, num_classes, bias=False)
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        for i in range(1, self.num_layers + 1):
+            layer = getattr(self, f"fc_{i}")
+            nn.init.kaiming_normal_(layer.weight, a=1, mode='fan_in')
+        self.fc_1.weight.data /= self.input_mult**0.5
+        nn.init.kaiming_normal_(self.fc_out.weight, a=1, mode='fan_in')
+        nn.init.zeros_(self.fc_out.weight)
+
+    def forward(self, x):
+        if x.dim() > 2:
+            x = x.view(x.size(0), -1)
+
+        for i in range(1, self.num_layers + 1):
+            layer = getattr(self, f"fc_{i}")
+            if i == 1:
+                x = layer(x) * self.input_mult ** 0.5
+            else:
+                x = layer(x)
+            x = self.nonlin(x)
+
+        return self.fc_out(x) * self.output_mult
+
 
 # class MLP(nn.Module):
 #     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
@@ -124,6 +168,8 @@ def main(args):
     # Model
     print('==> Building model MLP; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
     input_dim = 3 * args.dimension * args.dimension
+    
+    # net = FlexibleMLP(width=args.width, input_dim=input_dim, num_layers=args.layer, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
 
         
@@ -267,6 +313,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='PyTorch CIFAR Training')
     parser.add_argument('--width', default=256, type=int)
+    parser.add_argument('--layer', default=3, type=int)   
     parser.add_argument('--lr', default=0.0005, type=float, help='learning rate')
     parser.add_argument('--epochs', default=20, type=int)
     parser.add_argument('--bs', default=512, type=int)
