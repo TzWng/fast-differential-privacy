@@ -204,8 +204,8 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):           
-                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                        spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs
+                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                        # spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs
                         if param.shape[1] == 3 * args.dimension * args.dimension:
                             # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
                             # print("first spectral norm is", spec)
