@@ -52,7 +52,7 @@ for wid in 2048; do
   done
 done
 
-LRS=(-7 -6 -5 -4) # SGD
+LRS=(-6 -5 -4 -7) # SGD
 # 288 512 1152 2048 3200 4608
 for wid in 4608; do
   for lr in "${LRS[@]}"; do
