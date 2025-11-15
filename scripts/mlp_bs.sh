@@ -31,14 +31,14 @@ BS=1024  # 你要的 batch size
 
 
 LRS=(-12 -11 -10 -9 -8)
-for BS in 125 250 500 1000 2000; do
+for BS in 125; do
   epoch=$(( 4 * BS / 125 ))
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print 4*$BS/125.0}")
     echo "Running BS=$BS, lr=$lr, noise=$sig" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_unifed \
-      --width 256 \
+      --width 1024 \
       --lr "$lr" \
       --epochs "$epoch"\
       --bs "$BS" \
