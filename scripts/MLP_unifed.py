@@ -205,23 +205,16 @@ def main(args):
                    
                     if grad is not None and grad.ndim in (1, 2):           
                         # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                        spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs
                         if param.shape[1] == 3 * args.dimension * args.dimension:
-                            spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                            print("first spectral norm is", spec)
-                            spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs
-                            print("first F norm is", spec)    
+                            # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                            # print("first spectral norm is", spec)
+                            # spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs
+                            # print("first F norm is", spec)    
                             lr_scale = (param.shape[0]) ** 0.5 / args.dimension / spec
                         elif param.shape[0] == 10:
-                            spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                            print("third spectral norm is", spec)
-                            spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs
-                            print("third F norm is", spec)   
                             lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec  
                         elif grad.ndim == 2:
-                            spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                            print("second spectral norm is", spec)
-                            spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs
-                            print("second F norm is", spec)   
                             lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec             
                         elif grad.ndim == 1:
                             lr_scale = (param.shape[0]) ** 0.5 / spec
