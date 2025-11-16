@@ -4,7 +4,7 @@ LRS=(-8 -7 -6 -5)
 for depth in 3 6 12 24; do
   for lr in "${LRS[@]}"; do
     sig=$(awk "BEGIN {print sqrt($depth/3)*16.0}")
-    echo "Running width=$wid, depth=$depth, lr=$lr, noise=$sig"
+    echo "Running width=256, depth=$depth, lr=$lr, noise=$sig"
     $PYTHON -m scripts.MLP_unifed \
       --width 256 \
       --layer "$depth"\
