@@ -1,3 +1,10 @@
+#!/bin/bash
+PYTHON=python3.10
+
+PROJECT_ROOT=/content/fast-differential-privacy
+export PYTHONPATH="$PROJECT_ROOT"
+
+
 #288 512 1152 2048 3200 4608
 LRS=(-8 -7 -6 -5)
 
