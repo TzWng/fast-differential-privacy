@@ -28,7 +28,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-4) # SGD
+LRS=(-7 -9) # SGD
 # 288 512 1152 2048 3200 4608
 for lr in "${LRS[@]}"; do
   for wid in 4608; do
@@ -48,7 +48,7 @@ for lr in "${LRS[@]}"; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_truenorm_ratio.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_truenorm_ratio_2.txt"
   done
 done
 
