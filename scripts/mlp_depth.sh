@@ -21,3 +21,4 @@ for depth in 3 6 12 24; do
       --optimizer SGD \
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffdepth_truenorm_ratio.txt"
   done
+done
