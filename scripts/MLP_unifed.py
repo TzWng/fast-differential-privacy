@@ -51,7 +51,7 @@ class FlexibleMLP(nn.Module):
 
         # Build layers dynamically
         in_dim = input_dim
-        for i in range(1, num_layers + 1):
+        for i in range(1, num_layers):
             layer = nn.Linear(in_dim, width, bias=False)
             setattr(self, f"fc_{i}", layer)
             in_dim = width
@@ -60,7 +60,7 @@ class FlexibleMLP(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self):
-        for i in range(1, self.num_layers + 1):
+        for i in range(1, self.num_layers):
             layer = getattr(self, f"fc_{i}")
             nn.init.kaiming_normal_(layer.weight, a=1, mode='fan_in')
         self.fc_1.weight.data /= self.input_mult**0.5
@@ -71,7 +71,7 @@ class FlexibleMLP(nn.Module):
         if x.dim() > 2:
             x = x.view(x.size(0), -1)
 
-        for i in range(1, self.num_layers + 1):
+        for i in range(1, self.num_layers):
             layer = getattr(self, f"fc_{i}")
             if i == 1:
                 x = layer(x) * self.input_mult ** 0.5
