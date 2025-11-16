@@ -37,9 +37,6 @@ class MLP(nn.Module):
         out = self.nonlin(self.fc_4(out))
         return self.fc_5(out) * self.output_mult
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 class FlexibleMLP(nn.Module):
     def __init__(self, width=128, input_dim=3072, num_classes=10, num_layers=5, nonlin=F.relu, input_mult=1.0, output_mult=1.0):
@@ -169,8 +166,8 @@ def main(args):
     print('==> Building model MLP; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
     input_dim = 3 * args.dimension * args.dimension
     
-    net = FlexibleMLP(width=args.width, input_dim=input_dim, num_layers=args.layer, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
-    # net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    # net = FlexibleMLP(width=args.width, input_dim=input_dim, num_layers=args.layer, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
 
         
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
@@ -290,8 +287,8 @@ def main(args):
             break
 
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    #logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
 
 
 from fastDP import PrivacyEngine 
