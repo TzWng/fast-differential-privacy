@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 #288 512 1152 2048 3200 4608
-LRS=(-8 -7 -6 -5)
+LRS=(-7.5 -7 -6.5 -6 -5.5)
 
 for depth in 3 6 12 24; do
   for lr in "${LRS[@]}"; do
