@@ -138,20 +138,20 @@ def main(args):
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
         all_stats = []
     
-        with torch.no_grad():
-            for b_idx, (x, y) in enumerate(loader):
-                x = x.to(device)  # [B, 3, d, d]
-                norms = x.flatten(1).norm(p=2, dim=1).cpu()  # [B]
-                all_stats.append(norms)
-                if b_idx + 1 >= max_batches:  # 抽前 max_batches 批就够看了
-                    break
+    #     with torch.no_grad():
+    #         for b_idx, (x, y) in enumerate(loader):
+    #             x = x.to(device)  # [B, 3, d, d]
+    #             norms = x.flatten(1).norm(p=2, dim=1).cpu()  # [B]
+    #             all_stats.append(norms)
+    #             if b_idx + 1 >= max_batches:  # 抽前 max_batches 批就够看了
+    #                 break
     
-        norms = torch.cat(all_stats)  # [N']
-        print(f"[{name}] count={norms.numel()}, "
-              f"mean={norms.mean().item():.4f}, std={norms.std().item():.4f}, "
-              f"min={norms.min().item():.4f}, max={norms.max().item():.4f}")
+    #     norms = torch.cat(all_stats)  # [N']
+    #     print(f"[{name}] count={norms.numel()}, "
+    #           f"mean={norms.mean().item():.4f}, std={norms.std().item():.4f}, "
+    #           f"min={norms.min().item():.4f}, max={norms.max().item():.4f}")
     
-    check_norms(trainset, "train", args.dimension)
+    # check_norms(trainset, "train", args.dimension)
 
 
     trainloader = torch.utils.data.DataLoader(
@@ -175,8 +175,6 @@ def main(args):
     
     criterion = F.cross_entropy
 
-    # bs_factor = np.log2(args.bs / 125)  # 125->0, 250->1, 500->2, ...
-    # base_lr = 2 ** (args.lr - bs_factor)
     base_lr = 2 ** args.lr
 
     param_groups = [
