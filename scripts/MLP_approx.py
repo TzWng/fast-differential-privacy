@@ -251,7 +251,7 @@ def main(args):
                         # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
                         # spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs                       
                         if grad.ndim == 2:
-                            a = (param.shape[0]) ** 0.5 + (param.shape[1]) ** 0.5
+                            a = (param.shape[0]) ** 0.5 + (param.shape[1]) ** 0.5 * args.noise / args.bs
                             lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
                         elif grad.ndim == 1:
                             lr_scale = (param.shape[0]) ** 0.5 / spec
