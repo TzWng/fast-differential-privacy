@@ -32,7 +32,7 @@ BS=1024  # 你要的 batch size
 LRS=(-9 -4.5 -5.5 -6.5 -7.5 -8.5)
 # 125 250 500 1000 2000
 for lr in "${LRS[@]}"; do
-  for BS in 125 250 500 1000 2000; do
+  for BS in 125 250 500 1000; do
     epoch=$(( 4 * BS / 125 ))
     sig=$(awk "BEGIN {print 1*$BS/125.0}")
     echo "Running BS=$BS, lr=$lr, noise=$sig" 
@@ -50,7 +50,7 @@ for lr in "${LRS[@]}"; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffbs_approx_ratio_1024.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffbs_approx_ratio_1024_1.txt"
   done
 done
 
