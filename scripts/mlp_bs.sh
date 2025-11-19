@@ -29,11 +29,11 @@ BS=1024  # 你要的 batch size
 # done
 
 
-LRS=(-9 -4.5)
+LRS=(-9 -4.5 -5.5 -6.5 -7.5 -8.5)
 # 125 250 500 1000 2000
-for BS in 125 250 500 1000 2000; do
-  epoch=$(( 4 * BS / 125 ))
-  for lr in "${LRS[@]}"; do
+for lr in "${LRS[@]}"; do
+  for BS in 125 250 500 1000 2000; do
+    epoch=$(( 4 * BS / 125 ))
     sig=$(awk "BEGIN {print 1*$BS/125.0}")
     echo "Running BS=$BS, lr=$lr, noise=$sig" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
