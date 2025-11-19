@@ -54,8 +54,8 @@ BS=1024  # 你要的 batch size
 #   done
 # done
 
-LRS=(-4.5 -5.5 -6.5 -7.5)
-# LRS=(-5 -6 -7 -8)
+# LRS=(-4.5 -5.5 -6.5 -7.5)
+LRS=(-5 -6 -7 -8)
 # 125 250 500 1000 2000
 for BS in 2000; do
   for lr in "${LRS[@]}"; do
@@ -76,7 +76,7 @@ for BS in 2000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_diffbs_approx_ratio_1024.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_diffbs_approx_ratio_1024_1.txt"
   done
 done
 
