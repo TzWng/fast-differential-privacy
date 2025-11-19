@@ -32,7 +32,7 @@ done
 LRS=(-6.5 -6.25 -6 -5.75 -5.5 -5.25 -5) # SGD
 # 288 512 1152 2048 3200 4608 6272
 for lr in "${LRS[@]}"; do
-  for wid in 6272; do 
+  for wid in 288 6272; do 
     sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
