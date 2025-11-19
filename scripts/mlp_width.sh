@@ -29,9 +29,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 LRS=(-6.5 -6.25 -5.75 -5.5 -5.25) # SGD
-# 288 512 1152 2048 3200 4608 6272
+# 288 512 1152 2048 3200 4608 6272 8192
 for lr in "${LRS[@]}"; do
-  for wid in 288 6272; do 
+  for wid in 288 6272 8192; do 
     sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
@@ -55,7 +55,7 @@ done
 LRS=(-6 -5) # SGD
 # 288 512 1152 2048 3200 4608 6272
 for lr in "${LRS[@]}"; do
-  for wid in 6272; do 
+  for wid in 6272 8192; do 
     sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
