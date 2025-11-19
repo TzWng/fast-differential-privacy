@@ -133,10 +133,10 @@ def main(args):
         return "Must specify datasets as CIFAR10 or CIFAR100"
     
     
-    # --- 放在 datasets 构造后 ---
-    def check_norms(dataset, name, d, max_batches=5, batch_size=256, device="cpu"):
-        loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-        all_stats = []
+    # # --- 放在 datasets 构造后 ---
+    # def check_norms(dataset, name, d, max_batches=5, batch_size=256, device="cpu"):
+    #     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    #     all_stats = []
     
     #     with torch.no_grad():
     #         for b_idx, (x, y) in enumerate(loader):
@@ -251,8 +251,12 @@ def main(args):
                         # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
                         # spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs                       
                         if grad.ndim == 2:
-                            a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
-                            lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
+                            if args.optimizer == 'SGD':
+                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
+                            elif args.optimizer == 'Adam':
+                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
                         elif grad.ndim == 1:
                             lr_scale = (param.shape[0]) ** 0.5 / spec
                             
