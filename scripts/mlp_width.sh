@@ -75,7 +75,7 @@ for lr in "${LRS[@]}"; do
   done
 done
 
-LRS=(-12) # SGD
+LRS=(-12 -9) # SGD
 # 256 512 1024 2048 4096
 for lr in "${LRS[@]}"; do
   for wid in 8192; do 
