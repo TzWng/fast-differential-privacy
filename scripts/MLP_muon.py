@@ -117,6 +117,16 @@ class MuonNEW(torch.optim.Optimizer):
             with torch.enable_grad():
                 loss = closure()
 
+        for p in self._head_param_set:
+            if p.grad is None:
+                print("head wrong")
+                continue
+            g = p.grad
+            if g.ndim == 2:  # only weight
+                n_out, n_in = g.shape
+                a = (n_out**0.5 + n_in**0.5)
+                lr_scale = (n_out / n_in)**0.5 / a
+                g.mul_(lr_scale)  # in-place scale, like Muon does
         self.head_optim.step()
 
         for group in self.param_groups:
