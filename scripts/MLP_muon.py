@@ -88,7 +88,7 @@ class MuonNEW(torch.optim.Optimizer):
         adamw_eps: The epsilon for the internal AdamW.
         adamw_wd: The weight decay for the internal AdamW.
     """
-    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6):
+    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, head_param_ids=None):
 
         defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
         super().__init__(params, defaults)
@@ -130,6 +130,8 @@ class MuonNEW(torch.optim.Optimizer):
         self.head_optim.step()
 
         for group in self.param_groups:
+            if p in self._head_param_set:
+                continue
 
             ############################
             #           Muon           #
