@@ -118,81 +118,88 @@ class MuonNEW(torch.optim.Optimizer):
 
         return loss
         
-# class MuonNEW(torch.optim.Optimizer):
-#     def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, head_param_ids=None):
+class MuonNEW(torch.optim.Optimizer):
+    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, head_param_ids=None):
 
-#         defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
-#         super().__init__(params, defaults)
-#         self.head_param_ids = set() if head_param_ids is None else head_param_ids
+        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
+        super().__init__(params, defaults)
+        self.head_param_ids = set() if head_param_ids is None else head_param_ids
 
-#         head_params = []
-#         for group in self.param_groups:
-#             for p in group["params"]:
-#                 if not p.requires_grad:
-#                     continue
-#                 if id(p) in self.head_param_ids:
-#                     head_params.append(p)
+        head_params = []
+        for group in self.param_groups:
+            for p in group["params"]:
+                if not p.requires_grad:
+                    continue
+                if id(p) in self.head_param_ids:
+                    head_params.append(p)
 
-#         self.head_optim = optim.Adam(head_params, lr=lr)
-#         self._head_param_set = set(head_params)
+        self._head_param_set = set(head_params)
 
-#     def step(self, closure=None):
-#         """Perform a single optimization step.
+    def step(self, closure=None):
+        """Perform a single optimization step.
 
-#         Args:
-#             closure (Callable, optional): A closure that reevaluates the model
-#                 and returns the loss.
-#         """
-#         loss = None
-#         if closure is not None:
-#             with torch.enable_grad():
-#                 loss = closure()
+        Args:
+            closure (Callable, optional): A closure that reevaluates the model
+                and returns the loss.
+        """
+        loss = None
+        if closure is not None:
+            with torch.enable_grad():
+                loss = closure()
 
-#         for p in self._head_param_set:
-#             if p.grad is None:
-#                 print("head wrong")
-#                 continue
-#             g = p.grad
-#             if g.ndim == 2:  # only weight
-#                 n_out, n_in = g.shape
-#                 a = (n_out**0.5 + n_in**0.5)
-#                 lr_scale = (n_out / n_in)**0.5 / a
-#                 g.mul_(lr_scale)  # in-place scale, like Muon does
-#         self.head_optim.step()
+        for group in self.param_groups:
+            lr = group["lr"]
 
-#         for group in self.param_groups:
-#             lr = group['lr']
-#             momentum = group['momentum']
+            for p in self._head_param_set:
+                if p.grad is None:
+                    print("head wrong")
+                    continue
 
-#             # generate weight updates in distributed fashion
-#             for i, p in enumerate(group['params']):
-#                 if p in self._head_param_set: 
-#                     continue
-#                 # luckily this will perfectly distribute a transformer with multiple of 4 layers to 8 GPUs
-#                 g = p.grad
-#                 if g is None:
-#                     continue
-#                 if g.ndim > 2:
-#                     g = g.view(g.size(0), -1)
-#                 assert g is not None
-#                 state = self.state[p]
-#                 if 'momentum_buffer' not in state:
-#                     state['momentum_buffer'] = torch.zeros_like(g)
-#                 buf = state['momentum_buffer']
-#                 buf.mul_(momentum).add_(g)
-#                 if group['nesterov']:
-#                     g = g.add(buf, alpha=momentum)
-#                 else:
-#                     g = buf
+                g = p.grad
+
+                # apply your MuP-style scaling for 2D head weight
+                if g.ndim == 2:
+                    n_out, n_in = g.shape
+                    spec = torch.linalg.norm(grad, ord=2).clamp(min=1e-6)
+                    print("spectral norm is", spec)
+                    lr_scale = (n_out / n_in)**0.5 / spec
+                    g = g * lr_scale
+
+                # plain SGD update
+                p.add_(g, alpha=-lr)
+
+        for group in self.param_groups:
+            lr = group['lr']
+            momentum = group['momentum']
+
+            # generate weight updates in distributed fashion
+            for i, p in enumerate(group['params']):
+                if p in self._head_param_set: 
+                    continue
+                g = p.grad
+                if g is None:
+                    continue
+                if g.ndim > 2:
+                    g = g.view(g.size(0), -1)
+                assert g is not None
+                state = self.state[p]
+                if 'momentum_buffer' not in state:
+                    state['momentum_buffer'] = torch.zeros_like(g)
+                buf = state['momentum_buffer']
+                buf.mul_(momentum).add_(g)
+                if group['nesterov']:
+                    g = g.add(buf, alpha=momentum)
+                else:
+                    g = buf
                     
-#                 if g.ndim >= 2:
-#                     g = zeropower_via_newtonschulz5(g, steps=group['ns_steps'])
-#                     g *= (g.size(0)/g.size(1)) ** 0.5
-#                 else:
-#                     g /= g.norm()
-#                 p.data.add_(g, alpha=-lr)
+                if g.ndim >= 2:
+                    g = zeropower_via_newtonschulz5(g, steps=group['ns_steps'])
+                    g *= (g.size(0)/g.size(1)) ** 0.5
+                else:
+                    g /= g.norm()
+                p.data.add_(g, alpha=-lr)
 
-#         return loss
+        return loss
 
 
 
