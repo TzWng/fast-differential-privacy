@@ -102,7 +102,7 @@ class MuonNEW(torch.optim.Optimizer):
                 if id(p) in self.head_param_ids:
                     head_params.append(p)
 
-        self.head_optim = optim.Adam(head_params, lr=lr, eps=adam_eps)
+        self.head_optim = optim.Adam(head_params, lr=lr)
         self._head_param_set = set(head_params)
 
     def step(self, closure=None):
