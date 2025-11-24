@@ -51,29 +51,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-12) # SGD
-# 256 512 1024 2048 4096
-for lr in "${LRS[@]}"; do
-  for wid in 512 1024 2048 4096; do 
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
-    $PYTHON -m scripts.MLP_muon \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio.txt"
-  done
-done
 
-LRS=(-10.5 -9.5) # SGD
+LRS=(-10.5 -10.25 -9.75 -9.5) # SGD
 # 256 512 1024 2048 4096
 for lr in "${LRS[@]}"; do
   for wid in 256 512 1024 2048 4096; do 
