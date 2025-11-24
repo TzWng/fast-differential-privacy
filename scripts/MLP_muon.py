@@ -91,8 +91,19 @@ class MuonNEW(torch.optim.Optimizer):
     def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6):
 
         defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
-
         super().__init__(params, defaults)
+        self.head_param_ids = set() if head_param_ids is None else head_param_ids
+
+        head_params = []
+        for group in self.param_groups:
+            for p in group["params"]:
+                if not p.requires_grad:
+                    continue
+                if id(p) in self.head_param_ids:
+                    head_params.append(p)
+
+        self.head_optim = optim.Adam(head_params, lr=lr, eps=adam_eps)
+        self._head_param_set = set(head_params)
 
     def step(self, closure=None):
         """Perform a single optimization step.
@@ -105,6 +116,8 @@ class MuonNEW(torch.optim.Optimizer):
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
+
+        self.head_optim.step()
 
         for group in self.param_groups:
 
@@ -190,8 +203,8 @@ def main(args):
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6)
-
+    optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
+                        head_param_ids={id(p) for p in net.fc_5.parameters()})
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
         for name, param in net.named_parameters():
