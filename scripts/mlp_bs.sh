@@ -55,15 +55,39 @@ BS=1024  # 你要的 batch size
 # done
 
 # LRS=(-4.5 -5.5 -6.5 -7.5)
-LRS=(-11.5 -12)
+# # 125 250 500 1000 2000
+# for BS in 125 250 500 1000 2000; do
+#   for lr in "${LRS[@]}"; do
+#     epoch=$(( 4 * BS / 125 ))
+#     sig=$(awk "BEGIN {print 1*$BS/125.0}")
+#     echo "Running BS=$BS, lr=$lr, noise=$sig" 
+#     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
+#     $PYTHON -m scripts.MLP_muon \
+#       --width 1024 \
+#       --lr "$lr" \
+#       --epochs "$epoch"\
+#       --bs "$BS" \
+#       --mini_bs "$BS" \
+#       --epsilon 2 \
+#       --noise "$sig" \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer Adam \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffbs_approx_ratio_1.txt"
+#   done
+# done
+
+LRS=(-8 -7.5 -7 -6.5)
 # 125 250 500 1000 2000
-for BS in 125 250 500 1000 2000; do
+for BS in 125; do
   for lr in "${LRS[@]}"; do
     epoch=$(( 4 * BS / 125 ))
     sig=$(awk "BEGIN {print 1*$BS/125.0}")
     echo "Running BS=$BS, lr=$lr, noise=$sig" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
-    $PYTHON -m scripts.MLP_muon \
+    $PYTHON -m scripts.MLP_muon_sgd \
       --width 1024 \
       --lr "$lr" \
       --epochs "$epoch"\
@@ -76,10 +100,9 @@ for BS in 125 250 500 1000 2000; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffbs_approx_ratio_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffbs_approx_ratio_2.txt"
   done
 done
-
 
 # LRS=(-14 -13 -12 -11 -10)
 # # 125 250 500 1000 2000
