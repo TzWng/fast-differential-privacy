@@ -131,6 +131,7 @@ class MuonNEW(torch.optim.Optimizer):
 
         for group in self.param_groups:
             if p in self._head_param_set:
+                print(p)
                 continue
 
             ############################
