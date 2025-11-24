@@ -130,9 +130,6 @@ class MuonNEW(torch.optim.Optimizer):
         self.head_optim.step()
 
         for group in self.param_groups:
-            if p in self._head_param_set:
-                print(p)
-                continue
 
             ############################
             #           Muon           #
@@ -143,6 +140,8 @@ class MuonNEW(torch.optim.Optimizer):
 
             # generate weight updates in distributed fashion
             for i, p in enumerate(group['params']):
+                if p in self._head_param_set: 
+                    continue
                 # luckily this will perfectly distribute a transformer with multiple of 4 layers to 8 GPUs
                 g = p.grad
                 if g is None:
