@@ -155,7 +155,7 @@ class MuonNEW(torch.optim.Optimizer):
                     print("head wrong")
                     continue
 
-                g = p.grad
+                g = p.private_grad
 
                 # apply your MuP-style scaling for 2D head weight
                 if g.ndim == 2:
