@@ -51,10 +51,10 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-11 -10 -9) # SGD
+LRS=(-12 -10.5 -9.5) # SGD
 # 256 512 1024 2048 4096
-for wid in 512 1024 2048 4096; do 
-  for lr in "${LRS[@]}"; do
+for lr in "${LRS[@]}"; do
+  for wid in 512 1024 2048 4096; do 
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
     $PYTHON -m scripts.MLP_muon \
       --width "$wid" \
