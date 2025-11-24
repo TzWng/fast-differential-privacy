@@ -55,9 +55,9 @@ BS=1024  # 你要的 batch size
 # done
 
 # LRS=(-4.5 -5.5 -6.5 -7.5)
-LRS=(-12 -13)
+LRS=(-11 -10.5 -10 -9.5)
 # 125 250 500 1000 2000
-for BS in 250 500 1000 2000; do
+for BS in 125 250 500 1000 2000; do
   for lr in "${LRS[@]}"; do
     epoch=$(( 4 * BS / 125 ))
     sig=$(awk "BEGIN {print 1*$BS/125.0}")
@@ -70,13 +70,13 @@ for BS in 250 500 1000 2000; do
       --bs "$BS" \
       --mini_bs "$BS" \
       --epsilon 2 \
-      --noise 1 \
+      --noise "$sig" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffbs_approx_ratio.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffbs_approx_ratio_1.txt"
   done
 done
 
