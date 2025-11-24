@@ -166,7 +166,7 @@ class MuonNEW(torch.optim.Optimizer):
                     g = g * lr_scale
 
                 # plain SGD update
-                p.add_(g, alpha=-lr)
+                p.data.add_(g, alpha=-lr)
 
         for group in self.param_groups:
             lr = group['lr']
