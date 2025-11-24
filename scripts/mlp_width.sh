@@ -29,11 +29,12 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-10) # SGD
+LRS=(-10 -9 -8 -7) # SGD
 # 256 512 1024 2048 4096
-for wid in 4096; do 
+for wid in 256; do 
   for lr in "${LRS[@]}"; do
-    echo "Running width=$wid, lr=$lr, noise=2, dim=32"
+    sig=$(awk "BEGIN {print 2.0*sqrt(256.0/$wid)}")
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
     $PYTHON -m scripts.MLP_muon \
       --width "$wid" \
       --lr "$lr" \
@@ -41,7 +42,7 @@ for wid in 4096; do
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
-      --noise 2 \
+      --noise "$sig" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
