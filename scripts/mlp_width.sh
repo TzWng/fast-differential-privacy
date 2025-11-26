@@ -28,13 +28,14 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-6.75) # SGD
-# 256 512 1024 2048 4096
-for wid in 256 512 1024 2048 4096 8192; do 
-  for lr in "${LRS[@]}"; do
-    sig=$(awk "BEGIN {print 2.0*sqrt(256.0/$wid)}")
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
-    $PYTHON -m scripts.MLP_muon_sgd \
+LRS=(-9 -8 -7 -6 -5 -4) # SGD
+# 288 512 1152 2048 3200 4608
+for lr in "${LRS[@]}"; do
+  for wid in 288 512 2048 4608 8192; do 
+    sig=$(awk "BEGIN {print 4.0*sqrt(128.0/$wid)}")
+    dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+    $PYTHON -m scripts.MLP_sp \
       --width "$wid" \
       --lr "$lr" \
       --epochs 10 \
@@ -45,11 +46,34 @@ for wid in 256 512 1024 2048 4096 8192; do
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
-      --dimension 32 \
+      --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio_sgd_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_sp.txt"
   done
 done
+
+# LRS=(-6.75) # SGD
+# # 256 512 1024 2048 4096
+# for wid in 256 512 1024 2048 4096 8192; do 
+#   for lr in "${LRS[@]}"; do
+#     sig=$(awk "BEGIN {print 2.0*sqrt(256.0/$wid)}")
+#     echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
+#     $PYTHON -m scripts.MLP_muon_sgd \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --epsilon 2 \
+#       --noise "$sig" \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio_sgd_1.txt"
+#   done
+# done
 
 
 # LRS=(-7.5 -7 -6.5) # SGD
