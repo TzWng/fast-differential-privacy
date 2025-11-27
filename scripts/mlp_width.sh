@@ -54,9 +54,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-4 -5 -6 -7) # SGD
+LRS=(-6 -5 -4 -3 -2) # SGD
 # 256 512 1024 2048 4096
-for wid in 256; do 
+for wid in 512 1024 2048 4096; do 
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
     $PYTHON -m scripts.MLP_clipping_only \
