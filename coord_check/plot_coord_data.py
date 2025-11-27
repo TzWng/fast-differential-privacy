@@ -1,3 +1,10 @@
+from copy import copy
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
 def plot_coord_data(df, y='l1', save_to=None, suptitle=None, x='width', hue='module',
                     legend='full', name_contains=None, name_not_contains=None, module_list=None,
                     loglog=True, logbase=2, face_color=None, subplot_width=5,
