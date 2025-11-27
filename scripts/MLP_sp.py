@@ -267,7 +267,7 @@ def main(args):
 
 from fastDP import PrivacyEngine 
 import math, torch, os, torchvision 
-torch.manual_seed(2) 
+torch.manual_seed(0) 
 import torch.nn as nn 
 import torch.optim as optim 
 import torch.nn.functional as F 
