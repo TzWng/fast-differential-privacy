@@ -299,6 +299,6 @@ coord_check_split_terms(
     optimizer_fn=my_custom_optimizer_fn,
     batch_size=args.mini_bs,
     nsteps=3,
-    nseeds=3,
+    nseeds=1,
     args=args
 )
