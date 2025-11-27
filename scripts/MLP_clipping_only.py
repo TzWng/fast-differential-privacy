@@ -5,34 +5,6 @@ import torch.nn.functional as F
 from .logger import ExecutionLogger
 import numpy as np
 
-# class MLP(nn.Module):
-#     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
-#         super(MLP, self).__init__()
-#         self.nonlin = nonlin
-#         self.input_mult = input_mult
-#         self.output_mult = output_mult
-#         self.fc_1 = nn.Linear(input_dim, width, bias=False)
-#         self.fc_2 = nn.Linear(width, width, bias=False)
-#         self.fc_3 = nn.Linear(width, width, bias=False)
-#         self.fc_4 = nn.Linear(width, num_classes, bias=False) 
-#         self.reset_parameters()
-
-#     def reset_parameters(self):
-#         nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
-#         self.fc_1.weight.data /= self.input_mult**0.5
-#         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
-#         nn.init.kaiming_normal_(self.fc_3.weight, a=1, mode='fan_in')
-#         nn.init.zeros_(self.fc_4.weight)
-
-#     def forward(self, x):
-#         if x.dim() > 2:
-#             x = x.view(x.size(0), -1)
-#         out = self.nonlin(self.fc_1(x) * self.input_mult**0.5)
-#         out = self.nonlin(self.fc_2(out))
-#         out = self.nonlin(self.fc_3(out))
-#         return self.fc_4(out) * self.output_mult
-
-
 class MLP(nn.Module):
     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
         super(MLP, self).__init__()
@@ -41,23 +13,56 @@ class MLP(nn.Module):
         self.output_mult = output_mult
         self.fc_1 = nn.Linear(input_dim, width, bias=False)
         self.fc_2 = nn.Linear(width, width, bias=False)
-        self.fc_3 = nn.Linear(width, num_classes, bias=False)
+        self.fc_3 = nn.Linear(width, width, bias=False)
+        self.fc_4 = nn.Linear(width, width, bias=False)
+        self.fc_5 = nn.Linear(width, num_classes, bias=False) 
         self.reset_parameters()
-
 
     def reset_parameters(self):
         nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
         self.fc_1.weight.data /= self.input_mult**0.5
         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
-        nn.init.zeros_(self.fc_3.weight)
-
+        nn.init.kaiming_normal_(self.fc_3.weight, a=1, mode='fan_in')
+        nn.init.kaiming_normal_(self.fc_4.weight, a=1, mode='fan_in')
+        # nn.init.kaiming_normal_(self.fc_5.weight, a=1, mode='fan_in')
+        nn.init.zeros_(self.fc_5.weight)
 
     def forward(self, x):
         if x.dim() > 2:
             x = x.view(x.size(0), -1)
         out = self.nonlin(self.fc_1(x) * self.input_mult**0.5)
         out = self.nonlin(self.fc_2(out))
-        return self.fc_3(out) * self.output_mult
+        out = self.nonlin(self.fc_3(out))
+        out = self.nonlin(self.fc_4(out))
+        return self.fc_5(out) * self.output_mult
+
+
+
+# class MLP(nn.Module):
+#     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
+#         super(MLP, self).__init__()
+#         self.nonlin = nonlin
+#         self.input_mult = input_mult
+#         self.output_mult = output_mult
+#         self.fc_1 = nn.Linear(input_dim, width, bias=False)
+#         self.fc_2 = nn.Linear(width, width, bias=False)
+#         self.fc_3 = nn.Linear(width, num_classes, bias=False)
+#         self.reset_parameters()
+
+
+#     def reset_parameters(self):
+#         nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
+#         self.fc_1.weight.data /= self.input_mult**0.5
+#         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
+#         nn.init.zeros_(self.fc_3.weight)
+
+
+#     def forward(self, x):
+#         if x.dim() > 2:
+#             x = x.view(x.size(0), -1)
+#         out = self.nonlin(self.fc_1(x) * self.input_mult**0.5)
+#         out = self.nonlin(self.fc_2(out))
+#         return self.fc_3(out) * self.output_mult
 
 
     
