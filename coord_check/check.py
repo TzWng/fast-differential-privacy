@@ -241,7 +241,7 @@ def setprec(model, precision='float32'):
 
 
 
-def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nseeds, trainset, args):
+def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nseeds, args):
     def gen(w):
         def f():
             model = model_fn(width=w, ntokens=ntokens, args=args)
