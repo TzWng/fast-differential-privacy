@@ -22,7 +22,7 @@ class MLP(nn.Module):
 
     def reset_parameters(self):
         nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
-        #self.fc_1.weight.data /= self.input_mult**0.5
+        self.fc_1.weight.data /= self.input_mult**0.5
         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
         nn.init.kaiming_normal_(self.fc_3.weight, a=1, mode='fan_in')
         nn.init.kaiming_normal_(self.fc_4.weight, a=1, mode='fan_in')
