@@ -249,7 +249,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             return model
         return f
 
-    widths = 128 * (np.arange(2, 12))**2
+    widths = 128 * (np.arange(2, 11))**2
     models = {int(w): gen(int(w)) for w in widths}
 
     dataloader_map = {}
