@@ -303,6 +303,5 @@ coord_check_split_terms(
     batch_size=args.mini_bs,
     nsteps=3,
     nseeds=3,
-    trainset=trainset,
     args=args
 )
