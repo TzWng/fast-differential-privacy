@@ -54,10 +54,10 @@ BS=1024  # 你要的 batch size
 #   done
 # done
 
-LRS=(-7 -6 -5 -4 -3)
+LRS=(-8 -7 -6 -5 -4)
 # 125 250 500 1000 2000
 for lr in "${LRS[@]}"; do
-  for BS in 125; do
+  for BS in 250 500 1000 2000; do
     epoch=$(( 4 * BS / 125 ))
     sig=$(awk "BEGIN {print 1*$BS/125.0}")
     echo "Running BS=$BS, lr=$lr, noise=$sig" 
