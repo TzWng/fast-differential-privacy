@@ -64,26 +64,10 @@ args = argparse.Namespace(
 def my_mlp_fn(width):
     dim = 8 * (width / 128.0) ** 0.5 
     input_dim = 3 * dim * dim
-    model = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    model = MLP(width=width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
     return model
   
 device = torch.device("cuda:0")
-
-# Data
-print('==> Preparing data..')
-
-transformation = torchvision.transforms.Compose([
-    torchvision.transforms.Resize(args.dimension),
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-])
-
-if args.cifar_data == 'CIFAR10':
-    trainset = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
-    testset = torchvision.datasets.CIFAR10(root='data/', train=False, download=True, transform=transformation)
-elif args.cifar_data == 'CIFAR100':
-    trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
-    testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
 
 
 
@@ -155,17 +139,29 @@ def _record_coords(df, width, name, batch_idx, output_fdict=None, input_fdict=No
     return hook
 
 
-# @title _get_coord_data
-def _get_coord_data(models, dataloader, optimizer_fn, nsteps=3,
-                    flatten_input=False, flatten_output=False,
-                    lossfn='xent', fix_data=True, cuda=True, nseeds=1,
-                    show_progress=True):
+def _get_coord_data(models,
+                    dataloader=None,          # 原来的
+                    optimizer_fn=None,
+                    nsteps=3,
+                    flatten_input=False,
+                    flatten_output=False,
+                    lossfn='xent',
+                    fix_data=True,
+                    cuda=True,
+                    nseeds=1,
+                    show_progress=True,
+                    dataloader_map=None       # ★ 新增：按 width 存的 dataloader
+                    ):
     import pandas as pd
     coord_data_list = []
 
-    if fix_data:
-        batch = next(iter(dataloader))
-        dataloader = [batch] * nsteps
+    # 如果传了 dataloader_map，就忽略全局 dataloader / fix_data 这套逻辑
+    use_per_width_loader = dataloader_map is not None
+
+    if not use_per_width_loader:
+        if fix_data:
+            batch = next(iter(dataloader))
+            dataloader = [batch] * nsteps
 
     if show_progress:
         from tqdm import tqdm
@@ -180,7 +176,13 @@ def _get_coord_data(models, dataloader, optimizer_fn, nsteps=3,
                 model = model.cuda()
             optimizer = optimizer_fn(model)
 
-            for batch_idx, batch in enumerate(dataloader, 1):
+            # ★ 这里按 width 选择自己的 dataloader
+            if use_per_width_loader:
+                local_loader = dataloader_map[width]
+            else:
+                local_loader = dataloader
+
+            for batch_idx, batch in enumerate(local_loader, 1):
                 remove_hooks = []
 
                 for name, module in model.named_modules():
@@ -221,6 +223,7 @@ def _get_coord_data(models, dataloader, optimizer_fn, nsteps=3,
     return pd.DataFrame(coord_data_list)
 
 
+
 def get_coord_data(models, dataloader, optimizer_fn, **kwargs):
     df = _get_coord_data(models, dataloader, optimizer_fn, **kwargs)
     df['optimizer'] = 'custom'
@@ -249,21 +252,45 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
     widths = 128 * (np.arange(3, 13))**2
     models = {int(w): gen(int(w)) for w in widths}
 
+
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
     batch = next(iter(trainloader))
     train_data = [batch] * nsteps
 
+    dataloader_map = {}
+    for w in widths:
+        dim = int(8 * (w / 128.0) ** 0.5)
+        transformation = torchvision.transforms.Compose([
+            torchvision.transforms.Resize(dim),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize((0.5, 0.5, 0.5),
+                                             (0.5, 0.5, 0.5)),
+        ])
+
+        trainset_w = DatasetClass(
+            root='data/', train=True, download=True, transform=transformation
+        )
+        trainloader_w = torch.utils.data.DataLoader(
+            trainset_w, batch_size=batch_size, shuffle=True, num_workers=4
+        )
+
+        batch = next(iter(trainloader_w))
+        train_data_w = [batch] * nsteps
+
+        dataloader_map[w] = train_data_w
+
     for mode in ['bs', 'scale', 'both']:
         df = _get_coord_data(
             models,
-            dataloader=train_data,
+            dataloader_map=dataloader_map,   # ★ 用 per-width 数据
             optimizer_fn=lambda net: optimizer_fn(net, args, len(trainset), mode=mode),
             flatten_output=True,
             nseeds=nseeds,
             nsteps=nsteps,
-            lossfn='xent'
+            lossfn='xent',
+            fix_data=False,   # 已经自己重复过 batch 了
         )
-
+        
         plot_coord_data(
             df,
             y='l1',
