@@ -76,7 +76,7 @@ def plot_coord_data(df, y='l1', save_to=None, suptitle=None, x='width', hue='mod
     hue_order = sorted(set(df['module']))
     if face_color is not None:
         fig.patch.set_facecolor(face_color)
-    ymin, ymax = min(df[y]), max(df[y])
+    ymin, ymax = 0.5*min(df[y]), 2*max(df[y])
     for t in ts:
         t = int(t)
         plt.subplot(1, len(ts), t)
