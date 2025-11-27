@@ -14,9 +14,9 @@ class MLP(nn.Module):
         self.input_mult = input_mult
         self.output_mult = output_mult
         self.fc_1 = nn.Linear(input_dim, width, bias=False)
-        self.fc_2 = nn.Linear(width, 2*width, bias=False)
-        self.fc_3 = nn.Linear(2*width, 2*width, bias=False)
-        self.fc_4 = nn.Linear(2*width, width, bias=False)
+        self.fc_2 = nn.Linear(width, width, bias=False)
+        self.fc_3 = nn.Linear(width, width, bias=False)
+        self.fc_4 = nn.Linear(width, width, bias=False)
         self.fc_5 = nn.Linear(width, num_classes, bias=False) 
         self.reset_parameters()
 
