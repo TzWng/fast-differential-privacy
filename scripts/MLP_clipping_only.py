@@ -186,7 +186,7 @@ def main(args):
                    
                     if grad is not None and grad.ndim in (1, 2):
                         if args.optimizer == 'SGD':
-                            elif grad.ndim == 2:
+                            if grad.ndim == 2:
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
                                 lr_scale = 1
                             elif grad.ndim == 1:
