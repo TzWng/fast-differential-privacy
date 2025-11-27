@@ -288,8 +288,8 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             y='l1',
             legend=True,
             loglog=True,
-            save_to=f"/content/coord_check_{mode}.png", 
-            suptitle=f'Coord Check ({mode})',
+            save_to=f"/content/coord_check.png", 
+            suptitle=f'Coord Check',
             face_color=None
         )
 
