@@ -181,10 +181,9 @@ def main(args):
                    
                     if grad is not None and grad.ndim in (1, 2):
                         if args.optimizer == 'SGD':
-                            if param.shape[1] == 3 * args.dimension * args.dimension:
-                                lr_scale = (param.shape[0]) ** 0.5 / args.dimension
                             elif grad.ndim == 2:
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
+                                lr_scale = 1
                             elif grad.ndim == 1:
                                 lr_scale = (param.shape[0]) ** 0.5
 
