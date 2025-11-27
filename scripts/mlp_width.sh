@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 
-LRS=(-9 -8.5 -8 -7.5 -7) # SGD
+LRS=(-7 -6.5 -6 -5.5 -5) # SGD
 # 288 512 1152 2048 3200 4608
 # 288 512 1152 2048 4608 8192
 for wid in 288; do 
