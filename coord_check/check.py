@@ -263,9 +263,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
         ])
 
         trainset_w = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
-        trainloader_w = torch.utils.data.DataLoader(
-            trainset_w, batch_size=batch_size, shuffle=True, num_workers=4
-        )
+        trainloader_w = torch.utils.data.DataLoader(trainset_w, batch_size=batch_size, shuffle=True, num_workers=4)
 
         batch = next(iter(trainloader_w))
         train_data_w = [batch] * nsteps
