@@ -9,6 +9,7 @@ import pandas as pd
 import torchvision
 from torchvision import datasets, transforms
 from tqdm import tqdm
+from copy import copy 
 
 from fastDP import PrivacyEngine
 from .plot_coord_data import plot_coord_data
