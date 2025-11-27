@@ -252,11 +252,6 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
     widths = 128 * (np.arange(3, 13))**2
     models = {int(w): gen(int(w)) for w in widths}
 
-
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
-    batch = next(iter(trainloader))
-    train_data = [batch] * nsteps
-
     dataloader_map = {}
     for w in widths:
         dim = int(8 * (w / 128.0) ** 0.5)
