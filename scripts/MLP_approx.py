@@ -26,9 +26,9 @@ class MLP(nn.Module):
         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
         nn.init.kaiming_normal_(self.fc_3.weight, a=1, mode='fan_in')
         nn.init.kaiming_normal_(self.fc_4.weight, a=1, mode='fan_in')
-        nn.init.kaiming_normal_(self.fc_5.weight, a=1, mode='fan_in')
-        self.fc_5.weight.data /= self.output_mult
-        # nn.init.zeros_(self.fc_5.weight)
+        # nn.init.kaiming_normal_(self.fc_5.weight, a=1, mode='fan_in')
+        # self.fc_5.weight.data /= self.output_mult
+        nn.init.zeros_(self.fc_5.weight)
 
     def forward(self, x):
         if x.dim() > 2:
