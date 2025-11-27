@@ -84,8 +84,7 @@ if args.cifar_data == 'CIFAR10':
 elif args.cifar_data == 'CIFAR100':
     trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
     testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
-else:
-    return "Must specify datasets as CIFAR10 or CIFAR100"
+
 
 
 def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
