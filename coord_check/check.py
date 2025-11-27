@@ -274,7 +274,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
         df = _get_coord_data(
             models,
             dataloader_map=dataloader_map,   # ★ 用 per-width 数据
-            optimizer_fn=lambda net: optimizer_fn(net, args, len(trainset), mode=mode),
+            optimizer_fn=lambda net: optimizer_fn(net, args, 50000, mode=mode),
             flatten_output=True,
             nseeds=nseeds,
             nsteps=nsteps,
