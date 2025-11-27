@@ -54,7 +54,7 @@ BS=1024  # 你要的 batch size
 #   done
 # done
 
-LRS=(-9 -8 -7 -6 -5)
+LRS=(-7 -6 -5 -4 -3)
 # 125 250 500 1000 2000
 for lr in "${LRS[@]}"; do
   for BS in 125; do
