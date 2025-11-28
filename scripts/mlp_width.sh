@@ -40,7 +40,7 @@ for wid in 288; do
     $PYTHON -m scripts.MLP_sp \
       --width "$wid" \
       --lr "$lr" \
-      --epochs 10 \
+      --epochs 20 \
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
