@@ -5,45 +5,17 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-8 -7.5 -7 -6.5 -6) # SGD
-LRS=(-8.5) # SGD
-# 288 512 1152 2048 3200 4608
-# 288 512 1152 2048 4608 8192
-for wid in 288 512 1152 2048 4608 8192; do 
-  for lr in "${LRS[@]}"; do
-    sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
-    dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_approx \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 20 \
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise "$sig" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension "$dim" \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_mup_3_ep20.txt"
-  done
-done
-
-
-
-# LRS=(-4.5 -3.5 -2.5 -1.5) # SGD
-# # 288 512 1152 2048 3200 4608
-# for wid in 512 048 4608 8192; do
-#   for lr in "${LRS[@]}"; do 
+# LRS=(-9 -8.5 -8 -7.5 -7 -6.5 -6) # SGD
+# # 288 512 1152 2048 4608 8192
+# for wid in 512 1152 2048 4608 8192; do 
+#   for lr in "${LRS[@]}"; do
 #     sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
 #     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
 #     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-#     $PYTHON -m scripts.MLP_sp \
+#     $PYTHON -m scripts.MLP_approx \
 #       --width "$wid" \
 #       --lr "$lr" \
-#       --epochs 10 \
+#       --epochs 20 \
 #       --bs 500 \
 #       --mini_bs 500 \
 #       --epsilon 2 \
@@ -53,9 +25,34 @@ done
 #       --cifar_data CIFAR10 \
 #       --dimension "$dim" \
 #       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_sp_new.txt"
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_mup_3_ep20.txt"
 #   done
 # done
+
+
+LRS=(-7 -6.5 -6 -5.5) # SGD
+# 288 512 1152 2048 3200 4608
+for wid in 288; do
+  for lr in "${LRS[@]}"; do 
+    sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
+    dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+    $PYTHON -m scripts.MLP_sp \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise "$sig" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension "$dim" \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_sp_new.txt"
+  done
+done
 
 # LRS=(-2 2.5) # SGD
 # # 256 512 1024 2048 4096 8192
