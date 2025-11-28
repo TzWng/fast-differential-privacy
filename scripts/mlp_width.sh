@@ -5,7 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-7.5) # SGD
+LRS=(-8 -7.5 -7 -6.5 -6) # SGD
 # 288 512 1152 2048 3200 4608
 # 288 512 1152 2048 4608 8192
 for wid in 288 512 1152 2048 4608 8192; do 
@@ -16,7 +16,7 @@ for wid in 288 512 1152 2048 4608 8192; do
     $PYTHON -m scripts.MLP_approx \
       --width "$wid" \
       --lr "$lr" \
-      --epochs 10 \
+      --epochs 20 \
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
@@ -26,7 +26,7 @@ for wid in 288 512 1152 2048 4608 8192; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_mup_3.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_mup_3_ep20.txt"
   done
 done
 
