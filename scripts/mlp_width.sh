@@ -30,9 +30,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-6.5 -6 -5.5 -5 -4.5 -4 -3.5 -3) # SGD
+LRS=(-6 -5.5 -5 -4.5 -4 -3.5 -3 -2.5 -2) # SGD
 # 288 512 1152 2048 3200 4608
-for wid in 8192; do
+for wid in 288 512 1152 2048 4608 8192; do
   for lr in "${LRS[@]}"; do 
     sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
@@ -40,7 +40,7 @@ for wid in 8192; do
     $PYTHON -m scripts.MLP_sp \
       --width "$wid" \
       --lr "$lr" \
-      --epochs 20 \
+      --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
@@ -50,7 +50,7 @@ for wid in 8192; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_sp_2_ep20.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_sp_4.txt"
   done
 done
 
