@@ -78,28 +78,28 @@ for wid in 288; do
 done
 
 
-LRS=(-6.5) # SGD
-# 288 512 1152 2048 3200 4608
-for wid in 288 512 1152 2048 4608 8192; do
-  for lr in "${LRS[@]}"; do 
-    sig=$(awk "BEGIN {print 2.0*sqrt(128.0/2048)}")
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_sp \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise "$sig" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_sp_nosnr.txt"
-  done
-done
+# LRS=(-6.5) # SGD
+# # 288 512 1152 2048 3200 4608
+# for wid in 288 512 1152 2048 4608 8192; do
+#   for lr in "${LRS[@]}"; do 
+#     sig=$(awk "BEGIN {print 2.0*sqrt(128.0/2048)}")
+#     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+#     $PYTHON -m scripts.MLP_sp \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --epsilon 2 \
+#       --noise "$sig" \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_sp_nosnr.txt"
+#   done
+# done
 
 # LRS=(-2 2.5) # SGD
 # # 256 512 1024 2048 4096 8192
