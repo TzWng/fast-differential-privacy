@@ -55,9 +55,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-5.5 -5 -4.5 -4 -3.5 -3) # SGD
+LRS=(-6 -6.5 -7 -2.5 -2) # SGD
 # 288 512 1152 2048 3200 4608
-for wid in 1152 4608 8192; do
+for wid in 288 512 1152 4608 8192; do
   for lr in "${LRS[@]}"; do 
     sig=$(awk "BEGIN {print 2.0*sqrt(128.0/2048)}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
