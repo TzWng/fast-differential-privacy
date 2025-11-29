@@ -64,6 +64,7 @@ args = argparse.Namespace(
 
 def my_mlp_fn(width):
     dim = int(8 * (width / 128.0) ** 0.5)
+    dim = 32
     input_dim = 3 * dim * dim
     model = MLP(width=width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
     return model
