@@ -301,7 +301,7 @@ coord_check_split_terms(
     model_fn=my_mlp_fn,
     optimizer_fn=my_custom_optimizer_fn,
     batch_size=args.mini_bs,
-    nsteps=3,
+    nsteps=4,
     nseeds=3,
     args=args
 )
