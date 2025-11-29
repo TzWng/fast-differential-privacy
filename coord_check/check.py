@@ -64,7 +64,7 @@ args = argparse.Namespace(
 
 def my_mlp_fn(width):
     dim = int(8 * (width / 128.0) ** 0.5)
-    dim = 32
+    # dim = 32
     input_dim = 3 * dim * dim
     model = MLP(width=width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
     return model
@@ -76,7 +76,7 @@ device = torch.device("cuda:0")
 def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
     width = net.fc_2.weight.shape[0]
     sigma = 2.0 * (128.0/width) ** 0.5
-    sigma = 2.0 * (128.0/2048) ** 0.5
+    # sigma = 2.0 * (128.0/2048) ** 0.5
     learning_rates = {}
     for name, param in net.named_parameters():
         size = param.shape
@@ -88,7 +88,7 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
         for name, param in net.named_parameters()
     ]
     optimizer = torch.optim.SGD(param_groups, lr=2 ** args.lr) # muP
-    optimizer = torch.optim.SGD(net.parameters(), lr=2 ** args.lr) # SP
+    # optimizer = torch.optim.SGD(net.parameters(), lr=2 ** args.lr) # SP
     if 'nonDP' not in args.clipping_mode:
         if 'BK' in args.clipping_mode:
             clipping_mode = args.clipping_mode[3:]
@@ -258,7 +258,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
     dataloader_map = {}
     for w in widths:
         dim = int(8 * (w / 128.0) ** 0.5)
-        dim = 32
+        # dim = 32
         transformation = torchvision.transforms.Compose([
             torchvision.transforms.Resize(dim),
             torchvision.transforms.ToTensor(),
@@ -291,7 +291,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             y='l1',
             legend=True,
             loglog=True,
-            save_to=f"/content/SGD_sp_noSNR.pdf", 
+            save_to=f"/content/SGD_mup.pdf", 
             suptitle=None,
             face_color=None
         )
