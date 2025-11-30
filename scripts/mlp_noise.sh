@@ -4,7 +4,7 @@ PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
 
-LRS=(-9 -8 -7 -6 -5)
+LRS=(-7.5 -6.5 -5.5)
 # 128 512 2048 8192
 for wid in 128; do
   for lr in "${LRS[@]}"; do
