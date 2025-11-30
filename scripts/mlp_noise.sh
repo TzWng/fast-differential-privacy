@@ -11,7 +11,6 @@ for wid in 128; do
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     bs=$(awk "BEGIN {print sqrt($wid/128.0)*125.0}")
     epoch=$(( 4 * $bs / 125 ))
-    wid=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, dim=$dim, BS=$BS, lr=$lr" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
     $PYTHON -m scripts.MLP_approx \
