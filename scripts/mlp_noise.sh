@@ -4,9 +4,9 @@ PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
 
-LRS=(-8 -7.5 -7 -6.5 -6 -5.5)
-# 128 512 2048 8192
-for wid in 2048 8192; do
+LRS=(-6 -5.5 -5)
+# 128 512 2048 3200 8192
+for wid in 3200; do
   for lr in "${LRS[@]}"; do
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     bs=$(awk "BEGIN {print sqrt($wid/128.0)*125.0}")
