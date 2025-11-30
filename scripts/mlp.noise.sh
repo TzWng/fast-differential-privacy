@@ -3,28 +3,30 @@
 PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
-128 
-LRS=(-13)
-for sigma in 2 4 8 16; do
-  epoch=$(( 4 * BS / 125 ))
+
+LRS=(-9 -8 -7 -6 -5)
+# 128 512 2048 8192
+for wid in 128; do
   for lr in "${LRS[@]}"; do
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
+    bs=$(awk "BEGIN {print sqrt($wid/128.0)*125.0}")
+    epoch=$(( 4 * $bs / 125 ))
     wid=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
-    echo "Running BS=$BS, lr=$lr, noise=$sig" 
+    echo "Running width=$wid, dim=$dim, BS=$BS, lr=$lr" 
     # scaled_lr=$(echo "$lr + $ratio" | bc -l)
-    $PYTHON -m scripts.MLP_unifed \
-      --width 256 \
+    $PYTHON -m scripts.MLP_approx \
+      --width "$wid" \
       --lr "$lr" \
       --epochs "$epoch"\
-      --bs 500 \
-      --mini_bs 500 \
+      --bs "$bs" \
+      --mini_bs "$bs" \
       --epsilon 2 \
-      --noise "$sig" \
+      --noise 1 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_diffbs_fnorm_ratio.txt"
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_diffwidth_change_bs.txt"
   done
 done
