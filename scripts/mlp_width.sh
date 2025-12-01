@@ -5,10 +5,10 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-5 -4 -3 -2) # SGD
+LRS=(-4 -3 -2) # SGD
 # 288 512 1152 2048 4608 8192
 for lr in "${LRS[@]}"; do
-  for wid in 512 1152 2048 4608 8192; do 
+  for wid in 512 1152 2048; do 
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
     $PYTHON -m scripts.MLP_nonDP_muP \
