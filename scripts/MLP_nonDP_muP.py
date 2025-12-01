@@ -284,17 +284,9 @@ def main(args):
                             
                 #     group["lr"] = base_lr * lr_scale
 
-                if args.optimizer == 'muon':
-                    muon_optimizer.step()
-                    head_optimizer.step()
-                    muon_optimizer.zero_grad()
-                    head_optimizer.zero_grad()
-                else:
-                    optimizer.step()
-                    optimizer.zero_grad()
 
-                # optimizer.step()
-                # optimizer.zero_grad()
+                optimizer.step()
+                optimizer.zero_grad()
 
             train_loss += loss.item() * n_acc_steps
             _, predicted = outputs.max(1)
