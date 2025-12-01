@@ -5,27 +5,8 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-2 -2.5 -3 -3.5 -4 -4.5 -5 -5.5 -6 -6.5 -7) # SGD
-LRS=(-3.5 -3) # SGD
-# 288 512 1152 2048 4608 8192
-for wid in 288 512 1152 2048 4608 8192; do 
-  for lr in "${LRS[@]}"; do
-    dim=32
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_nonDP_muP \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_mup_4_new.txt"
-  done
-done
 
-LRS=(-3.5 -3 -2.5 -2) # SGD
+LRS=(-2.5 -2) # SGD
 # 288 512 1152 2048 4608 8192
 for wid in 512 1152 2048 4608 8192; do 
   for lr in "${LRS[@]}"; do
