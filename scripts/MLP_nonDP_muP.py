@@ -72,7 +72,6 @@ def main(args):
     n_acc_steps = args.bs // args.mini_bs  # gradient accumulation steps
 
     # Model
-    print('==> Building model MLP; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
     input_dim = 3 * args.dimension * args.dimension
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
 
