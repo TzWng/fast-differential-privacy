@@ -6,8 +6,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-2 -2.5 -3 -3.5 -4 -4.5 -5 -5.5 -6 -6.5 -7) # SGD
+LRS=(-2 -1.5 -1 -0.5 0) # SGD
 # 288 512 1152 2048 4608 8192
-for wid in 288 512 1152 2048 4608 8192; do 
+for wid in 288; do 
   for lr in "${LRS[@]}"; do
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
@@ -20,7 +21,7 @@ for wid in 288 512 1152 2048 4608 8192; do
       --cifar_data CIFAR10 \
       --dimension "$dim" \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_sp_3.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_mup_1.txt"
   done
 done
 
