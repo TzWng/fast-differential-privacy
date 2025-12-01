@@ -238,26 +238,26 @@ def main(args):
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
-         head_params = list(net.fc_5.parameters())
-         backbone_params = [p for p in net.parameters() if p not in head_params]
+        head_params = list(net.fc_5.parameters())
+        backbone_params = [p for p in net.parameters() if p not in head_params]
     
          # 2. 主干：Muon 只接 backbone_params
-         muon_optimizer = MuonNEW(
-             backbone_params,
-             lr=base_lr,
-             momentum=0.95,
-             nesterov=True,
-             ns_steps=5,
-         )
+        muon_optimizer = MuonNEW(
+            backbone_params,
+            lr=base_lr,
+            momentum=0.95,
+            nesterov=True,
+            ns_steps=5,
+        )
     
-         # 3. head：Adam（或 AdamW，看你需要）
-         head_optimizer = torch.optim.Adam(
-             head_params,
-             lr=3e-4,
-             betas=(0.9, 0.95),
-             weight_decay=0.01,
-         )
-         # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
+        # 3. head：Adam（或 AdamW，看你需要）
+        head_optimizer = torch.optim.Adam(
+            head_params,
+            lr=3e-4,
+            betas=(0.9, 0.95),
+            weight_decay=0.01,
+        )
+        # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
                             head_param_ids={id(p) for p in net.fc_5.parameters()})
 
     def train(epoch):
