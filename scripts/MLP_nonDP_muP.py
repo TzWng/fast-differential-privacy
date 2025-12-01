@@ -176,6 +176,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', default=20, type=int)
     parser.add_argument('--bs', default=512, type=int)
     parser.add_argument('--mini_bs', type=int, default=512)
+    parser.add_argument('--noise', default=0, type=float)
     parser.add_argument('--cifar_data', type=str, default='CIFAR10')
     parser.add_argument('--dimension', type=int, default=32)
     parser.add_argument('--optimizer', type=str, default='SGD')
