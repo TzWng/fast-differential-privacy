@@ -233,7 +233,7 @@ def main(args):
     ]
 
     if args.optimizer == 'SGD':
-        optimizer = optim.SGD(param_groups, lr=base_lr)
+        optimizer = MuSGD(net.parameters(), lr=base_lr)
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
