@@ -141,7 +141,8 @@ class MuonNEW(torch.optim.Optimizer):
                 if g.ndim == 2:
                     # spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) * 1.5
                     # lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
-                    lr_scale = g.size(0) / g.size(1)
+                    # lr_scale = g.size(0) / g.size(1)
+                    lr_scale = 1
                     g = g * lr_scale
 
                 # plain SGD update
