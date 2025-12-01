@@ -255,8 +255,7 @@ def main(args):
             betas=(0.9, 0.95),
             weight_decay=0.01,
         )
-        # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
-                            head_param_ids={id(p) for p in net.fc_5.parameters()})
+        # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,head_param_ids={id(p) for p in net.fc_5.parameters()})
 
     def train(epoch):
 
