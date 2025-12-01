@@ -162,31 +162,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-8 -8.5) # SGD
-# 256 512 1024 2048 4096
-for lr in "${LRS[@]}"; do
-  for wid in 4096; do 
-    sig=$(awk "BEGIN {print 1.0*sqrt(512.0/$wid)}")
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
-    $PYTHON -m scripts.MLP_muon_sgd \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise "$sig" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio_sgd_2.txt"
-  done
-done
 
-
-LRS=(-7.25 -7.75) # SGD
+LRS=(-6.75) # SGD
 # 256 512 1024 2048 4096
 for lr in "${LRS[@]}"; do
   for wid in 256 512 1024 2048 4096; do 
@@ -209,6 +186,51 @@ for lr in "${LRS[@]}"; do
   done
 done
 
+LRS=(-6.5 -9 -9.5) # SGD
+# 256 512 1024 2048 4096
+for lr in "${LRS[@]}"; do
+  for wid in 512 1024 2048 4096; do 
+    sig=$(awk "BEGIN {print 1.0*sqrt(512.0/$wid)}")
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
+    $PYTHON -m scripts.MLP_muon_sgd \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise "$sig" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio_sgd_2.txt"
+  done
+done
+
+LRS=(-6.5 -6.75 -7 -7.25 -7.5 -8 -8.5 -9 -9.5) # SGD
+# 256 512 1024 2048 4096
+for lr in "${LRS[@]}"; do
+  for wid in 8192; do 
+    sig=$(awk "BEGIN {print 1.0*sqrt(512.0/$wid)}")
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
+    $PYTHON -m scripts.MLP_muon_sgd \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise "$sig" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio_sgd_2.txt"
+  done
+done
 
 # LRS=(-7.5 -7 -6.5) # SGD
 # # 256 512 1024 2048 4096
