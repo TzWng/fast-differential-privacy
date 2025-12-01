@@ -176,6 +176,7 @@ class MuonNEW(torch.optim.Optimizer):
                 else:
                     g /= g.norm()
                 spec = torch.linalg.norm(g.float(), ord=2).item()
+                print("spectral norm", spec)
                 p.data.add_(g, alpha=-lr)
 
         return loss
