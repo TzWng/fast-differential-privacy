@@ -5,31 +5,11 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-1.75) # SGD
-# 288 512 1152 2048 4608 8192
-for lr in "${LRS[@]}"; do
-  for wid in 288; do 
-    dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_nonDP_muP \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --cifar_data CIFAR10 \
-      --dimension "$dim" \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_sp_4.txt"
-  done
-done
-
-
-# LRS=(-4.5 -5.5 -6.5 -7.5) # SGD
-# # 256 512 1024 2048 4096 8192
-# for wid in 256 512 1024 2048 4096 8192; do 
-#   for lr in "${LRS[@]}"; do
-#     dim=32
+# LRS=(-1.75) # SGD
+# # 288 512 1152 2048 4608 8192
+# for lr in "${LRS[@]}"; do
+#   for wid in 288; do 
+#     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
 #     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
 #     $PYTHON -m scripts.MLP_nonDP_muP \
 #       --width "$wid" \
@@ -38,11 +18,31 @@ done
 #       --bs 500 \
 #       --mini_bs 500 \
 #       --cifar_data CIFAR10 \
-#       --dimension 32 \
-#       --optimizer muon \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_lastlayer_sgd.txt"
+#       --dimension "$dim" \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_sp_4.txt"
 #   done
 # done
+
+
+LRS=(-4.5) # SGD
+# 256 512 1024 2048 4096 8192
+for wid in 256 512 1024 2048 4096 8192; do 
+  for lr in "${LRS[@]}"; do
+    dim=32
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+    $PYTHON -m scripts.MLP_nonDP_muP \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer muon \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_lastlayer_sgd.txt"
+  done
+done
 
 # LRS=(-5.75) # SGD
 # # 288 512 1152 2048 4608 8192
