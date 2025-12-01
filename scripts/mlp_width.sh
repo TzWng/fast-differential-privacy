@@ -29,7 +29,7 @@ LRS=(-9 -8 -7 -6) # SGD
 # 288 512 1152 2048 4608 8192
 for wid in 288 512 1152 2048 4608 8192; do 
   for lr in "${LRS[@]}"; do
-    dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
+    dim=32
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
     $PYTHON -m scripts.MLP_nonDP_muP \
       --width "$wid" \
@@ -38,7 +38,7 @@ for wid in 288 512 1152 2048 4608 8192; do
       --bs 500 \
       --mini_bs 500 \
       --cifar_data CIFAR10 \
-      --dimension "$dim" \
+      --dimension 32 \
       --optimizer muon \
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP.txt"
   done
