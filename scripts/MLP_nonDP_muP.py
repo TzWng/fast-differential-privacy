@@ -39,6 +39,37 @@ class MLP(nn.Module):
         out = self.nonlin(self.fc_4(out))
         return self.fc_5(out) * self.output_mult
 
+class muMLP(nn.Module):
+    def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
+        super(muMLP, self).__init__()
+        self.nonlin = nonlin
+        self.input_mult = input_mult
+        self.output_mult = output_mult
+        self.fc_1 = nn.Linear(input_dim, width, bias=False)
+        self.fc_2 = nn.Linear(width, width, bias=False)
+        self.fc_3 = nn.Linear(width, width, bias=False)
+        self.fc_4 = nn.Linear(width, width, bias=False)
+        self.fc_5 = MuReadout(width, num_classes, bias=False, output_mult=self.output_mult)
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
+        self.fc_1.weight.data /= self.input_mult ** 0.5
+        nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
+        nn.init.kaiming_normal_(self.fc_3.weight, a=1, mode='fan_in')
+        nn.init.kaiming_normal_(self.fc_4.weight, a=1, mode='fan_in')
+        nn.init.zeros_(self.fc_5.weight)
+
+    def forward(self, x):
+        if x.dim() > 2:
+            x = x.view(x.size(0), -1)
+        out = self.nonlin(self.fc_1(x) * self.input_mult**0.5)
+        out = self.nonlin(self.fc_2(out))
+        out = self.nonlin(self.fc_3(out))
+        out = self.nonlin(self.fc_4(out))
+        return self.fc_5(out)
+
+
 def zeropower_via_newtonschulz5(G, steps):
     """
     Newton-Schulz iteration to compute the zeroth power / orthogonalization of G. We opt to use a
@@ -176,7 +207,16 @@ def main(args):
 
     # Model
     input_dim = 3 * args.dimension * args.dimension
-    net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    # net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    # Model
+    input_dim = 3 * args.dimension * args.dimension
+    base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    net = muMLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    net = net.to(device)
+    set_base_shapes(net, base_model, delta=delta_model)
+
+    
 
         
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
@@ -217,23 +257,23 @@ def main(args):
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
                 
-                for group in optimizer.param_groups:
-                    name = group.get("name", "")
-                    param = group["params"][0]
-                    grad = param.grad
-                    lr_scale = 1.0                  
+                # for group in optimizer.param_groups:
+                #     name = group.get("name", "")
+                #     param = group["params"][0]
+                #     grad = param.grad
+                #     lr_scale = 1.0                  
                    
-                    if grad is not None and grad.ndim in (1, 2):                               
-                        if grad.ndim == 2:
-                            if args.optimizer == 'SGD':
-                                lr_scale = param.shape[0] / param.shape[1]
-                            elif args.optimizer == 'Adam':
-                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
-                                lr_scale = 1 / param.shape[1]
-                        elif grad.ndim == 1:
-                            lr_scale = (param.shape[0]) ** 0.5 / spec
+                #     if grad is not None and grad.ndim in (1, 2):                               
+                #         if grad.ndim == 2:
+                #             if args.optimizer == 'SGD':
+                #                 lr_scale = param.shape[0] / param.shape[1]
+                #             elif args.optimizer == 'Adam':
+                #                 a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
+                #                 lr_scale = 1 / param.shape[1]
+                #         elif grad.ndim == 1:
+                #             lr_scale = (param.shape[0]) ** 0.5 / spec
                             
-                    group["lr"] = base_lr * lr_scale
+                #     group["lr"] = base_lr * lr_scale
 
                 optimizer.step()
                 optimizer.zero_grad()
@@ -259,7 +299,8 @@ def main(args):
     logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
 
 
-
+import mup
+from mup import MuSGD, get_shapes, set_base_shapes, make_base_shapes, MuReadout
 import math, torch, os, torchvision 
 import torch.nn as nn 
 import torch.optim as optim 
