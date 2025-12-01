@@ -5,27 +5,8 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-2 -2.5 -3 -3.5 -4 -4.5 -5 -5.5 -6 -6.5 -7) # SGD
-LRS=(-3 -2.5 -2 -1.5 -1) # SGD
-# 288 512 1152 2048 4608 8192
-for wid in 288 512 1152 2048 4608 8192; do 
-  for lr in "${LRS[@]}"; do
-    dim=32
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_nonDP_muP \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_mup_3_new.txt"
-  done
-done
-
-# LRS=(-9 -8 -7 -6) # SGD
+# LRS=(-2 -2.5 -3 -3.5 -4 -4.5 -5 -5.5 -6 -6.5 -7) # SGD
+# LRS=(-3 -2.5 -2 -1.5 -1) # SGD
 # # 288 512 1152 2048 4608 8192
 # for wid in 288 512 1152 2048 4608 8192; do 
 #   for lr in "${LRS[@]}"; do
@@ -39,10 +20,48 @@ done
 #       --mini_bs 500 \
 #       --cifar_data CIFAR10 \
 #       --dimension 32 \
-#       --optimizer muon \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP.txt"
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_mup_3_new.txt"
 #   done
 # done
+
+LRS=(-11 -10) # SGD
+# 288 512 1152 2048 4608 8192
+for wid in 512; do 
+  for lr in "${LRS[@]}"; do
+    dim=32
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+    $PYTHON -m scripts.MLP_nonDP_muP \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer muon \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP.txt"
+  done
+done
+
+LRS=(-11 -10 -9 -8) # SGD
+# 288 512 1152 2048 4608 8192
+for wid in 1152 2048 4608 8192; do 
+  for lr in "${LRS[@]}"; do
+    dim=32
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+    $PYTHON -m scripts.MLP_nonDP_muP \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer muon \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP.txt"
+  done
+done
 
 
 # LRS=(-5.75) # SGD
