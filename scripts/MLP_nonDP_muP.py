@@ -241,7 +241,6 @@ def main(args):
         head_params = list(net.fc_5.parameters())
         backbone_params = [p for p in net.parameters() if p not in head_params]
     
-         # 2. 主干：Muon 只接 backbone_params
         muon_optimizer = MuonNEW(
             backbone_params,
             lr=base_lr,
@@ -250,7 +249,6 @@ def main(args):
             ns_steps=5,
         )
     
-        # 3. head：Adam（或 AdamW，看你需要）
         head_optimizer = torch.optim.Adam(
             head_params,
             lr=3e-4,
