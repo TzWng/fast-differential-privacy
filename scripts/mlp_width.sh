@@ -5,9 +5,9 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-2 -1 0 1) # SGD
+LRS=(-3 -2 -1 0) # SGD
 # 288 512 1152 2048 4608 8192
-for wid in 288; do 
+for wid in 512 1152 2048 4608 8192; do 
   for lr in "${LRS[@]}"; do
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
