@@ -239,7 +239,10 @@ def main(args):
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
         head_params = list(net.fc_5.parameters())
-        backbone_params = [p for p in net.parameters() if p not in head_params]
+        head_param_ids = {id(p) for p in head_params}
+    
+        # 2. backbone = 其他所有参数（用 id 判断，而不是 tensor 比较）
+        backbone_params = [p for p in net.parameters() if id(p) not in head_param_ids]
     
         muon_optimizer = MuonNEW(
             backbone_params,
