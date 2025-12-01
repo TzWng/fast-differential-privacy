@@ -247,7 +247,7 @@ def main(args):
             lr=base_lr,
             momentum=0.95,
             nesterov=True,
-            ns_steps=6,
+            ns_steps=5,
         )
     
         # 3. head：Adam（或 AdamW，看你需要）
