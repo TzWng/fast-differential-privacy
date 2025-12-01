@@ -99,36 +99,21 @@ def zeropower_via_newtonschulz5(G, steps):
     return X
         
 class MuonNEW(torch.optim.Optimizer):
-    """
-    Muon - MomentUm Orthogonalized by Newton-schulz
-
-    Muon internally runs standard SGD-momentum, and then performs an orthogonalization post-
-    processing step, in which each 2D parameter's update is replaced with the nearest orthogonal
-    matrix. To efficiently orthogonalize each update, we use a Newton-Schulz iteration, which has
-    the advantage that it can be stably run in bfloat16 on the GPU.
-
-    Some warnings:
-    - We believe this optimizer is unlikely to work well for training with small batch size.
-    - We believe it may not work well for finetuning pretrained models, but we haven't tested this.
-
-    Arguments:
-        muon_params: The parameters to be optimized by Muon.
-        lr: The learning rate. The updates will have spectral norm of `lr`. (0.02 is a good default)
-        momentum: The momentum used by the internal SGD. (0.95 is a good default)
-        nesterov: Whether to use Nesterov-style momentum in the internal SGD. (recommended)
-        ns_steps: The number of Newton-Schulz iterations to run. (6 is probably always enough)
-        adamw_params: The parameters to be optimized by AdamW. Any parameters in `muon_params` which are
-        {0, 1}-D or are detected as being the embed or lm_head will be optimized by AdamW as well.
-        adamw_lr: The learning rate for the internal AdamW.
-        adamw_betas: The betas for the internal AdamW.
-        adamw_eps: The epsilon for the internal AdamW.
-        adamw_wd: The weight decay for the internal AdamW.
-    """
-    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6):
+    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, head_param_ids=None):
 
         defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
-
         super().__init__(params, defaults)
+        self.head_param_ids = set() if head_param_ids is None else head_param_ids
+
+        head_params = []
+        for group in self.param_groups:
+            for p in group["params"]:
+                if not p.requires_grad:
+                    continue
+                if id(p) in self.head_param_ids:
+                    head_params.append(p)
+
+        self._head_param_set = set(head_params)
 
     def step(self, closure=None):
         """Perform a single optimization step.
@@ -143,11 +128,32 @@ class MuonNEW(torch.optim.Optimizer):
                 loss = closure()
 
         for group in self.param_groups:
+            lr = group["lr"]
+
+            for p in self._head_param_set:
+                if p.grad is None:
+                    print("head wrong")
+                    continue
+
+                g = p.grad
+
+                # apply your MuP-style scaling for 2D head weight
+                if g.ndim == 2:
+                    spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) * 1.5
+                    lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
+                    g = g * lr_scale
+
+                # plain SGD update
+                p.data.add_(g, alpha=-lr)
+
+        for group in self.param_groups:
             lr = group['lr']
             momentum = group['momentum']
 
             # generate weight updates in distributed fashion
             for i, p in enumerate(group['params']):
+                if p in self._head_param_set: 
+                    continue
                 g = p.grad
                 if g is None:
                     continue
@@ -172,7 +178,6 @@ class MuonNEW(torch.optim.Optimizer):
                 p.data.add_(g, alpha=-lr)
 
         return loss
-
 
 def main(args):
     device = torch.device("cuda:0")
@@ -238,27 +243,8 @@ def main(args):
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
-        head_params = list(net.fc_5.parameters())
-        head_param_ids = {id(p) for p in head_params}
-    
-        # 2. backbone = 其他所有参数（用 id 判断，而不是 tensor 比较）
-        backbone_params = [p for p in net.parameters() if id(p) not in head_param_ids]
-    
-        muon_optimizer = MuonNEW(
-            backbone_params,
-            lr=base_lr,
-            momentum=0.95,
-            nesterov=True,
-            ns_steps=5,
-        )
-    
-        head_optimizer = torch.optim.Adam(
-            head_params,
-            lr=3e-4,
-            betas=(0.9, 0.95),
-            weight_decay=0.01,
-        )
-        # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,head_param_ids={id(p) for p in net.fc_5.parameters()})
+        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
+                            head_param_ids={id(p) for p in net.fc_5.parameters()})
 
     def train(epoch):
 
