@@ -40,7 +40,7 @@ for wid in 4096; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_lastlayer_sgd_2.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_lastlayer_sgd.txt"
   done
 done
 
