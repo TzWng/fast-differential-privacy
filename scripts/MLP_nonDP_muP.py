@@ -37,7 +37,7 @@ class MLP(nn.Module):
         out = self.nonlin(self.fc_2(out))
         out = self.nonlin(self.fc_3(out))
         out = self.nonlin(self.fc_4(out))
-        return self.fc_5(out)
+        return self.fc_5(out) * self.output_mult
 
 def zeropower_via_newtonschulz5(G, steps):
     """
