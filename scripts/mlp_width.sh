@@ -25,9 +25,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-6 -5.5) # SGD
+LRS=(-5 -4.5) # SGD
 # 256 512 1024 2048 4096 8192
-for wid in 1024; do 
+for wid in 1024 2048 4096 8192; do 
   for lr in "${LRS[@]}"; do
     dim=32
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
