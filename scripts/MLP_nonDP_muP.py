@@ -246,7 +246,9 @@ def main(args):
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
-        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=5)
+        # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=5)
+        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
+                            head_param_ids={id(p) for p in net.fc_5.parameters()})
 
     def train(epoch):
 
