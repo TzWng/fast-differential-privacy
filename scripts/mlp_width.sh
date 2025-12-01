@@ -162,10 +162,10 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-7 -7.5 -8 -8.5) # SGD
+LRS=(-6.5 -7 -7.5 -8 -8.5 -9 -9.5) # SGD
 # 256 512 1024 2048 4096
-for wid in 512 1024 2048 4096; do 
-  for lr in "${LRS[@]}"; do
+for lr in "${LRS[@]}"; do
+  for wid in 256 512 1024 2048 4096 8192; do 
     sig=$(awk "BEGIN {print 1.0*sqrt(512.0/$wid)}")
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
     $PYTHON -m scripts.MLP_muon_sgd \
