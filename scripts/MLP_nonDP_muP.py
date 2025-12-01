@@ -41,10 +41,6 @@ class MLP(nn.Module):
 
     
 def main(args):
-    if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
-        print("Mode must be one of 'nonDP','BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt','nonDP-BiTFiT','BiTFiT'")
-        return None
-
     device = torch.device("cuda:0")
 
     # Data
@@ -97,41 +93,6 @@ def main(args):
         optimizer = optim.SGD(param_groups, lr=base_lr)
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
-        
-
-    if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
-        for name, param in net.named_parameters():
-            if '.bias' not in name:
-                param.requires_grad_(False)
-
-    # Privacy engine
-    if 'nonDP' not in args.clipping_mode:
-        sigma = get_noise_multiplier(
-            target_epsilon=args.epsilon,
-            target_delta=1e-5,
-            sample_rate=args.bs / len(trainset),
-            epochs=args.epochs,
-        )
-        
-        if 'BK' in args.clipping_mode:
-            clipping_mode = args.clipping_mode[3:]
-        else:
-            clipping_mode = 'ghost'
-
-        if args.clipping_style in [['all-layer'], ['layer-wise'], ['param-wise']]:
-            args.clipping_style = args.clipping_style[0]
-        privacy_engine = PrivacyEngine(
-            net,
-            batch_size=args.bs,
-            sample_size=len(trainset),
-            noise_multiplier=args.noise,
-            epochs=args.epochs,
-            clipping_mode=clipping_mode,
-            clipping_style=args.clipping_style,
-            origin_params=args.origin_params,  # ['patch_embed.proj.bias'],
-        )
-        privacy_engine.attach(optimizer)
-        print("Noise multiplier (σ):", privacy_engine.noise_multiplier)
 
     def train(epoch):
 
@@ -194,14 +155,12 @@ def main(args):
     logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
 
 
-from fastDP import PrivacyEngine 
+
 import math, torch, os, torchvision 
 import torch.nn as nn 
 import torch.optim as optim 
 import torch.nn.functional as F 
 from torchvision import datasets, transforms 
-from opacus.validators import ModuleValidator 
-from opacus.accountants.utils import get_noise_multiplier 
 from torch import nn 
 from tqdm import tqdm 
 import warnings; 
@@ -218,11 +177,6 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', default=20, type=int)
     parser.add_argument('--bs', default=512, type=int)
     parser.add_argument('--mini_bs', type=int, default=512)
-    parser.add_argument('--epsilon', default=2, type=float)
-    parser.add_argument('--noise', default=1, type=float)
-    parser.add_argument('--clipping_mode', default='BK-ghost', type=str)
-    parser.add_argument('--clipping_style', default='layer-wise', nargs='+', type=str)
-    parser.add_argument('--scale', default=1, type=int)
     parser.add_argument('--cifar_data', type=str, default='CIFAR10')
     parser.add_argument('--dimension', type=int, default=32)
     parser.add_argument('--optimizer', type=str, default='SGD')
