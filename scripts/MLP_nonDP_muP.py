@@ -217,23 +217,23 @@ def main(args):
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
                 
-                for group in optimizer.param_groups:
-                    name = group.get("name", "")
-                    param = group["params"][0]
-                    grad = param.grad
-                    lr_scale = 1.0                  
+                # for group in optimizer.param_groups:
+                #     name = group.get("name", "")
+                #     param = group["params"][0]
+                #     grad = param.grad
+                #     lr_scale = 1.0                  
                    
-                    if grad is not None and grad.ndim in (1, 2):                               
-                        if grad.ndim == 2:
-                            if args.optimizer == 'SGD':
-                                lr_scale = param.shape[0] / param.shape[1]
-                            elif args.optimizer == 'Adam':
-                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
-                                lr_scale = 1 / param.shape[1]
-                        elif grad.ndim == 1:
-                            lr_scale = (param.shape[0]) ** 0.5 / spec
+                #     if grad is not None and grad.ndim in (1, 2):                               
+                #         if grad.ndim == 2:
+                #             if args.optimizer == 'SGD':
+                #                 lr_scale = param.shape[0] / param.shape[1]
+                #             elif args.optimizer == 'Adam':
+                #                 a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
+                #                 lr_scale = 1 / param.shape[1]
+                #         elif grad.ndim == 1:
+                #             lr_scale = (param.shape[0]) ** 0.5 / spec
                             
-                    group["lr"] = base_lr * lr_scale
+                #     group["lr"] = base_lr * lr_scale
 
                 optimizer.step()
                 optimizer.zero_grad()
