@@ -229,13 +229,13 @@ def main(args):
         else:
             clipping_mode = 'ghost'
 
-        if args.clipping_style in [['all-layer'], ['layer-wise'], ['layer-wise-adjust'], ['param-wise']]:
+        if args.clipping_style in [['all-layer'], ['layer-wise'], ['param-wise']]:
             args.clipping_style = args.clipping_style[0]
         privacy_engine = PrivacyEngine(
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=args.noise,
+            noise_multiplier=noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
             clipping_coe=D_i_prime_vector,
