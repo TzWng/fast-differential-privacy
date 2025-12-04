@@ -89,34 +89,6 @@ class FlexibleMLP(nn.Module):
         return self.fc_out(x) * self.output_mult
 
 
-# class MLP(nn.Module):
-#     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
-#         super(MLP, self).__init__()
-#         self.nonlin = nonlin
-#         self.input_mult = input_mult
-#         self.output_mult = output_mult
-#         self.fc_1 = nn.Linear(input_dim, width, bias=False)
-#         self.fc_2 = nn.Linear(width, width, bias=False)
-#         self.fc_3 = nn.Linear(width, num_classes, bias=False)
-#         self.reset_parameters()
-
-
-#     def reset_parameters(self):
-#         nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
-#         self.fc_1.weight.data /= self.input_mult**0.5
-#         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
-#         nn.init.zeros_(self.fc_3.weight)
-
-
-#     def forward(self, x):
-#         if x.dim() > 2:
-#             x = x.view(x.size(0), -1)
-#         out = self.nonlin(self.fc_1(x) * self.input_mult**0.5)
-#         out = self.nonlin(self.fc_2(out))
-#         return self.fc_3(out) * self.output_mult
-
-
-    
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
         print("Mode must be one of 'nonDP','BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt','nonDP-BiTFiT','BiTFiT'")
@@ -142,27 +114,6 @@ def main(args):
     else:
         return "Must specify datasets as CIFAR10 or CIFAR100"
     
-    
-    # # --- 放在 datasets 构造后 ---
-    # def check_norms(dataset, name, d, max_batches=5, batch_size=256, device="cpu"):
-    #     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-    #     all_stats = []
-    
-    #     with torch.no_grad():
-    #         for b_idx, (x, y) in enumerate(loader):
-    #             x = x.to(device)  # [B, 3, d, d]
-    #             norms = x.flatten(1).norm(p=2, dim=1).cpu()  # [B]
-    #             all_stats.append(norms)
-    #             if b_idx + 1 >= max_batches:  # 抽前 max_batches 批就够看了
-    #                 break
-    
-    #     norms = torch.cat(all_stats)  # [N']
-    #     print(f"[{name}] count={norms.numel()}, "
-    #           f"mean={norms.mean().item():.4f}, std={norms.std().item():.4f}, "
-    #           f"min={norms.min().item():.4f}, max={norms.max().item():.4f}")
-    
-    # check_norms(trainset, "train", args.dimension)
-
 
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=args.mini_bs, shuffle=True, num_workers=4)
@@ -187,7 +138,7 @@ def main(args):
     f_i_k_vector[1:L-1] = 128 / args.width
     f_i_k_vector[L-1] = (128 + 10) / (args.width + 10)
     sum_term = torch.sum(1.0 / f_i_k_vector)
-    sigma = args.noise * (sum_term / L)**(-0.5)
+    noise = args.noise * (sum_term / L)**(-0.5)
     D_i_prime_vector = f_i_k_vector * sum_term
     print("clipping coefficient is", D_i_prime_vector)
 
