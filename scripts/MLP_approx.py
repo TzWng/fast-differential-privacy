@@ -7,6 +7,14 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
+
+def get_effective_layers(model: nn.Module) -> list[nn.Module]:
+    linear_layers = []
+    for module in model.modules():
+        if isinstance(module, nn.Linear):
+            linear_layers.append(module)
+    return linear_layers
+
 class MLP(nn.Module):
     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
         super(MLP, self).__init__()
@@ -170,6 +178,18 @@ def main(args):
     
     # net = FlexibleMLP(width=args.width, input_dim=input_dim, num_layers=args.layer, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    effective_layers = get_effective_layers(net)
+    L = len(effective_layers)
+
+    
+    f_i_k_vector = torch.zeros(L, dtype=torch.float32)
+    f_i_k_vector[0] = (input_dim + 128) / (input_dim + args.width)
+    f_i_k_vector[1:L-1] = 128 / args.width
+    f_i_k_vector[L-1] = (128 + 10) / (args.width + 10)
+    sum_term = torch.sum(1.0 / f_i_k_vector)
+    sigma = args.noise * (sum_term / L)**(-0.5)
+    D_i_prime_vector = f_i_k_vector * sum_term
+    print("clipping coefficient is", D_i_prime_vector)
 
         
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
@@ -218,6 +238,7 @@ def main(args):
             noise_multiplier=args.noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
+            clipping_coe=D_i_prime_vector,
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,  # ['patch_embed.proj.bias'],
         )
