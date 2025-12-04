@@ -206,9 +206,7 @@ class PrivacyEngine(object):
             self.numerical_stability_constant=1e-6
         
         if clipping_style=='layer-wise':
-            self.max_grad_norm_layerwise = self.max_grad_norm / math.sqrt(self.n_layers)
-            self.min_grad_norm_layerwise = 0.8 * self.max_grad_norm_layerwise
-        elif clipping_style=='layer-wise-adjust':
+            # self.max_grad_norm_layerwise = self.max_grad_norm / math.sqrt(self.n_layers)
             self.max_grad_norm_layerwise = self.clipping_coe
             self.min_grad_norm_layerwise = 0.8 * self.max_grad_norm_layerwise
         elif clipping_style=='param-wise':
