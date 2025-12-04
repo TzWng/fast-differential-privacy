@@ -7,7 +7,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-9 -8.5 -8 -7.5 -7) # SGD
 # 288 512 1152 2048 4608 8192
-for wid in 512 1024 2048; do 
+for wid in 256; do 
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_approx \
@@ -23,7 +23,7 @@ for wid in 512 1024 2048; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_1.txt"
   done
 done
 
