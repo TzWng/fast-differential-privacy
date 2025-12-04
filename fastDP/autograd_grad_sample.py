@@ -58,15 +58,15 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
             if name in block_heads:
                 def this_backward(this_layer, grad_input, grad_output, idx=current_layer_idx):
                     _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
-                    _per_block_clip_grad(this_layer, named_params, named_layers, clipping_style, clipping_fn, numerical_stability_constant, max_grad_norm_layerwise[idx])
-                    layer_idx += 1               
+                    _per_block_clip_grad(this_layer, named_params, named_layers, clipping_style, clipping_fn, numerical_stability_constant, max_grad_norm_layerwise[idx])              
             else:
                 def this_backward(this_layer, grad_input, grad_output):
                     _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
 
             # Starting with 1.8.0, can use `register_full_backward_hook`, but slower
-            handles.append(layer.register_backward_hook(this_backward))    
-
+            handles.append(layer.register_backward_hook(this_backward))  
+            layer_idx += 1 
+    print("layer idx", layer_idx)
     model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
 
 
