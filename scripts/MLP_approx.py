@@ -229,7 +229,7 @@ def main(args):
         else:
             clipping_mode = 'ghost'
 
-        if args.clipping_style in [['all-layer'], ['layer-wise'], ['param-wise']]:
+        if args.clipping_style in [['all-layer'], ['layer-wise'], ['layer-wise-adjust'], ['param-wise']]:
             args.clipping_style = args.clipping_style[0]
         privacy_engine = PrivacyEngine(
             net,
