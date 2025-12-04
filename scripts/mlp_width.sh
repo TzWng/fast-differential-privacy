@@ -19,7 +19,7 @@ for wid in 256; do
       --epsilon 2 \
       --noise 2 \
       --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise-adjust \
+      --clipping_style layer-wise \
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
