@@ -46,6 +46,7 @@ class PrivacyEngine(object):
         eps_error=0.05,
         clipping_mode='MixOpt',
         clipping_fn='automatic',
+        clipping_coe=None,
         loss_reduction='mean',
         origin_params=None,
         clipping_style='all-layer',
@@ -127,6 +128,7 @@ class PrivacyEngine(object):
         self.sample_size = sample_size
         self.sample_rate = sample_rate
         self.max_grad_norm = max_grad_norm
+        self.clipping_coe = clipping_coe
 
         self.epochs = epochs
         self.noise_multiplier = noise_multiplier
@@ -205,6 +207,9 @@ class PrivacyEngine(object):
         
         if clipping_style=='layer-wise':
             self.max_grad_norm_layerwise = self.max_grad_norm / math.sqrt(self.n_layers)
+            self.min_grad_norm_layerwise = 0.8 * self.max_grad_norm_layerwise
+        elif clipping_style=='layer-wise-adjust':
+            self.max_grad_norm_layerwise = self.clipping_coe
             self.min_grad_norm_layerwise = 0.8 * self.max_grad_norm_layerwise
         elif clipping_style=='param-wise':
             self.max_grad_norm_layerwise = self.max_grad_norm / math.sqrt(self.n_components)
