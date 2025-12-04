@@ -46,6 +46,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
         raise ValueError("Trying to add hooks twice to the same model")
 
     handles = []
+    layer_idx = 0
 
     for name, layer in model.named_modules():
         if type(layer) in _supported_layers_norm_sample_AND_clipping and requires_grad(layer):
@@ -56,7 +57,8 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
             if name in block_heads:
                 def this_backward(this_layer, grad_input, grad_output):
                     _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
-                    _per_block_clip_grad(this_layer, named_params, named_layers, clipping_style, clipping_fn, numerical_stability_constant, max_grad_norm_layerwise)
+                    _per_block_clip_grad(this_layer, named_params, named_layers, clipping_style, clipping_fn, numerical_stability_constant, max_grad_norm_layerwise[layer_idx])
+                    layer_idx += 1
             else:
                 def this_backward(this_layer, grad_input, grad_output):
                     _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
