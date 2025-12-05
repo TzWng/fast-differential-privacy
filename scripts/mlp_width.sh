@@ -31,6 +31,7 @@ LRS=(-8) # SGD
 # 288 512 1152 2048 4608 8192
 for wid in 512; do 
   for lr in "${LRS[@]}"; do
+    sig=$(awk "BEGIN {print 2.0*sqrt(128.0/$wid)}")
     dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_approx \
@@ -40,7 +41,7 @@ for wid in 512; do
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
-      --noise 2 \
+      --noise "$sig" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
