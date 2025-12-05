@@ -31,6 +31,7 @@ LRS=(-8) # SGD
 # 288 512 1152 2048 4608 8192
 for wid in 512; do 
   for lr in "${LRS[@]}"; do
+    dim=$(awk "BEGIN {print sqrt($wid/128.0)*8.0}")
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_approx \
       --width "$wid" \
@@ -43,7 +44,7 @@ for wid in 512; do
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
-      --dimension 32 \
+      --dimension "$dim" \
       --optimizer SGD \
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_temp.txt"
   done
