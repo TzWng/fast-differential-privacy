@@ -40,7 +40,7 @@ for wid in 512; do
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
-      --noise 0 \
+      --noise 2 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
