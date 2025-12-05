@@ -5,9 +5,9 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-10 -9.5 -9 -8.5 -8 -7.5 -7) # SGD
+LRS=(-6.5 -6) # SGD
 # 288 512 1152 2048 4608 8192
-for wid in 1024 2048; do 
+for wid in 512 1024 2048; do 
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_approx \
@@ -26,6 +26,29 @@ for wid in 1024 2048; do
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix.txt"
   done
 done
+
+LRS=(-10 -9.5 -9 -8.5 -8 -7.5 -7 -6.5 -6) # SGD
+# 288 512 1152 2048 4608 8192
+for wid in 4096 8192; do 
+  for lr in "${LRS[@]}"; do
+    echo "Running width=$wid, lr=$lr, dim=32"
+    $PYTHON -m scripts.MLP_approx \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 2 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix.txt"
+  done
+done
+
 
 
 
