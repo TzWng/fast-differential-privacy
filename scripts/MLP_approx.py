@@ -138,7 +138,7 @@ def main(args):
     f_i_k_vector[1:L-1] = 128 / args.width
     f_i_k_vector[L-1] = (128 + 10) / (args.width + 10)
 
-    f_i_k_vector = torch.zeros(L, dtype=torch.float32) + 5
+    f_i_k_vector = torch.zeros(L, dtype=torch.float32) + 1
     sum_term = torch.sum(1.0 / f_i_k_vector)
     noise = args.noise * (sum_term / L)**(-0.5)
     D_i_prime_vector = f_i_k_vector * sum_term
