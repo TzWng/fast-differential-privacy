@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-8) # SGD
 # 288 512 1152 2048 4608 8192
-for wid in 2048; do 
+for wid in 512; do 
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_approx \
@@ -16,7 +16,7 @@ for wid in 2048; do
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
-      --noise 0 \
+      --noise 2 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
