@@ -16,7 +16,7 @@ for wid in 2048; do
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
-      --noise 2 \
+      --noise 0 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --cifar_data CIFAR10 \
