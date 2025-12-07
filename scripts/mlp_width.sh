@@ -5,9 +5,9 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 # LRS=(-5 -4.5 -4 -3.5 -3 -2.5) # SGD
-LRS=(-2.5) # SGD
+LRS=(-5 -4.5 -4 -3.5 -3 -2.5) # SGD
 # 288 512 1152 2048 4608 8192
-for wid in 256; do 
+for wid in 512 1024 2048 4096 8192; do 
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_approx \
