@@ -142,7 +142,7 @@ def main(args):
     sum_term = torch.sum(1.0 / f_i_k_vector)
     noise = args.noise * (sum_term / L)**(-0.5)
     D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
-    # D_i_prime_vector = 1 / (L) ** 0.5
+    D_i_prime_vector = 1 / (L) ** 0.5
     print("clipping coefficient is", D_i_prime_vector)
 
         
