@@ -142,16 +142,8 @@ def main(args):
     sum_term = torch.sum(1.0 / f_i_k_vector)
     noise = args.noise * (sum_term / L)**(-0.5)
     D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
+    # D_i_prime_vector = 1 / (L) ** 0.5
     print("clipping coefficient is", D_i_prime_vector)
-
-    # layer_specific_noise = {
-    # "fc_1.weight": args.noise * ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)),  
-    # "fc_2.weight": args.noise * (128 / args.width) ** 0.5,
-    # "fc_3.weight": args.noise * (128 / args.width) ** 0.5,
-    # "fc_4.weight": args.noise * (128 / args.width) ** 0.5,
-    # "fc_5.weight": args.noise * ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5))
-    # }
-    # print("noise is", layer_specific_noise)
 
         
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
@@ -241,7 +233,7 @@ def main(args):
                                 # a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
                                 a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
-                                # lr_scale = 1
+                                lr_scale = 1
                             elif args.optimizer == 'Adam':
                                 a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
