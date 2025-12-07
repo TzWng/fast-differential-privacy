@@ -141,9 +141,16 @@ def main(args):
     f_i_k_vector = torch.zeros(L, dtype=torch.float32) + 1
     sum_term = torch.sum(1.0 / f_i_k_vector)
     # noise = args.noise * (sum_term / L)**(-0.5)
-    noise = args.noise
     D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
     print("clipping coefficient is", D_i_prime_vector)
+
+    layer_specific_noise = {
+    "fc_1.weight": args.noise * ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)),  
+    "fc_2.weight": args.noise * (128 / args.width) ** 0.5,
+    "fc_3.weight": args.noise * (128 / args.width) ** 0.5,
+    "fc_4.weight": args.noise * (128 / args.width) ** 0.5,
+    "fc_5.weight": args.noise * ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5))
+    }
    
 
         
@@ -190,7 +197,7 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=noise,
+            noise_multiplier=layer_specific_noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
             clipping_coe=D_i_prime_vector,
