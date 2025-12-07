@@ -138,20 +138,20 @@ def main(args):
     f_i_k_vector[1:L-1] = 128 / args.width
     f_i_k_vector[L-1] = ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5)) ** 2
 
-    f_i_k_vector = torch.zeros(L, dtype=torch.float32) + 1
+    # f_i_k_vector = torch.zeros(L, dtype=torch.float32) + 1
     sum_term = torch.sum(1.0 / f_i_k_vector)
-    # noise = args.noise * (sum_term / L)**(-0.5)
+    noise = args.noise * (sum_term / L)**(-0.5)
     D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
     print("clipping coefficient is", D_i_prime_vector)
 
-    layer_specific_noise = {
-    "fc_1.weight": args.noise * ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)),  
-    "fc_2.weight": args.noise * (128 / args.width) ** 0.5,
-    "fc_3.weight": args.noise * (128 / args.width) ** 0.5,
-    "fc_4.weight": args.noise * (128 / args.width) ** 0.5,
-    "fc_5.weight": args.noise * ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5))
-    }
-    print("noise is", layer_specific_noise)
+    # layer_specific_noise = {
+    # "fc_1.weight": args.noise * ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)),  
+    # "fc_2.weight": args.noise * (128 / args.width) ** 0.5,
+    # "fc_3.weight": args.noise * (128 / args.width) ** 0.5,
+    # "fc_4.weight": args.noise * (128 / args.width) ** 0.5,
+    # "fc_5.weight": args.noise * ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5))
+    # }
+    # print("noise is", layer_specific_noise)
 
         
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
@@ -197,7 +197,7 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=layer_specific_noise,
+            noise_multiplier=noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
             clipping_coe=D_i_prime_vector,
@@ -233,12 +233,13 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):           
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                        print("spectral norm is", spec)
+                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                        # print("spectral norm is", spec)
                         # spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs                       
                         if grad.ndim == 2:
                             if args.optimizer == 'SGD':
-                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
+                                # a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
+                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
                                 # lr_scale = 1
                             elif args.optimizer == 'Adam':
