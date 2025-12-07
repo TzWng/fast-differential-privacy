@@ -103,7 +103,11 @@ class MuonNEW(torch.optim.Optimizer):
 
                 # apply your MuP-style scaling for 2D head weight
                 if g.ndim == 2:
-                    spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6)/3
+                    # spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6)/3
+                    spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6)
+                    print("fnorm", spec)
+                    spec = torch.linalg.norm(g, ord=2).clamp(min=1e-6)
+                    print("spectral norm", spec)
                     lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
                     g = g * lr_scale
 
