@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-8) # SGD
 # 288 512 1152 2048 4608 8192
-for wid in 512; do 
+for wid in 1024; do 
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_approx \
