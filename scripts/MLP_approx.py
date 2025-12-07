@@ -151,7 +151,7 @@ def main(args):
     "fc_4.weight": args.noise * (128 / args.width) ** 0.5,
     "fc_5.weight": args.noise * ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5))
     }
-   
+    print("noise is", layer_specific_noise)
 
         
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
