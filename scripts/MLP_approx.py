@@ -231,8 +231,12 @@ def main(args):
                         if grad.ndim == 2:
                             if args.optimizer == 'SGD':
                                 # a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
-                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
+                                if param.shape[0] == 10: 
+                                    a = (param.shape[1] ** 0.5) * noise / args.bs
+                                    lr_scale = (1 / param.shape[1]) ** 0.5 / a
+                                else:
+                                    a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
+                                    lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
                             elif args.optimizer == 'Adam':
                                 a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
