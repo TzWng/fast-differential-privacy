@@ -236,6 +236,7 @@ def main(args):
                                     # lr_scale = (10 / param.shape[1]) ** 0.5 / a
                                     a = (128 ** 0.5) * args.noise / args.bs
                                     lr_scale = (10 / 128) ** 0.5 / a
+                                    lr_scale /= args.width / 128
                                 else:
                                     a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
                                     lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
