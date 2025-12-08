@@ -72,7 +72,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-1.5) # SGD
+LRS=(-1.75) # SGD
 # 256 512 1024 2048 4096 8192
 for wid in 256 512 1024 2048 4096 8192; do 
   for lr in "${LRS[@]}"; do
