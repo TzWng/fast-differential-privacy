@@ -176,8 +176,8 @@ class MuonNEW(torch.optim.Optimizer):
                     
                 if g.ndim >= 2:
                     g = zeropower_via_newtonschulz5(g, steps=group['ns_steps'])
-                    g *= max(1, g.size(0)/g.size(1))**0.5
-                    # g *= (g.size(0)/g.size(1))**0.5
+                    # g *= max(1, g.size(0)/g.size(1))**0.5
+                    g *= (g.size(0)/g.size(1))**0.5
                 else:
                     g /= g.norm()
                 p.data.add_(g, alpha=-lr)
@@ -248,10 +248,10 @@ def main(args):
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
-        head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
-        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
-                            head_param_ids=head_ids)
-        # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6)
+        # head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
+        # optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
+        #                     head_param_ids=head_ids)
+        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6)
 
     def train(epoch):
 
