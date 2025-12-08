@@ -213,17 +213,17 @@ def main(args):
 
     n_acc_steps = args.bs // args.mini_bs  # gradient accumulation steps
 
-    # # Model
-    # input_dim = 3 * args.dimension * args.dimension
-    # net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    # Model
+    input_dim = 3 * args.dimension * args.dimension
+    net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
 
     
-    input_dim = 3 * args.dimension * args.dimension
-    base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    net = muMLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
-    net = net.to(device)
-    set_base_shapes(net, base_model, delta=delta_model)
+    # input_dim = 3 * args.dimension * args.dimension
+    # base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    # delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    # net = muMLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    # net = net.to(device)
+    # set_base_shapes(net, base_model, delta=delta_model)
 
     
 
@@ -307,13 +307,13 @@ def main(args):
 
     for epoch in range(args.epochs):
         train_loss = train(epoch)
-        # test_loss = test(epoch)
+        test_loss = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=test_loss, width=args.width, batch=args.bs, sigma=args.noise)
 
 
 import mup
