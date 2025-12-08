@@ -142,7 +142,7 @@ class MuonNEW(torch.optim.Optimizer):
                     if g.size(1) == 3072: 
                         spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) / 2
                     elif g.size(0) == 10: 
-                        spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) - 2
+                        spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) / 1.2
                     lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
                     g = g * lr_scale
 
