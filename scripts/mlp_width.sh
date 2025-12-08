@@ -91,28 +91,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-8 -7.75 -7.5 -7.25 -7) # SGD
-# 256 512 1024 2048 4096 8192
-for wid in 4096; do 
-  for lr in "${LRS[@]}"; do
-    dim=32
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_nonDP_muP \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 5 \
-      --bs 500 \
-      --mini_bs 500 \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_doublesgd_true_1.txt"
-  done
-done
-
-# LRS=(-10.5 -10) # SGD
+# LRS=(-8 -7.75 -7.5 -7.25 -7) # SGD
 # # 256 512 1024 2048 4096 8192
-# for wid in 8192; do 
+# for wid in 4096; do 
 #   for lr in "${LRS[@]}"; do
 #     dim=32
 #     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
@@ -125,9 +106,28 @@ done
 #       --cifar_data CIFAR10 \
 #       --dimension 32 \
 #       --optimizer muon \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_all.txt"
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_doublesgd_true_1.txt"
 #   done
 # done
+
+LRS=(-10 -9.5 -9 -8.5 -8) # SGD
+# 256 512 1024 2048 4096 8192
+for wid in 256; do 
+  for lr in "${LRS[@]}"; do
+    dim=32
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+    $PYTHON -m scripts.MLP_nonDP_muP \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 5 \
+      --bs 500 \
+      --mini_bs 500 \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer muon \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_all_new.txt"
+  done
+done
 
 # LRS=(-5.75) # SGD
 # # 288 512 1152 2048 4608 8192
