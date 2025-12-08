@@ -244,6 +244,23 @@ def main(args):
 
     if args.optimizer == 'SGD':
         optimizer = MuSGD(net.parameters(), lr=base_lr)
+        def print_mup_groups(optimizer):
+            print(f"{'Group ID':<10} | {'LR':<12} | {'Weight Decay':<12} | {'Param Shapes (First 2)'}")
+            print("-" * 80)
+            
+            for i, group in enumerate(optimizer.param_groups):
+                lr = group['lr']
+                wd = group.get('weight_decay', 0.0)
+                
+                shapes = [str(list(p.shape)) for p in group['params'][:2]]
+                shape_str = ", ".join(shapes)
+                if len(group['params']) > 2:
+                    shape_str += ", ..."
+                    
+                print(f"{i:<10} | {lr:<12.6f} | {wd:<12.6f} | {shape_str}")
+    
+        
+        print_mup_groups(optimizer)
         # optimizer = optim.SGD(param_groups, lr=base_lr)
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
