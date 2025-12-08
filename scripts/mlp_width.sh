@@ -122,7 +122,6 @@ for lr in "${LRS[@]}"; do
       --epochs 5 \
       --bs 500 \
       --mini_bs 500 \
-      --clipping_mode nonDP\
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer muon \
