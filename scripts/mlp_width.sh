@@ -106,7 +106,7 @@ for wid in 2048; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_doublesgd_true.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muon_depth5_diffwidth_nonDP_doublesgd_true_1.txt"
   done
 done
 
