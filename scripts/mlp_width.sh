@@ -28,27 +28,27 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-# LRS=(-5.5 -6 -6.5 -7 -7.5) # SGD
-# # 288 512 1152 2048 4608 8192
-# for wid in 512 1024 2048 4096 8192; do 
-#   for lr in "${LRS[@]}"; do
-#     echo "Running width=$wid, lr=$lr, dim=32"
-#     $PYTHON -m scripts.MLP_approx \
-#       --width "$wid" \
-#       --lr "$lr" \
-#       --epochs 10 \
-#       --bs 500 \
-#       --mini_bs 500 \
-#       --epsilon 2 \
-#       --noise 2 \
-#       --clipping_mode BK-MixOpt \
-#       --clipping_style layer-wise \
-#       --cifar_data CIFAR10 \
-#       --dimension 32 \
-#       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_new.txt"
-#   done
-# done
+LRS=(-6 -6.5 -7 -7.5 -8) # SGD
+# 288 512 1152 2048 4608 8192
+for wid in 256 512 1024 2048 4096 8192; do 
+  for lr in "${LRS[@]}"; do
+    echo "Running width=$wid, lr=$lr, dim=32"
+    $PYTHON -m scripts.MLP_approx \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 2 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_new_new.txt"
+  done
+done
 
 
 
@@ -72,24 +72,24 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-1.75) # SGD
-# 256 512 1024 2048 4096 8192
-for wid in 512; do 
-  for lr in "${LRS[@]}"; do
-    dim=32
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_nonDP_muP \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/temp.txt"
-  done
-done
+# LRS=(-1.75) # SGD
+# # 256 512 1024 2048 4096 8192
+# for wid in 512; do 
+#   for lr in "${LRS[@]}"; do
+#     dim=32
+#     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
+#     $PYTHON -m scripts.MLP_nonDP_muP \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/temp.txt"
+#   done
+# done
 
 # LRS=(-8 -7.75 -7.5 -7.25 -7) # SGD
 # # 256 512 1024 2048 4096 8192
