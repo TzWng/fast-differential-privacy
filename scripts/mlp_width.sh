@@ -89,7 +89,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 #       --optimizer SGD \
 #       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_nonDP_mup_new.txt"
 #   done
-done
+# done
 
 LRS=(-8 -7.5 -7 -6.5 -6 -5.5 -5) # SGD
 # 256 512 1024 2048 4096 8192
