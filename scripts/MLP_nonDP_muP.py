@@ -269,27 +269,7 @@ def main(args):
             loss = criterion(outputs, targets) / n_acc_steps
             loss.backward()
             
-            if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
-                
-                # for group in optimizer.param_groups:
-                #     name = group.get("name", "")
-                #     param = group["params"][0]
-                #     grad = param.grad
-                #     lr_scale = 1.0                  
-                   
-                #     if grad is not None and grad.ndim in (1, 2):                               
-                #         if grad.ndim == 2:
-                #             if args.optimizer == 'SGD':
-                #                 lr_scale = param.shape[0] / param.shape[1]
-                #             elif args.optimizer == 'Adam':
-                #                 a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
-                #                 lr_scale = 1 / param.shape[1]
-                #         elif grad.ndim == 1:
-                #             lr_scale = (param.shape[0]) ** 0.5 / spec
-                            
-                #     group["lr"] = base_lr * lr_scale
-
-
+            if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):             
                 optimizer.step()
                 optimizer.zero_grad()
 
@@ -304,8 +284,31 @@ def main(args):
 
         return train_loss / (batch_idx + 1)
 
+
+    def test(epoch):
+        net.eval()
+        test_loss = 0
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for batch_idx, (inputs, targets) in enumerate(tqdm(testloader)):
+                inputs, targets = inputs.to(device), targets.to(device)
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
+
+                test_loss += loss.item()
+                _, predicted = outputs.max(1)
+                total += targets.size(0)
+                correct += predicted.eq(targets).sum().item()
+
+            print('Epoch: ', epoch, len(testloader), 'Test Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                  % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+            
+            return test_loss / (batch_idx + 1)
+
     for epoch in range(args.epochs):
         train_loss = train(epoch)
+        # test_loss = test(epoch)
         if math.isnan(train_loss):
             break
 
