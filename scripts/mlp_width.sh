@@ -116,7 +116,7 @@ for lr in "${LRS[@]}"; do
   for wid in 256; do 
     dim=32
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_muon \
+    $PYTHON -m scripts.MLP_nonDP_muP \
       --width "$wid" \
       --lr "$lr" \
       --epochs 5 \
