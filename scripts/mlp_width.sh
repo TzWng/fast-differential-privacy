@@ -91,10 +91,10 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-7.75 -7.25 -9 -9.5) # SGD
+LRS=(-8.5 -7.75 -7.25 -9 -9.5) # SGD
 # 256 512 1024 2048 4096 8192
 for lr in "${LRS[@]}"; do
-  for wid in 512 1024 2048 4096 8192; do 
+  for wid in 256; do 
     dim=32
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
     $PYTHON -m scripts.MLP_nonDP_muP \
