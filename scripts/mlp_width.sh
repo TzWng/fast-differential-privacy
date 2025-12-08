@@ -116,12 +116,13 @@ for lr in "${LRS[@]}"; do
   for wid in 256; do 
     dim=32
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=$dim"
-    $PYTHON -m scripts.MLP_nonDP_muP \
+    $PYTHON -m scripts.MLP_muon \
       --width "$wid" \
       --lr "$lr" \
       --epochs 5 \
       --bs 500 \
       --mini_bs 500 \
+      --clipping_mode nonDP\
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer muon \
