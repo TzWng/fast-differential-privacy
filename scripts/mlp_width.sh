@@ -46,7 +46,7 @@ for wid in 8192 4096 2048 1024 512 256; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_new_4.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_new_3.txt"
   done
 done
 
