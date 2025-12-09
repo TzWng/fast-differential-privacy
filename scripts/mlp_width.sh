@@ -272,6 +272,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-11.5 -10.75 -11.25 -12) # SGD
+LRS=(-12 -12.5 -13) # SGD
 # 256 512 1024 2048 4096
 for lr in "${LRS[@]}"; do
   for wid in 256 512 1024 2048 4096 8192; do 
@@ -289,7 +290,7 @@ for lr in "${LRS[@]}"; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio_new_m1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Muon_depth5_diffwidth_approx_ratio_new_m.txt"
   done
 done
 
