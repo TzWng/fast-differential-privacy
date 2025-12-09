@@ -137,8 +137,8 @@ class MuonNEW(torch.optim.Optimizer):
                     
                 if g.ndim >= 2:
                     g = zeropower_via_newtonschulz5(g, steps=group['ns_steps'])
-                    # g *= max(1, g.size(0)/g.size(1))**0.5
-                    g *= (g.size(0)/g.size(1))**0.5
+                    g *= max(1, g.size(0)/g.size(1))**0.5
+                    # g *= (g.size(0)/g.size(1))**0.5
                 else:
                     g /= g.norm()
                 p.data.add_(g, alpha=-lr)
@@ -189,16 +189,19 @@ def main(args):
     L = len(effective_layers)
 
     
-    f_i_k_vector = torch.zeros(L, dtype=torch.float32)
-    f_i_k_vector[0] = ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)) ** 2
-    f_i_k_vector[1:L-1] = 128 / args.width
-    f_i_k_vector[L-1] = ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5)) ** 2
+    # f_i_k_vector = torch.zeros(L, dtype=torch.float32)
+    # f_i_k_vector[0] = ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)) ** 2
+    # f_i_k_vector[1:L-1] = 128 / args.width
+    # f_i_k_vector[L-1] = ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5)) ** 2
 
-    # f_i_k_vector = torch.zeros(L, dtype=torch.float32) + 1
+    f_i_k_vector = torch.zeros(L, dtype=torch.float32)
+    f_i_k_vector[0] = ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + 8192 ** 0.5)) ** 2
+    f_i_k_vector[1:L-1] = 128 / args.width
+    f_i_k_vector[L-1] = ((128 ** 0.5 + 10 ** 0.5) / (8192 ** 0.5 + 10 ** 0.5)) ** 2
     sum_term = torch.sum(1.0 / f_i_k_vector)
     noise = args.noise * (sum_term / L)**(-0.5)
-    D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
-    # D_i_prime_vector = torch.zeros(L, dtype=torch.float32) + 1 / (L) ** 0.5
+    # D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
+    D_i_prime_vector = torch.zeros(L, dtype=torch.float32) + 1 / (L) ** 0.5
     print("clipping coefficient is", D_i_prime_vector)
 
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
