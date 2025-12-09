@@ -114,7 +114,7 @@ class MuonNEW(torch.optim.Optimizer):
                     #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) * 3 / 50
                     # elif g.size(0) == 10: 
                     #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) / 3
-                    spec = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
+                    spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise / args.bs
                     lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
                     g = g * lr_scale
 
@@ -287,7 +287,7 @@ def main(args):
             break
 
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
 
 
 from fastDP import PrivacyEngine 
