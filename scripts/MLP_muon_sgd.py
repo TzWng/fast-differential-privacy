@@ -4,6 +4,13 @@ from .logger import ExecutionLogger
 import numpy as np
 import torch
 
+def get_effective_layers(model: nn.Module) -> list[nn.Module]:
+    linear_layers = []
+    for module in model.modules():
+        if isinstance(module, nn.Linear):
+            linear_layers.append(module)
+    return linear_layers
+    
 class MLP(nn.Module):
     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
         super(MLP, self).__init__()
@@ -63,7 +70,7 @@ def zeropower_via_newtonschulz5(G, steps):
     return X
         
 class MuonNEW(torch.optim.Optimizer):
-    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, head_param_ids=None):
+    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, noise=1, head_param_ids=None):
 
         defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
         super().__init__(params, defaults)
@@ -103,11 +110,11 @@ class MuonNEW(torch.optim.Optimizer):
 
                 # apply your MuP-style scaling for 2D head weight
                 if g.ndim == 2:
-                    if g.size(1) == 3072: 
-                        spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) * 3 / 50
-                    elif g.size(0) == 10: 
-                        spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) / 3
-                        
+                    # if g.size(1) == 3072: 
+                    #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) * 3 / 50
+                    # elif g.size(0) == 10: 
+                    #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) / 3
+                    spec = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
                     lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
                     g = g * lr_scale
 
@@ -187,6 +194,19 @@ def main(args):
     print('==> Building model..', '; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
     input_dim = 3 * args.dimension * args.dimension
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    effective_layers = get_effective_layers(net)
+    L = len(effective_layers)
+
+    
+    f_i_k_vector = torch.zeros(L, dtype=torch.float32)
+    f_i_k_vector[0] = ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)) ** 2
+    f_i_k_vector[1:L-1] = 128 / args.width
+    f_i_k_vector[L-1] = ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5)) ** 2
+
+    sum_term = torch.sum(1.0 / f_i_k_vector)
+    noise = args.noise * (sum_term / L)**(-0.5)
+    D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
+    print("clipping coefficient is", D_i_prime_vector)
 
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
@@ -196,7 +216,7 @@ def main(args):
     base_lr = 2 ** args.lr
     head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
     optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
-                        head_param_ids=head_ids)
+                        noise=noise, head_param_ids=head_ids)
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
         for name, param in net.named_parameters():
@@ -224,9 +244,10 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=args.noise,
+            noise_multiplier=noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
+            clipping_coe=D_i_prime_vector,
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,  # ['patch_embed.proj.bias'],
         )
