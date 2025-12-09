@@ -137,8 +137,8 @@ class MuonNEW(torch.optim.Optimizer):
                     
                 if g.ndim >= 2:
                     g = zeropower_via_newtonschulz5(g, steps=group['ns_steps'])
-                    # g *= max(1, g.size(0)/g.size(1))**0.5
-                    g *= (g.size(0)/g.size(1))**0.5
+                    g *= max(1, g.size(0)/g.size(1))**0.5
+                    # g *= (g.size(0)/g.size(1))**0.5
                 else:
                     g /= g.norm()
                 p.data.add_(g, alpha=-lr)
