@@ -100,6 +100,7 @@ class MuonNEW(torch.optim.Optimizer):
 
         for group in self.param_groups:
             lr = group["lr"]
+            noise = group['noise']
 
             for p in self._head_param_set:
                 if p.grad is None:
