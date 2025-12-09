@@ -72,7 +72,7 @@ def zeropower_via_newtonschulz5(G, steps):
 class MuonNEW(torch.optim.Optimizer):
     def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, noise=1, head_param_ids=None):
 
-        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
+        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps, noise=noise)
         super().__init__(params, defaults)
         self.head_param_ids = set() if head_param_ids is None else head_param_ids
 
