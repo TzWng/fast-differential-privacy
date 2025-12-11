@@ -4,7 +4,7 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-5 -2.5 -2) # SGD
+LRS=(-4.5 -4 -3.5 -3 -2.5) # SGD
 # 256 512 1024 2048 4096 8192
 for wid in 256 512 1024 2048 4096; do 
   for lr in "${LRS[@]}"; do
@@ -16,7 +16,7 @@ for wid in 256 512 1024 2048 4096; do
       --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
-      --noise 1.4992635250091553 \
+      --noise 2 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
