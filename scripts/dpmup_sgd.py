@@ -87,7 +87,7 @@ def main(args):
     model_shapes = get_shapes(net)
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    D_prime_vector = clip_dict
+    D_prime_vector = torch.stack(list(clip_dict.values()))
 
   
     
