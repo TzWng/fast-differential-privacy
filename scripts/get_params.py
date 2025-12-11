@@ -150,76 +150,35 @@ def _get_clip4target(base_shapes, target_shapes, target_noise=None):
 #     return target_lrs
 
 
-import torch
-
-def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr):
+def _get_lr4target(target_shapes, target_noise, base_lr):
     """
-    LR 计算规则：
-    1. 第一层 (First Valid Layer): 使用复杂的 Scale/Norm Ratio 公式计算。
-    2. 后续层: 基于第一层的 LR，根据 target 模型的维度指标 (sqrt(out) + sqrt(in)) 进行线性缩放。
+    仅根据 Target 模型自身的形状和噪声来缩放学习率。
+    不需要 Base 模型参与对比。
+    
+    Rule: LR = base_lr / [ (sqrt(out) + sqrt(in)) * noise ]
     """
     target_lrs = {}
-    
-    # 用于存储第一层的计算结果，作为后续层的基准
-    first_layer_target_lr = None
-    first_layer_metric = None  # 即第一层的 (t_out**0.5 + t_in**0.5)
 
-    for key, base_shape in base_shapes.items():
-        # 1. 基础检查
-        if key not in target_shapes:
-            continue
+    # 直接遍历 target_shapes
+    for key, shape in target_shapes.items():
         
-        target_shape = target_shapes[key]
-        
-        # 2. 处理非权重参数 (Bias / LayerNorm 等 1D 参数)
-        # 这里依然保持 base_lr，或者你可以根据需求修改
-        if len(base_shape) != len(target_shape) or len(base_shape) < 2:
+        # 1. 过滤掉非权重参数 (如 Bias [512], LayerNorm [512])
+        # 这些参数通常没有 out/in 两个维度，或者不需要这种强力的缩放
+        if len(shape) < 2:
             target_lrs[key] = base_lr
-            continue 
+            continue
 
-        # 3. 提取维度
-        t_out, t_in = target_shape[0], target_shape[1]
+        # 2. 提取维度 [out_features, in_features]
+        t_out, t_in = shape[0], shape[1]
         
-        # 计算当前层 Target 的 Metric: (sqrt(out) + sqrt(in))
-        current_layer_metric = t_out**0.5 + t_in**0.5
+        # 3. 计算分母 Metric
+        # Metric = (sqrt(out) + sqrt(in)) * noise
+        layer_metric = (t_out**0.5 + t_in**0.5) * target_noise
+        
+        # 4. 计算 LR
+        # 加上 1e-8 防止噪声为 0 导致除零错误
+        target_lrs[key] = base_lr / (layer_metric + 1e-8)
 
-        if first_layer_target_lr is None:
-            # --- [情况 A: 第一层] ---
-            # 使用原本复杂的公式
-            b_out, b_in = base_shape[0], base_shape[1]
-
-            # Base Model 指标
-            norm_base = base_noise * (b_out**0.5 + b_in**0.5)
-            scale_base = (b_out / b_in) ** 0.5
-            
-            # Target Model 指标
-            norm_target = target_noise * current_layer_metric
-            scale_target = (t_out / t_in) ** 0.5
-
-            # 计算复杂 Ratio
-            metric_target = scale_target / norm_target
-            metric_base = scale_base / norm_base
-            ratio = metric_target / metric_base
-            
-            # 得到第一层的 LR
-            calculated_lr = base_lr * ratio
-            
-            # 【关键】保存第一层的 LR 和 Metric 供后续使用
-            first_layer_target_lr = calculated_lr
-            first_layer_metric = current_layer_metric
-            
-            target_lrs[key] = calculated_lr
-            
-        else:
-            # --- [情况 B: 后续层] ---
-            # 逻辑：First_LR * (Current_Metric / First_Metric)
-            # 即：乘(t_out**0.5 + t_in**0.5) 再除以第一层的(t_out**0.5 + t_in**0.5)
-            
-            scaling_factor = current_layer_metric / first_layer_metric
-            new_lr = first_layer_target_lr / scaling_factor
-            
-            target_lrs[key] = new_lr
-            
     return target_lrs
 
     
