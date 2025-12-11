@@ -174,10 +174,11 @@ def _get_lr4target(target_shapes, target_noise, base_lr):
         # 3. 计算分母 Metric
         # Metric = (sqrt(out) + sqrt(in)) * noise
         layer_metric = (t_out**0.5 + t_in**0.5) * target_noise
+        new_lr = base_lr * (t_out / t_in) ** 0.5 / (layer_metric + 1e-8)
         
         # 4. 计算 LR
         # 加上 1e-8 防止噪声为 0 导致除零错误
-        target_lrs[key] = base_lr / (layer_metric + 1e-8)
+        target_lrs[key] = new_lr
 
     return target_lrs
 
