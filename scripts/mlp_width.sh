@@ -4,9 +4,9 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-2.5 -2 -1.5 -1) # SGD
+LRS=(-4 -3.5 -3 -2.5) # SGD
 # 256 512 1024 2048 4096 8192
-for wid in 256; do 
+for wid in 512 1024 2048 4096 8192; do 
   for lr in "${LRS[@]}"; do
     dim=32
     echo "Running width=$wid, lr=$lr, dim=32"
