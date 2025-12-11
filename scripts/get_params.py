@@ -216,7 +216,7 @@ def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr
             # 即：乘(t_out**0.5 + t_in**0.5) 再除以第一层的(t_out**0.5 + t_in**0.5)
             
             scaling_factor = current_layer_metric / first_layer_metric
-            new_lr = first_layer_target_lr * scaling_factor
+            new_lr = first_layer_target_lr / scaling_factor
             
             target_lrs[key] = new_lr
             
