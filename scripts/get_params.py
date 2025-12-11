@@ -71,33 +71,33 @@ def _get_noise4target(base_shapes, target_shapes, base_noise):
 
     return target_noise
 
-def _get_clip4target(base_shapes, target_shapes, target_noise=None):
-    common_keys = [k for k in base_shapes.keys() if k in target_shapes]
-    L = len(common_keys)
+# def _get_clip4target(base_shapes, target_shapes, target_noise=None):
+#     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
+#     L = len(common_keys)
     
-    if L == 0: return {} # 返回空字典
+#     if L == 0: return {} # 返回空字典
 
-    f_vector = torch.zeros(L, dtype=torch.float32)
+#     f_vector = torch.zeros(L, dtype=torch.float32)
     
-    for i, key in enumerate(common_keys):
-        b_shape = base_shapes[key]
-        t_shape = target_shapes[key]
+#     for i, key in enumerate(common_keys):
+#         b_shape = base_shapes[key]
+#         t_shape = target_shapes[key]
         
-        if len(b_shape) < 2:
-            f_vector[i] = 1.0
-            continue
+#         if len(b_shape) < 2:
+#             f_vector[i] = 1.0
+#             continue
             
-        base_dim_metric = b_shape[0] ** 0.5 + b_shape[1] ** 0.5
-        target_dim_metric = t_shape[0] ** 0.5 + t_shape[1] ** 0.5
-        f_vector[i] = (base_dim_metric / target_dim_metric) ** 2
+#         base_dim_metric = b_shape[0] ** 0.5 + b_shape[1] ** 0.5
+#         target_dim_metric = t_shape[0] ** 0.5 + t_shape[1] ** 0.5
+#         f_vector[i] = (base_dim_metric / target_dim_metric) ** 2
         
-    sum_term = torch.sum(1.0 / f_vector)
+#     sum_term = torch.sum(1.0 / f_vector)
     
-    # 计算 Vector
-    D_prime_vector = 1.0 / (f_vector * sum_term) ** 0.5
+#     # 计算 Vector
+#     D_prime_vector = 1.0 / (f_vector * sum_term) ** 0.5
     
-    # 3. 将结果打包回字典，方便查看每一层对应的 clip
-    return dict(zip(common_keys, D_prime_vector))
+#     # 3. 将结果打包回字典，方便查看每一层对应的 clip
+#     return dict(zip(common_keys, D_prime_vector))
 
 
 # def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr):
