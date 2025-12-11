@@ -1,5 +1,11 @@
 import torch
 
+def get_shapes(model):
+    # If you want to implement a custom shapes function, you can use this name
+    if hasattr(model, "get_shapes"):
+        return model.get_shapes()
+    return {name: param.shape for name, param in model.named_parameters()}
+    
 def _get_noise4base(base_shapes, target_shapes, target_noise):
     # 1. 找出两个模型共有的层（Key）
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
