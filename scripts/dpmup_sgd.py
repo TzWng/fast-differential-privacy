@@ -87,7 +87,7 @@ def main(args):
     model_shapes = get_shapes(net)
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
+    #clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
 
@@ -116,7 +116,7 @@ def main(args):
       
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(param_groups, lr=base_lr)
-        optimizer = optim.SGD(net.parameters(), lr=base_lr)
+        # optimizer = optim.SGD(net.parameters(), lr=base_lr)
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(param_groups, lr=base_lr)
         
@@ -260,5 +260,5 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    torch.manual_seed(4)
+    torch.manual_seed(3)
     main(args)
