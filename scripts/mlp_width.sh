@@ -5,27 +5,25 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-3.5 -3.25) # SGD
+LRS=(-4 -3.5 -3 -2.5) # SGD
 # 256 512 1024 2048 4096 8192
-for seed in 0 1 2; do
-  for lr in "${LRS[@]}"; do 
-    for wid in 256; do
-      echo "Running width=$wid, lr=$lr, dim=32"
-      $PYTHON -m scripts.dpmup_sgd \
-        --width "$wid" \
-        --lr "$lr" \
-        --epochs 10 \
-        --bs 500 \
-        --mini_bs 500 \
-        --noise 2 \
-        --seed "$seed" \
-        --cifar_data CIFAR10 \
-        --clipping_mode BK-MixOpt \
-        --clipping_style layer-wise \
-        --dimension 32 \
-        --optimizer SGD \
-        --log_path "/content/drive/MyDrive/DP_muP/logs/temp_1_8192.txt"
-    done
+for lr in "${LRS[@]}"; do 
+  for wid in 256; do
+    echo "Running width=$wid, lr=$lr, dim=32"
+    $PYTHON -m scripts.dpmup_sgd \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --noise 2 \
+      --seed 2 \
+      --cifar_data CIFAR10 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/temp_easy.txt"
   done
 done
 
