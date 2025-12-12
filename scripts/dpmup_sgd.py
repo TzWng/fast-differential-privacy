@@ -185,14 +185,36 @@ def main(args):
 
         return train_loss / (batch_idx + 1)
 
+    def test(epoch):
+        net.eval()
+        test_loss = 0
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for batch_idx, (inputs, targets) in enumerate(tqdm(testloader)):
+                inputs, targets = inputs.to(device), targets.to(device)
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
+
+                test_loss += loss.item()
+                _, predicted = outputs.max(1)
+                total += targets.size(0)
+                correct += predicted.eq(targets).sum().item()
+
+            print('Epoch: ', epoch, len(testloader), 'Test Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                  % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+            
+            return test_loss / (batch_idx + 1)
+
     for epoch in range(args.epochs):
         train_loss = train(epoch)
+        test_loss = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=test_loss, width=args.width, batch=args.bs, sigma=noise)
 
 
 from fastDP import PrivacyEngine 
