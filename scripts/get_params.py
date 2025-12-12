@@ -126,7 +126,7 @@ def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr
         b_out, b_in = base_shape[0], base_shape[1]
         t_out, t_in = target_shape[0], target_shape[1]
 
-        if t_out == 10:
+        if t_in == 3072 or t_out == 10:
             ratio = base_noise / target_noise
         else:
             # 3. 计算 Base 模型的指标
