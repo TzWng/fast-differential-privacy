@@ -85,10 +85,10 @@ def main(args):
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     base_shapes = get_shapes(base_model)
     model_shapes = get_shapes(net)
-    # noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
-    # clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    # D_prime_vector = torch.stack(list(clip_dict.values()))
-    # print(clip_dict)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
+    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
+    D_prime_vector = torch.stack(list(clip_dict.values()))
+    print(clip_dict)
     noise = args.noise * (128/args.width)**0.5
     D_prime_vector = None
 
@@ -100,8 +100,7 @@ def main(args):
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    # target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
-    target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
+    target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
 
     param_groups = []
     for n, p in net.named_parameters():
