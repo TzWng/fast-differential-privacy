@@ -142,7 +142,7 @@ def main(args):
     sum_term = torch.sum(1.0 / f_i_k_vector)
     noise = args.noise * (sum_term / L)**(-0.5)
     D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
-    # D_i_prime_vector = torch.zeros(L, dtype=torch.float32) + 1 / (L) ** 0.5
+    D_i_prime_vector = torch.zeros(L, dtype=torch.float32) + 1 / (L) ** 0.5
     print("clipping coefficient is", D_i_prime_vector)
 
         
@@ -218,32 +218,32 @@ def main(args):
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
                 
-                for group in optimizer.param_groups:
-                    name = group.get("name", "")
-                    param = group["params"][0]
-                    grad = param.private_grad
-                    lr_scale = 1.0                  
+                # for group in optimizer.param_groups:
+                #     name = group.get("name", "")
+                #     param = group["params"][0]
+                #     grad = param.private_grad
+                #     lr_scale = 1.0                  
                    
-                    if grad is not None and grad.ndim in (1, 2):           
-                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                        # print("spectral norm is", spec)
-                        # spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs                       
-                        if grad.ndim == 2:
-                            if args.optimizer == 'SGD':
-                                # a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
-                                if param.shape[0] == 10: 
-                                    a = (param.shape[1] ** 0.5) * noise / args.bs
-                                    lr_scale = (10 / param.shape[1]) ** 0.5 / a
-                                else:
-                                    a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
-                                    lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
-                            elif args.optimizer == 'Adam':
-                                a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
-                        elif grad.ndim == 1:
-                            lr_scale = (param.shape[0]) ** 0.5 / spec
+                #     if grad is not None and grad.ndim in (1, 2):           
+                #         # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                #         # print("spectral norm is", spec)
+                #         # spec = torch.linalg.norm(grad, ord='fro').clamp(min=eps) / args.bs                       
+                #         if grad.ndim == 2:
+                #             if args.optimizer == 'SGD':
+                #                 # a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * args.noise / args.bs
+                #                 if param.shape[0] == 10: 
+                #                     a = (param.shape[1] ** 0.5) * noise / args.bs
+                #                     lr_scale = (10 / param.shape[1]) ** 0.5 / a
+                #                 else:
+                #                     a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5) * noise / args.bs
+                #                     lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
+                #             elif args.optimizer == 'Adam':
+                #                 a = (param.shape[0] ** 0.5 + param.shape[1] ** 0.5)
+                #                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / a
+                #         elif grad.ndim == 1:
+                #             lr_scale = (param.shape[0]) ** 0.5 / spec
                             
-                    group["lr"] = base_lr * lr_scale
+                #     group["lr"] = base_lr * lr_scale
 
                 optimizer.step()
                 optimizer.zero_grad()
