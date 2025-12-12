@@ -5,10 +5,10 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-4.25) # SGD
+LRS=(-4.5 -5 -5.5 -6) # SGD
 # 256 512 1024 2048 4096 8192
 for lr in "${LRS[@]}"; do 
-  for wid in 128 256 512 1024 2048 4096 8192; do
+  for wid in 256; do
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.dpmup_sgd \
       --width "$wid" \
