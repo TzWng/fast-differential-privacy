@@ -126,23 +126,26 @@ def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr
         b_out, b_in = base_shape[0], base_shape[1]
         t_out, t_in = target_shape[0], target_shape[1]
 
-        # 3. 计算 Base 模型的指标
-        # Norm: 与噪声和维度和有关 (类似 DP 梯度裁剪范数的影响)
-        norm_base = base_noise * (b_out**0.5 + b_in**0.5)
-        # Scale: 维度的纵横比 (Aspect Ratio / Fan-out vs Fan-in)
-        scale_base = (b_out / b_in) ** 0.5
-        
-        # 4. 计算 Target 模型的指标
-        norm_target = target_noise * (t_out**0.5 + t_in**0.5)
-        scale_target = (t_out / t_in) ** 0.5
-
-        # 5. 计算缩放比例
-        # 逻辑：维持 (Scale / Norm) 的比例一致性
-        # Ratio = Target_Metric / Base_Metric
-        metric_target = scale_target / norm_target
-        metric_base = scale_base / norm_base
-        
-        ratio = metric_target / metric_base
+        if t_out == 10:
+            ratio = base_noise / target_noise
+        else:
+            # 3. 计算 Base 模型的指标
+            # Norm: 与噪声和维度和有关 (类似 DP 梯度裁剪范数的影响)
+            norm_base = base_noise * (b_out**0.5 + b_in**0.5)
+            # Scale: 维度的纵横比 (Aspect Ratio / Fan-out vs Fan-in)
+            scale_base = (b_out / b_in) ** 0.5
+            
+            # 4. 计算 Target 模型的指标
+            norm_target = target_noise * (t_out**0.5 + t_in**0.5)
+            scale_target = (t_out / t_in) ** 0.5
+    
+            # 5. 计算缩放比例
+            # 逻辑：维持 (Scale / Norm) 的比例一致性
+            # Ratio = Target_Metric / Base_Metric
+            metric_target = scale_target / norm_target
+            metric_base = scale_base / norm_base
+            
+            ratio = metric_target / metric_base
         
         # 6. 得到最终 LR
         target_lrs[key] = base_lr * ratio
