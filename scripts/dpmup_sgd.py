@@ -81,7 +81,7 @@ def main(args):
     input_dim = 3 * args.dimension * args.dimension
     
     # net = FlexibleMLP(width=args.width, input_dim=input_dim, num_layers=args.layer, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
-    base_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     base_shapes = get_shapes(base_model)
     model_shapes = get_shapes(net)
@@ -208,13 +208,13 @@ def main(args):
 
     for epoch in range(args.epochs):
         train_loss = train(epoch)
-        test_loss = test(epoch)
+        # test_loss = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=test_loss, width=args.width, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
 
 
 from fastDP import PrivacyEngine 
