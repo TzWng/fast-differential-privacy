@@ -208,13 +208,13 @@ def main(args):
 
     for epoch in range(args.epochs):
         train_loss = train(epoch)
-        # test_loss = test(epoch)
+        test_loss = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=test_loss, width=args.width, batch=args.bs, sigma=noise)
 
 
 from fastDP import PrivacyEngine 
@@ -257,5 +257,5 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    torch.manual_seed(3)
+    torch.manual_seed(4)
     main(args)
