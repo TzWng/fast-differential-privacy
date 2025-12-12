@@ -81,16 +81,14 @@ def main(args):
     input_dim = 3 * args.dimension * args.dimension
     
     # net = FlexibleMLP(width=args.width, input_dim=input_dim, num_layers=args.layer, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
-    base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    base_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     base_shapes = get_shapes(base_model)
     model_shapes = get_shapes(net)
-    # noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
-    # clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    # D_prime_vector = torch.stack(list(clip_dict.values()))
-    # print(clip_dict)
-    noise = args.noise * (128/args.width)**0.5
-    D_prime_vector = None
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
+    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
+    D_prime_vector = torch.stack(list(clip_dict.values()))
+    print(clip_dict)
     
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
