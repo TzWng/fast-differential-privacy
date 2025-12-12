@@ -5,7 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-1.5 -6.5 -7 -2 -7.5 -8) # SGD
+LRS=(-8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5 -4 -3.5 -3 -2.5 -1.5) # SGD
 # 256 512 1024 2048 4096 8192
 for lr in "${LRS[@]}"; do 
   for wid in 256; do
@@ -17,7 +17,7 @@ for lr in "${LRS[@]}"; do
       --bs 500 \
       --mini_bs 500 \
       --noise 2 \
-      --seed 4 \
+      --seed 3 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
