@@ -246,6 +246,7 @@ if __name__ == '__main__':
     parser.add_argument('--mini_bs', type=int, default=512)
     parser.add_argument('--epsilon', default=2, type=float)
     parser.add_argument('--noise', default=1, type=float)
+    parser.add_argument('--seed', default=4, type=int)
     parser.add_argument('--clipping_mode', default='BK-ghost', type=str)
     parser.add_argument('--clipping_style', default='layer-wise', nargs='+', type=str)
     parser.add_argument('--scale', default=1, type=int)
@@ -260,5 +261,5 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    torch.manual_seed(2)
+    torch.manual_seed(args.seed)
     main(args)
