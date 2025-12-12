@@ -89,10 +89,7 @@ def main(args):
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
-    noise = args.noise * (128/args.width)**0.5
-    D_prime_vector = None
-
-  
+ 
     
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
