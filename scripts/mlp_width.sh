@@ -4,10 +4,10 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-3.5 -4) # SGD
+LRS=(-4 -3.5 -3 -2.5 -2) # SGD
 # 256 512 1024 2048 4096 8192
 for lr in "${LRS[@]}"; do
-  for wid in 8192; do 
+  for wid in 256 512 1024 2048 4096 8192; do 
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.dpmup_sgd \
       --width "$wid" \
@@ -21,7 +21,7 @@ for lr in "${LRS[@]}"; do
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/temp_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/temp_0.txt"
   done
 done
 
