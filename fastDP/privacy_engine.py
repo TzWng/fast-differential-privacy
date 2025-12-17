@@ -211,7 +211,6 @@ class PrivacyEngine(object):
                 self.max_grad_norm_layerwise = torch.zeros(self.n_layers) + coe
             else:
                 self.max_grad_norm_layerwise = self.clipping_coe
-                self.min_grad_norm_layerwise = 0.8 * self.max_grad_norm_layerwise
             
         elif clipping_style=='param-wise':
             self.max_grad_norm_layerwise = self.max_grad_norm / math.sqrt(self.n_components)
