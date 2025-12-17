@@ -7,25 +7,26 @@ def get_shapes(model):
     return {name: param.shape for name, param in model.named_parameters()}
     
 def _get_noise4base(base_shapes, target_shapes, target_noise):
-    # 1. 找出两个模型共有的层（Key）
+    # 1. Identify shared layers (Keys) between the two models
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
     L = len(common_keys)
     
-    # 如果没有共有的层，防止除零错误
+    # Prevent division by zero error if there are no shared layers
     if L == 0:
-        raise ValueError("两个模型没有共有的层名称 (Keys)！")
+        raise ValueError("The two models share no common layer names (Keys)!")
 
     f_vector = torch.zeros(L, dtype=torch.float32)
     
-    # 2. 遍历共有的层
+    # 2. Iterate through shared layers
     for i, key in enumerate(common_keys):
         b_shape = base_shapes[key]
         t_shape = target_shapes[key]
         
-        # 计算 (sqrt(in) + sqrt(out)) 的比值
-        # 注意：这里假设 shape 至少有两维 [out, in]
+        # Calculate the ratio based on dimensions
+        # Note: Assumes shape has at least two dimensions [out, in]
         if len(b_shape) < 2: 
-             # 遇到 bias 或一维参数时跳过或处理，这里简单给1.0避免报错，或者你可以选择 continue
+             # Skip or handle 1D parameters (like bias). 
+             # Here we assign 1.0 to avoid errors, or you could use continue.
             f_vector[i] = 1.0 
             continue
 
@@ -40,25 +41,26 @@ def _get_noise4base(base_shapes, target_shapes, target_noise):
 
 
 def _get_noise4target(base_shapes, target_shapes, base_noise):
-    # 1. 找出两个模型共有的层（Key）
+    # 1. Identify shared layers (Keys) between the two models
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
     L = len(common_keys)
     
-    # 如果没有共有的层，防止除零错误
+    # Prevent division by zero error if there are no shared layers
     if L == 0:
-        raise ValueError("两个模型没有共有的层名称 (Keys)！")
+        raise ValueError("The two models share no common layer names (Keys)!")
 
     f_vector = torch.zeros(L, dtype=torch.float32)
     
-    # 2. 遍历共有的层
+    # 2. Iterate through shared layers
     for i, key in enumerate(common_keys):
         b_shape = base_shapes[key]
         t_shape = target_shapes[key]
         
-        # 计算 (sqrt(in) + sqrt(out)) 的比值
-        # 注意：这里假设 shape 至少有两维 [out, in]
+        # Calculate the ratio based on dimensions
+        # Note: Assumes shape has at least two dimensions [out, in]
         if len(b_shape) < 2: 
-             # 遇到 bias 或一维参数时跳过或处理，这里简单给1.0避免报错，或者你可以选择 continue
+             # Skip or handle 1D parameters (like bias). 
+             # Here we assign 1.0 to avoid errors, or you could use continue.
             f_vector[i] = 1.0 
             continue
 
@@ -75,7 +77,7 @@ def _get_clip4target(base_shapes, target_shapes, target_noise=None):
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
     L = len(common_keys)
     
-    if L == 0: return {} # 返回空字典
+    if L == 0: return {} # Return empty dictionary
 
     f_vector = torch.zeros(L, dtype=torch.float32)
     
@@ -93,58 +95,59 @@ def _get_clip4target(base_shapes, target_shapes, target_noise=None):
         
     sum_term = torch.sum(1.0 / f_vector)
     
-    # 计算 Vector
+    # Calculate Vector
     D_prime_vector = 1.0 / (f_vector * sum_term) ** 0.5
     
-    # 3. 将结果打包回字典，方便查看每一层对应的 clip
+    # 3. Package results back into a dictionary for easy inspection of layer-wise clips
     return dict(zip(common_keys, D_prime_vector))
 
 
 # def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr):
 #     """
-#     根据形状变化和差分隐私噪声系数，为 Target 模型计算每一层的特定 Learning Rate。
+#     Calculate specific Learning Rate for each layer in the Target model 
+#     based on shape changes and Differential Privacy noise coefficients.
 #     """
 #     target_lrs = {}
 
 #     for key, base_shape in base_shapes.items():
-#         # 1. 基础检查：跳过不匹配的层
+#         # 1. Basic check: Skip layers missing in target
 #         if key not in target_shapes:
 #             continue
         
 #         target_shape = target_shapes[key]
         
-#         # 确保维度一致且至少是 2D (排除 bias 或 LayerNorm 参数，通常它们不需要这种复杂的缩放)
+#         # Ensure dimensions match and are at least 2D 
+#         # (Exclude bias or LayerNorm parameters, they usually don't need this complex scaling)
 #         if len(base_shape) != len(target_shape) or len(base_shape) < 2:
-#             # 对于 bias 或 1D 参数，通常保持原 base_lr 或按需处理
-#             # 这里暂时设为 base_lr，你也可以选择跳过
+#             # For bias or 1D parameters, usually keep original base_lr or handle as needed
+#             # Here we temporarily set to base_lr, or you can choose to skip
 #             target_lrs[key] = base_lr
 #             continue 
 
-#         # 2. 提取维度 (无需循环维度，直接取 Out/In)
-#         # 假设 shape 格式为 [out_features, in_features]
-#         # d_out, d_in
+#         # 2. Extract dimensions (Directly take Out/In without looping)
+#         # Assume shape format is [out_features, in_features]
 #         b_out, b_in = base_shape[0], base_shape[1]
 #         t_out, t_in = target_shape[0], target_shape[1]
 
-#         # 3. 计算 Base 模型的指标
-#         # Norm: 与噪声和维度和有关 (类似 DP 梯度裁剪范数的影响)
+#         # 3. Calculate Base Model Metrics
+#         # Norm: Related to noise and sum of dimensions (similar to DP gradient clipping norm impact)
 #         norm_base = base_noise * (b_out**0.5 + b_in**0.5)
-#         # Scale: 维度的纵横比 (Aspect Ratio / Fan-out vs Fan-in)
+#         # Scale: Aspect Ratio of dimensions (Fan-out vs Fan-in)
 #         scale_base = (b_out / b_in) ** 0.5
         
-#         # 4. 计算 Target 模型的指标
+#         # 4. Calculate Target Model Metrics
 #         norm_target = target_noise * (t_out**0.5 + t_in**0.5)
 #         scale_target = (t_out / t_in) ** 0.5
 
-#         # 5. 计算缩放比例
-#         # 逻辑：维持 (Scale / Norm) 的比例一致性
+#         # 5. Calculate Scaling Ratio
+#         # Logic: Maintain the consistency of (Scale / Norm)
 #         # Ratio = Target_Metric / Base_Metric
 #         metric_target = scale_target / norm_target
 #         metric_base = scale_base / norm_base
         
 #         ratio = metric_target / metric_base
     
-#         # 6. 得到最终 LR
+#         # 6. Get Final LR
 #         target_lrs[key] = base_lr * ratio
         
 #     return target_lrs
@@ -152,34 +155,34 @@ def _get_clip4target(base_shapes, target_shapes, target_noise=None):
 
 def _get_lr4target(target_shapes, target_noise, base_lr):
     """
-    仅根据 Target 模型自身的形状和噪声来缩放学习率。
-    不需要 Base 模型参与对比。
+    Scale the learning rate based solely on the Target model's shape and noise.
+    No comparison with the Base model is needed.
     
-    Rule: LR = base_lr / [ (sqrt(out) + sqrt(in)) * noise ]
+    Rule: LR = base_lr * AspectRatio / Metric
     """
     target_lrs = {}
 
-    # 直接遍历 target_shapes
+    # Directly iterate through target_shapes
     for key, shape in target_shapes.items():
         
-        # 1. 过滤掉非权重参数 (如 Bias [512], LayerNorm [512])
-        # 这些参数通常没有 out/in 两个维度，或者不需要这种强力的缩放
+        # 1. Filter out non-weight parameters (e.g., Bias [512], LayerNorm [512])
+        # These parameters usually don't have out/in dimensions or don't need such aggressive scaling
         if len(shape) < 2:
             target_lrs[key] = base_lr
             continue
 
-        # 2. 提取维度 [out_features, in_features]
+        # 2. Extract dimensions [out_features, in_features]
         t_out, t_in = shape[0], shape[1]
         
-        # 3. 计算分母 Metric
+        # 3. Calculate the denominator Metric
         # Metric = (sqrt(out) + sqrt(in)) * noise
         layer_metric = (t_out**0.5 + t_in**0.5) * target_noise
+        
+        # Calculate new LR combined with aspect ratio scaling
         new_lr = base_lr * (t_out / t_in) ** 0.5 / (layer_metric + 1e-8)
         
-        # 4. 计算 LR
-        # 加上 1e-8 防止噪声为 0 导致除零错误
+        # 4. Assign LR
+        # Added 1e-8 to prevent division by zero error if noise is 0
         target_lrs[key] = new_lr
 
     return target_lrs
-
-    
