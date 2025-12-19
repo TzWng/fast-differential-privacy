@@ -17,21 +17,21 @@ delta_config = BertConfig(
 delta_model = BertForMaskedLM(config=delta_config)
 # define a base shape object based on comparing delta_model against base_model
 base_shapes = make_base_shapes(base_model, delta_model, savefile='bert256.bsh')
-print(base_shapes)
-# define target model
-target_config = BertConfig(
-    hidden_size=1024,
-    intermediate_size=1024*4,
-    num_attention_heads=32,
-)
-target_model = BertForMaskedLM(config=target_config)
+base_shapes
+# # define target model
+# target_config = BertConfig(
+#     hidden_size=1024,
+#     intermediate_size=1024*4,
+#     num_attention_heads=32,
+# )
+# target_model = BertForMaskedLM(config=target_config)
 
-# set base shapes
-set_base_shapes(target_model, base_shapes)
-# you can alternatively load base shape from file
-# set_base_shapes(target_model, 'bert256.bsh')
+# # set base shapes
+# set_base_shapes(target_model, base_shapes)
+# # you can alternatively load base shape from file
+# # set_base_shapes(target_model, 'bert256.bsh')
 
-# re-initialize
+# # re-initialize
 # target_model.apply(target_model._init_weights)
 
-# train target_model, etc
+# # train target_model, etc
