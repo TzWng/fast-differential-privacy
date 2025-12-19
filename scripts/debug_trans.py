@@ -1,4 +1,4 @@
-from transformers import BertConfig, BertForMaskedLM
+from mutransformers import BertConfig, BertForMaskedLM
 from mup import make_base_shapes, set_base_shapes
 from functools import partial
 # define a base model
