@@ -208,6 +208,7 @@ class PrivacyEngine(object):
         if clipping_style=='layer-wise':
             if self.clipping_coe is None:
                 coe = self.max_grad_norm / math.sqrt(self.n_layers)
+                print("number of layers", self.n_layers)
                 self.max_grad_norm_layerwise = torch.zeros(self.n_layers) + coe
             else:
                 self.max_grad_norm_layerwise = self.clipping_coe
