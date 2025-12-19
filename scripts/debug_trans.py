@@ -32,6 +32,6 @@ set_base_shapes(target_model, base_shapes)
 # set_base_shapes(target_model, 'bert256.bsh')
 
 # re-initialize
-target_model.apply(target_model._init_weights)
+# target_model.apply(target_model._init_weights)
 
 # train target_model, etc
