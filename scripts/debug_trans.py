@@ -16,8 +16,8 @@ delta_config = BertConfig(
 )
 delta_model = BertForMaskedLM(config=delta_config)
 # define a base shape object based on comparing delta_model against base_model
-base_shapes = make_base_shapes(base_model, delta_model, savefile='bert256.bsh')
-base_shapes
+# base_shapes = make_base_shapes(base_model, delta_model, savefile='bert256.bsh')
+make_base_shapes(base_model, delta_model, savefile=None)
 # # define target model
 # target_config = BertConfig(
 #     hidden_size=1024,
