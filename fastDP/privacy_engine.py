@@ -188,32 +188,31 @@ class PrivacyEngine(object):
 
         self.n_layers=len(self.named_layers) #sum(1 for layer in module.modules() if autograd_grad_sample.requires_grad(layer) and hasattr(layer,'weight'))
         
-        # self.n_components=0
-        # for name, layer in self.named_layers:
-        #     self.n_components+=sum([1 for p in layer.parameters() if p.initially_requires_grad])
-        # print("Number of trainable components: ",self.n_components, "; Number of trainable layers: ",self.n_layers)
-
-
-        # --- 修改开始 ---
-        self.n_components = 0
-        print(f"{'Component Name':<60} | Shape")
-        print("-" * 80)
-        
+        self.n_components=0
         for name, layer in self.named_layers:
-            # 改用 named_parameters 以获取参数的具体名称 ('weight', 'bias')
-            for param_name, p in layer.named_parameters():
-                # 检查是否是你标记为需要训练的参数
-                if getattr(p, 'initially_requires_grad', False):
-                    self.n_components += 1
-                    
-                    # 拼接完整名称: 层名.参数名 (例如 blocks.0.attn.qkv + . + weight)
-                    full_name = f"{name}.{param_name}"
-                    print(f"{full_name:<60} | {list(p.shape)}")
-        
-        print("-" * 80)
-        # --- 修改结束 ---
+            self.n_components+=sum([1 for p in layer.parameters() if p.initially_requires_grad])
+        print("Number of trainable components: ",self.n_components, "; Number of trainable layers: ",self.n_layers)
 
-        print("Number of trainable components: ", self.n_components, "; Number of trainable layers: ", self.n_layers)
+
+        # # --- 修改开始 ---
+        # self.n_components = 0
+        # print(f"{'Component Name':<60} | Shape")
+        # print("-" * 80)
+        
+        # for name, layer in self.named_layers:
+        #     # 改用 named_parameters 以获取参数的具体名称 ('weight', 'bias')
+        #     for param_name, p in layer.named_parameters():
+        #         # 检查是否是你标记为需要训练的参数
+        #         if getattr(p, 'initially_requires_grad', False):
+        #             self.n_components += 1
+                    
+        #             # 拼接完整名称: 层名.参数名 (例如 blocks.0.attn.qkv + . + weight)
+        #             full_name = f"{name}.{param_name}"
+        #             print(f"{full_name:<60} | {list(p.shape)}")
+        
+        # print("-" * 80)
+        # # --- 修改结束 ---
+        # print("Number of trainable components: ", self.n_components, "; Number of trainable layers: ", self.n_layers)
 
 
         #-----
