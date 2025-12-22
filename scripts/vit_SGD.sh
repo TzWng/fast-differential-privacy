@@ -22,8 +22,8 @@ for s in 8; do
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
       --epochs 3\
-      --bs 200 \
-      --mini_bs 200 \
+      --bs 400 \
+      --mini_bs 400 \
       --epsilon 2 \
       --noise 2 \
       --scale "$s" \
