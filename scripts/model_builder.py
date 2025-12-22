@@ -18,7 +18,7 @@ class MyVit:
         self.num_heads = int(6 * args.scale)
         self.mlp_ratio = 4.0
 
-    def create_model(self, init_fn=None):
+    def create_model(self):
         """
         构建并返回修改后的模型
         :param init_fn: 初始化函数 (e.g., kaiming_init_weights)
@@ -39,11 +39,6 @@ class MyVit:
         # 2. 执行去 Bias 手术
         self._remove_input_bias(model)
         self._remove_head_bias(model)
-
-        # 3. 应用权重初始化 (在结构修改完成后执行，确保新层也被初始化)
-        if init_fn is not None:
-            print(f'    [Builder] Applying initialization: {init_fn.__name__}')
-            model.apply(init_fn)
 
         return model
 
