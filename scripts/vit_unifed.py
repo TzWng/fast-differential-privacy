@@ -174,13 +174,13 @@ def main(args):
             break
 
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=int(192*args.scale), batch=args.bs, sigma=args.noise)
+    # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
 
 
 
 from fastDP import PrivacyEngine 
 import math, torch, os, torchvision, timm
-torch.manual_seed(2) 
 import torch.nn as nn 
 import torch.optim as optim 
 import torch.nn.functional as F 
