@@ -101,32 +101,67 @@ def _get_noise4target(base_shapes, target_shapes, base_noise):
     return target_noise
 
 def _get_clip4target(base_shapes, target_shapes, target_noise=None):
+    # 1. 准备容器
+    valid_keys = []    # 存名字 (用于最后打包 dict)
+    f_vector_list = [] # 存计算出的 ratio (用于算 Tensor)
+    
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
-    L = len(common_keys)
-    
-    if L == 0: return {} # Return empty dictionary
 
-    f_vector = torch.zeros(L, dtype=torch.float32)
-    
-    for i, key in enumerate(common_keys):
-        b_shape = base_shapes[key]
-        t_shape = target_shapes[key]
+    # === 内部辅助函数：统一将形状转换为 (Fan_Out, Fan_In) ===
+    # 这和刚才那个函数里的逻辑完全一样
+    def get_fan_out_in(shape, key_name):
+        # Case 1: 标准 Linear 层 [Out, In]
+        if len(shape) == 2:
+            return shape[0], shape[1]
         
-        if len(b_shape) < 2:
-            f_vector[i] = 1.0
+        # Case 2: Patch Embedding [Out, In, H, W] -> 转为 [Out, In*H*W]
+        elif len(shape) == 4 and "weight" in key_name:
+            if "patch_embed" in key_name: 
+                return shape[0], shape[1] * shape[2] * shape[3]
+        
+        # Case 3: 忽略 1D (Bias, LayerNorm) 等
+        return None
+
+    # 2. 遍历并筛选 Effective Layers
+    for key in common_keys:
+        base_fans = get_fan_out_in(base_shapes[key], key)
+        target_fans = get_fan_out_in(target_shapes[key], key)
+        
+        # 如果不是 Effective Layer (比如是 Bias)，直接跳过，不计入 f_vector
+        if base_fans is None or target_fans is None:
             continue
             
-        base_dim_metric = b_shape[0] ** 0.5 + b_shape[1] ** 0.5
-        target_dim_metric = t_shape[0] ** 0.5 + t_shape[1] ** 0.5
-        f_vector[i] = (base_dim_metric / target_dim_metric) ** 2
+        # 解包
+        b_out, b_in = base_fans
+        t_out, t_in = target_fans
         
+        # 计算 Metric (Spectral Norm Estimate)
+        base_dim_metric = b_out ** 0.5 + b_in ** 0.5
+        target_dim_metric = t_out ** 0.5 + t_in ** 0.5
+        
+        # 计算 ratio 并存入列表
+        ratio = (base_dim_metric / target_dim_metric) ** 2
+        
+        f_vector_list.append(ratio)
+        valid_keys.append(key) # 记住这个 key，因为它是有效的
+
+    # 3. 转换为 Tensor 进行矩阵运算
+    L = len(f_vector_list)
+    if L == 0: 
+        return {} 
+        
+    f_vector = torch.tensor(f_vector_list, dtype=torch.float32)
+    
     sum_term = torch.sum(1.0 / f_vector)
     
-    # Calculate Vector
+    # Calculate Vector (D_prime)
+    # 这里的 shape 是 [L]，对应 valid_keys 里的每一层
     D_prime_vector = 1.0 / (f_vector * sum_term) ** 0.5
     
-    # 3. Package results back into a dictionary for easy inspection of layer-wise clips
-    return dict(zip(common_keys, D_prime_vector))
+    # 4. 打包结果
+    # 注意：返回的 dict 只包含 Effective Layers (50个)。
+    # 如果你的代码后续需要 bias 的 clip 值，你可能需要单独处理或给默认值。
+    return dict(zip(valid_keys, D_prime_vector))
 
 
 # def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr):
