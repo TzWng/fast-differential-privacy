@@ -14,7 +14,7 @@ MODELS=(
 
 
 
-LRS=(-4 -3 -2 -1 0)
+LRS=(-3 -2 -1 0)
 
 for s in 1 2 3 4 5; do
   for lr in "${LRS[@]}"; do
