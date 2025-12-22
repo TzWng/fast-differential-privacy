@@ -60,6 +60,27 @@ def main(args):
     net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
                             embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
     net.apply(kaiming_init_weights)
+
+    # 获取原本的 projection 层
+    old_proj = net.patch_embed.proj
+    
+    # 创建一个新的 Conv2d，参数完全照搬，唯独 bias=False
+    new_proj = nn.Conv2d(
+        in_channels=old_proj.in_channels,
+        out_channels=old_proj.out_channels,
+        kernel_size=old_proj.kernel_size,
+        stride=old_proj.stride,
+        padding=old_proj.padding,
+        bias=False  # <--- 关键点：这里设为 False
+    )
+    
+    # 继承原本的权重初始化 (这很重要，保持 timm 的初始化分布)
+    with torch.no_grad():
+        new_proj.weight.copy_(old_proj.weight)
+    
+    # 用新层替换旧层
+    net.patch_embed.proj = new_proj
+
     net = ModuleValidator.fix(net)
     net = net.to(device)
 
