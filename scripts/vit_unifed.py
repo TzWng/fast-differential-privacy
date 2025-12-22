@@ -7,17 +7,6 @@ from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip
 from .model_builder import MyVit
 
 
-def kaiming_init_weights(m):
-    if isinstance(m, nn.Linear):
-        if m is net.head:
-            nn.init.zeros_(m.weight)
-            if m.bias is not None:
-                nn.init.zeros_(m.bias)
-        else:
-            nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
-            if m.bias is not None:
-                nn.init.zeros_(m.bias)
-
 
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
@@ -51,6 +40,18 @@ def main(args):
         testset, batch_size=100, shuffle=False, num_workers=4)
 
     n_acc_steps = args.bs // args.mini_bs  # gradient accumulation steps
+
+
+    def kaiming_init_weights(m):
+    if isinstance(m, nn.Linear):
+        if m is net.head:
+            nn.init.zeros_(m.weight)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+        else:
+            nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
 
 
     # Model
