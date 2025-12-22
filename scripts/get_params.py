@@ -41,33 +41,60 @@ def _get_noise4base(base_shapes, target_shapes, target_noise):
 
 
 def _get_noise4target(base_shapes, target_shapes, base_noise):
-    # 1. Identify shared layers (Keys) between the two models
+    f_vector_list = []
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
-    L = len(common_keys)
-    
-    # Prevent division by zero error if there are no shared layers
-    if L == 0:
-        raise ValueError("The two models share no common layer names (Keys)!")
 
-    f_vector = torch.zeros(L, dtype=torch.float32)
-    
-    # 2. Iterate through shared layers
-    for i, key in enumerate(common_keys):
-        b_shape = base_shapes[key]
-        t_shape = target_shapes[key]
+    # === 内部辅助函数：统一将形状转换为 (Fan_Out, Fan_In) ===
+    def get_fan_out_in(shape, key_name):
+        """
+        Input: 原始 shape (可能是 2D, 4D, 1D...)
+        Output: (Fan_Out, Fan_In) 的元组。如果是无效层则返回 None。
+        """
+        # Case 1: 标准 Linear 层 [Out, In]
+        if len(shape) == 2:
+            return shape[0], shape[1]
         
-        # Calculate the ratio based on dimensions
-        # Note: Assumes shape has at least two dimensions [out, in]
-        if len(b_shape) < 2: 
-             # Skip or handle 1D parameters (like bias). 
-             # Here we assign 1.0 to avoid errors, or you could use continue.
-            f_vector[i] = 1.0 
+        # Case 2: Patch Embedding [Out, In, H, W] -> 转为 [Out, In*H*W]
+        # 只要是 4D 的权重，物理意义上我们都将其展平处理
+        elif len(shape) == 4 and "weight" in key_name:
+            # 特判：虽然通常只有 patch_embed 是 4D，但加上名字校验更安全
+            # 如果你不想校验名字，只校验 len==4 也可以
+            if "patch_embed" in key_name: 
+                return shape[0], shape[1] * shape[2] * shape[3]
+        
+        # Case 3: 忽略 LayerNorm(1D), Bias(1D), PosEmbed(3D)
+        return None
+
+    # === 主循环 ===
+    for key in common_keys:
+        # 1. 先把 Base 和 Target 的形状都统一成 2D 描述
+        base_fans = get_fan_out_in(base_shapes[key], key)
+        target_fans = get_fan_out_in(target_shapes[key], key)
+        
+        # 如果任一模型中该层不是 Effective Layer (比如是 Bias)，跳过
+        if base_fans is None or target_fans is None:
             continue
 
-        base_dim_metric = b_shape[0] ** 0.5 + b_shape[1] ** 0.5
-        target_dim_metric = t_shape[0] ** 0.5 + t_shape[1] ** 0.5
-        f_vector[i] = (base_dim_metric / target_dim_metric) ** 2
+        # 2. 解包 (现在我们只关心 Fan_Out 和 Fan_In，不关心原始形状了)
+        b_out, b_in = base_fans
+        t_out, t_in = target_fans
         
+        # 3. 统一计算 Metric (Spectal Norm 估计)
+        base_metric = b_out ** 0.5 + b_in ** 0.5
+        target_metric = t_out ** 0.5 + t_in ** 0.5
+        
+        # 4. 记录比率
+        ratio = (base_metric / target_metric) ** 2
+        f_vector_list.append(ratio)
+        
+    # === 汇总计算 ===
+    L = len(f_vector_list)
+    print(f"Effective Layers (Unified Processing): {L}")
+    
+    if L == 0:
+        raise ValueError("No effective shared layers found!")
+
+    f_vector = torch.tensor(f_vector_list, dtype=torch.float32)
     sum_term = torch.sum(1.0 / f_vector)
     target_noise = base_noise / (sum_term / L) ** 0.5
 
@@ -153,36 +180,36 @@ def _get_clip4target(base_shapes, target_shapes, target_noise=None):
 #     return target_lrs
 
 
-def _get_lr4target(target_shapes, target_noise, base_lr):
-    """
-    Scale the learning rate based solely on the Target model's shape and noise.
-    No comparison with the Base model is needed.
+# def _get_lr4target(target_shapes, target_noise, base_lr):
+#     """
+#     Scale the learning rate based solely on the Target model's shape and noise.
+#     No comparison with the Base model is needed.
     
-    Rule: LR = base_lr * AspectRatio / Metric
-    """
-    target_lrs = {}
+#     Rule: LR = base_lr * AspectRatio / Metric
+#     """
+#     target_lrs = {}
 
-    # Directly iterate through target_shapes
-    for key, shape in target_shapes.items():
+#     # Directly iterate through target_shapes
+#     for key, shape in target_shapes.items():
         
-        # 1. Filter out non-weight parameters (e.g., Bias [512], LayerNorm [512])
-        # These parameters usually don't have out/in dimensions or don't need such aggressive scaling
-        if len(shape) < 2:
-            target_lrs[key] = base_lr
-            continue
+#         # 1. Filter out non-weight parameters (e.g., Bias [512], LayerNorm [512])
+#         # These parameters usually don't have out/in dimensions or don't need such aggressive scaling
+#         if len(shape) < 2:
+#             target_lrs[key] = base_lr
+#             continue
 
-        # 2. Extract dimensions [out_features, in_features]
-        t_out, t_in = shape[0], shape[1]
+#         # 2. Extract dimensions [out_features, in_features]
+#         t_out, t_in = shape[0], shape[1]
         
-        # 3. Calculate the denominator Metric
-        # Metric = (sqrt(out) + sqrt(in)) * noise
-        layer_metric = (t_out**0.5 + t_in**0.5) * target_noise
+#         # 3. Calculate the denominator Metric
+#         # Metric = (sqrt(out) + sqrt(in)) * noise
+#         layer_metric = (t_out**0.5 + t_in**0.5) * target_noise
         
-        # Calculate new LR combined with aspect ratio scaling
-        new_lr = base_lr * (t_out / t_in) ** 0.5 / (layer_metric + 1e-8)
+#         # Calculate new LR combined with aspect ratio scaling
+#         new_lr = base_lr * (t_out / t_in) ** 0.5 / (layer_metric + 1e-8)
         
-        # 4. Assign LR
-        # Added 1e-8 to prevent division by zero error if noise is 0
-        target_lrs[key] = new_lr
+#         # 4. Assign LR
+#         # Added 1e-8 to prevent division by zero error if noise is 0
+#         target_lrs[key] = new_lr
 
-    return target_lrs
+#     return target_lrs
