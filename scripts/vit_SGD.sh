@@ -14,7 +14,7 @@ MODELS=(
 
 
 
-LRS=(-3 -2.5 -2 -1.5 -1 -0.5 0)
+LRS=(-2 -1.5 -1 -0.5 0)
 
 for s in 1 2 3 4 5; do
   for lr in "${LRS[@]}"; do
@@ -32,6 +32,6 @@ for s in 1 2 3 4 5; do
       --cifar_data CIFAR100 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar200_SGD_compare.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare.txt"
   done
 done
