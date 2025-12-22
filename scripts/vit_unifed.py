@@ -70,8 +70,6 @@ def main(args):
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
 
-    
-
     # net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
     #                         embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
     # net.apply(kaiming_init_weights)
@@ -82,11 +80,11 @@ def main(args):
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
 
-    # criterion = nn.CrossEntropyLoss()
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
+    # target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
+    target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
     
     param_groups = []
     for n, p in net.named_parameters():
