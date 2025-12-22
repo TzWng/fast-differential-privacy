@@ -14,7 +14,7 @@ MODELS=(
 
 
 
-LRS=(-2 -1.5 -1 -0.5 0)
+LRS=(-3.5 -4)
 
 for s in 1 2 3 4 5; do
   for lr in "${LRS[@]}"; do
@@ -29,9 +29,9 @@ for s in 1 2 3 4 5; do
       --scale "$s" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
-      --cifar_data CIFAR100 \
+      --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_1.txt"
   done
 done
