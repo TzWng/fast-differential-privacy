@@ -175,7 +175,7 @@ def main(args):
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=192*args.sacle, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=192*args.scale, batch=args.bs, sigma=noise)
 
 
 
