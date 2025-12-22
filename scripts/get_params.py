@@ -5,6 +5,35 @@ def get_shapes(model):
     if hasattr(model, "get_shapes"):
         return model.get_shapes()
     return {name: param.shape for name, param in model.named_parameters()}
+
+
+def get_fan_dims(shape):
+    """
+    统一解析 Tensor 形状为 (Fan_Out, Fan_In)。
+    
+    Args:
+        shape: torch.Size or list
+        
+    Returns:
+        (fan_out, fan_in): float or int
+        None: 如果形状无法处理 (如 3D PosEmbed)
+    """
+    # Case A: 标准 Linear 层 [Out, In]
+    if len(shape) == 2:
+        return shape[0], shape[1]
+    
+    # Case B: 4D Tensor (Conv2d / PatchEmbed) [Out, In, H, W]
+    # 逻辑: 视为 [Out, In * H * W]
+    elif len(shape) == 4:
+        return shape[0], shape[1] * shape[2] * shape[3]
+    
+    # Case C: 1D Tensor (Bias, LayerNorm) [N]
+    # 逻辑: 视为 [N, 1] 的矩阵
+    elif len(shape) == 1:
+        return shape[0], 1.0
+        
+    # Case D: 其他 (如 3D PosEmbed), 暂不处理
+    return None
     
 def _get_noise4base(base_shapes, target_shapes, target_noise):
     # 1. Identify shared layers (Keys) between the two models
@@ -42,57 +71,39 @@ def _get_noise4base(base_shapes, target_shapes, target_noise):
 
 def _get_noise4target(base_shapes, target_shapes, base_noise):
     f_vector_list = []
+    
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
-
-    # === 内部辅助函数：统一将形状转换为 (Fan_Out, Fan_In) ===
-    def get_fan_out_in(shape, key_name):
-        """
-        Input: 原始 shape (可能是 2D, 4D, 1D...)
-        Output: (Fan_Out, Fan_In) 的元组。如果是无效层则返回 None。
-        """
-        # Case 1: 标准 Linear 层 [Out, In]
-        if len(shape) == 2:
-            return shape[0], shape[1]
-        
-        # Case 2: Patch Embedding [Out, In, H, W] -> 转为 [Out, In*H*W]
-        # 只要是 4D 的权重，物理意义上我们都将其展平处理
-        elif len(shape) == 4 and "weight" in key_name:
-            # 特判：虽然通常只有 patch_embed 是 4D，但加上名字校验更安全
-            # 如果你不想校验名字，只校验 len==4 也可以
-            if "patch_embed" in key_name: 
-                return shape[0], shape[1] * shape[2] * shape[3]
-        
-        # Case 3: 忽略 LayerNorm(1D), Bias(1D), PosEmbed(3D)
-        return None
-
-    # === 主循环 ===
+    
     for key in common_keys:
-        # 1. 先把 Base 和 Target 的形状都统一成 2D 描述
-        base_fans = get_fan_out_in(base_shapes[key], key)
-        target_fans = get_fan_out_in(target_shapes[key], key)
-        
-        # 如果任一模型中该层不是 Effective Layer (比如是 Bias)，跳过
-        if base_fans is None or target_fans is None:
+        b_shape = base_shapes[key]
+        t_shape = target_shapes[key]
+
+        # === 1. 过滤非 Matrix 层 (Bias/Norm) ===
+        # Noise Scaling 通常只针对权重矩阵，加入 Bias 会导致分母虚高
+        if len(b_shape) < 2: 
             continue
 
-        # 2. 解包 (现在我们只关心 Fan_Out 和 Fan_In，不关心原始形状了)
+        # === 2. 调用公共函数解析维度 ===
+        base_fans = get_fan_dims(b_shape)
+        target_fans = get_fan_dims(t_shape)
+        
+        if base_fans is None or target_fans is None:
+            continue
+            
         b_out, b_in = base_fans
         t_out, t_in = target_fans
         
-        # 3. 统一计算 Metric (Spectal Norm 估计)
+        # === 3. 计算 Metric ===
         base_metric = b_out ** 0.5 + b_in ** 0.5
         target_metric = t_out ** 0.5 + t_in ** 0.5
         
-        # 4. 记录比率
         ratio = (base_metric / target_metric) ** 2
         f_vector_list.append(ratio)
         
-    # === 汇总计算 ===
     L = len(f_vector_list)
-    print(f"Effective Layers (Unified Processing): {L}")
+    print(f"Effective Layers for Noise (Matrix Only): {L}") # 应该是 50
     
-    if L == 0:
-        raise ValueError("No effective shared layers found!")
+    if L == 0: return base_noise # Fallback
 
     f_vector = torch.tensor(f_vector_list, dtype=torch.float32)
     sum_term = torch.sum(1.0 / f_vector)
@@ -101,119 +112,77 @@ def _get_noise4target(base_shapes, target_shapes, base_noise):
     return target_noise
 
 def _get_clip4target(base_shapes, target_shapes, target_noise=None):
-    # 1. 准备容器
-    valid_keys = []    # 存名字 (用于最后打包 dict)
-    f_vector_list = [] # 存计算出的 ratio (用于算 Tensor)
+    valid_keys = []
+    f_vector_list = []
     
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
-
-    # === 内部辅助函数：统一将形状转换为 (Fan_Out, Fan_In) ===
-    # 这和刚才那个函数里的逻辑完全一样
-    def get_fan_out_in(shape, key_name):
-        # Case 1: 标准 Linear 层 [Out, In]
-        if len(shape) == 2:
-            return shape[0], shape[1]
-        
-        # Case 2: Patch Embedding [Out, In, H, W] -> 转为 [Out, In*H*W]
-        elif len(shape) == 4 and "weight" in key_name:
-            if "patch_embed" in key_name: 
-                return shape[0], shape[1] * shape[2] * shape[3]
-        
-        # Case 3: 忽略 1D (Bias, LayerNorm) 等
-        return None
-
-    # 2. 遍历并筛选 Effective Layers
+    
     for key in common_keys:
-        base_fans = get_fan_out_in(base_shapes[key], key)
-        target_fans = get_fan_out_in(target_shapes[key], key)
+        b_shape = base_shapes[key]
+        t_shape = target_shapes[key]
         
-        # 如果不是 Effective Layer (比如是 Bias)，直接跳过，不计入 f_vector
-        if base_fans is None or target_fans is None:
+        # === 1. 过滤非 Matrix 层 ===
+        if len(b_shape) < 2:
             continue
             
-        # 解包
+        # === 2. 调用公共函数 ===
+        base_fans = get_fan_dims(b_shape)
+        target_fans = get_fan_dims(t_shape)
+        
+        if base_fans is None or target_fans is None: continue
+
         b_out, b_in = base_fans
         t_out, t_in = target_fans
         
-        # 计算 Metric (Spectral Norm Estimate)
-        base_dim_metric = b_out ** 0.5 + b_in ** 0.5
-        target_dim_metric = t_out ** 0.5 + t_in ** 0.5
+        # === 3. 计算 Metric ===
+        base_metric = b_out ** 0.5 + b_in ** 0.5
+        target_metric = t_out ** 0.5 + t_in ** 0.5
         
-        # 计算 ratio 并存入列表
-        ratio = (base_dim_metric / target_dim_metric) ** 2
-        
-        f_vector_list.append(ratio)
-        valid_keys.append(key) # 记住这个 key，因为它是有效的
+        f_vector_list.append((base_metric / target_metric) ** 2)
+        valid_keys.append(key)
 
-    # 3. 转换为 Tensor 进行矩阵运算
     L = len(f_vector_list)
-    if L == 0: 
-        return {} 
-        
+    if L == 0: return {}
+    
     f_vector = torch.tensor(f_vector_list, dtype=torch.float32)
-    
     sum_term = torch.sum(1.0 / f_vector)
-    
-    # Calculate Vector (D_prime)
-    # 这里的 shape 是 [L]，对应 valid_keys 里的每一层
     D_prime_vector = 1.0 / (f_vector * sum_term) ** 0.5
     
-    # 4. 打包结果
-    # 注意：返回的 dict 只包含 Effective Layers (50个)。
-    # 如果你的代码后续需要 bias 的 clip 值，你可能需要单独处理或给默认值。
     return dict(zip(valid_keys, D_prime_vector))
 
+def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr):
+    target_lrs = {}
+    common_keys = [k for k in base_shapes.keys() if k in target_shapes]
 
-# def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr):
-#     """
-#     Calculate specific Learning Rate for each layer in the Target model 
-#     based on shape changes and Differential Privacy noise coefficients.
-#     """
-#     target_lrs = {}
-
-#     for key, base_shape in base_shapes.items():
-#         # 1. Basic check: Skip layers missing in target
-#         if key not in target_shapes:
-#             continue
+    for key in common_keys:
+        # === 1. 调用公共函数 (包含 Bias/Norm 的处理) ===
+        base_fans = get_fan_dims(base_shapes[key])
+        target_fans = get_fan_dims(target_shapes[key])
         
-#         target_shape = target_shapes[key]
-        
-#         # Ensure dimensions match and are at least 2D 
-#         # (Exclude bias or LayerNorm parameters, they usually don't need this complex scaling)
-#         if len(base_shape) != len(target_shape) or len(base_shape) < 2:
-#             # For bias or 1D parameters, usually keep original base_lr or handle as needed
-#             # Here we temporarily set to base_lr, or you can choose to skip
-#             target_lrs[key] = base_lr
-#             continue 
+        # 如果是 None (比如 PosEmbed), 保持 base_lr
+        if base_fans is None or target_fans is None:
+            target_lrs[key] = base_lr
+            continue
 
-#         # 2. Extract dimensions (Directly take Out/In without looping)
-#         # Assume shape format is [out_features, in_features]
-#         b_out, b_in = base_shape[0], base_shape[1]
-#         t_out, t_in = target_shape[0], target_shape[1]
-
-#         # 3. Calculate Base Model Metrics
-#         # Norm: Related to noise and sum of dimensions (similar to DP gradient clipping norm impact)
-#         norm_base = base_noise * (b_out**0.5 + b_in**0.5)
-#         # Scale: Aspect Ratio of dimensions (Fan-out vs Fan-in)
-#         scale_base = (b_out / b_in) ** 0.5
+        b_out, b_in = base_fans
+        t_out, t_in = target_fans
         
-#         # 4. Calculate Target Model Metrics
-#         norm_target = target_noise * (t_out**0.5 + t_in**0.5)
-#         scale_target = (t_out / t_in) ** 0.5
-
-#         # 5. Calculate Scaling Ratio
-#         # Logic: Maintain the consistency of (Scale / Norm)
-#         # Ratio = Target_Metric / Base_Metric
-#         metric_target = scale_target / norm_target
-#         metric_base = scale_base / norm_base
+        # === 2. 计算 Metrics ===
+        # 这里 Bias 会被当作 [N, 1] 矩阵参与计算
+        norm_base = base_noise * (b_out**0.5 + b_in**0.5)
+        scale_base = (b_out / b_in) ** 0.5
         
-#         ratio = metric_target / metric_base
-    
-#         # 6. Get Final LR
-#         target_lrs[key] = base_lr * ratio
-        
-#     return target_lrs
+        norm_target = target_noise * (t_out**0.5 + t_in**0.5)
+        scale_target = (t_out / t_in) ** 0.5
 
+        # === 3. Scaling Ratio ===
+        metric_base = scale_base / norm_base
+        metric_target = scale_target / norm_target
+        
+        ratio = metric_target / metric_base
+        target_lrs[key] = base_lr * ratio
+        
+    return target_lrs
 
 # def _get_lr4target(target_shapes, target_noise, base_lr):
 #     """
