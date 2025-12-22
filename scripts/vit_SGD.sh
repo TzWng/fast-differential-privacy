@@ -16,7 +16,7 @@ MODELS=(
 
 LRS=(-3.5 -4)
 
-for s in 1 2 3 4 5; do
+for s in 3 4 5; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
@@ -25,7 +25,7 @@ for s in 1 2 3 4 5; do
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
-      --noise 1 \
+      --noise 2 \
       --scale "$s" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
