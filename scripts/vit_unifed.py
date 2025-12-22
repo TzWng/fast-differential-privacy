@@ -156,28 +156,7 @@ def main(args):
             loss = criterion(outputs, targets) / n_acc_steps
             loss.backward()
             
-            if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
-                for group in optimizer.param_groups:
-                    name = group.get("name", "")
-                    param = group["params"][0]
-                    grad = param.grad
-                    lr_scale = 1.0
-                    
-                    if any(k in name for k in ["head", "norm", "bias", "pos_embed", "cls_token"]):
-                        lr_scale = 1.0  
-                    else:
-                        if grad is not None and grad.ndim in (1, 2):
-                            spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
-                            # print("spectral norm is", spec)
-                            # spec_a = (param.shape[0]**0.5 + param.shape[1]**0.5) * args.noise / args.bs
-                            # print("Approximate norm is", spec_a)
-                            if grad.ndim == 2:
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
-                            elif grad.ndim == 1:
-                                lr_scale = (param.shape[0]) ** 0.5 / spec
-
-                    group["lr"] = base_lr * lr_scale
-
+            if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):                
                 optimizer.step()
                 optimizer.zero_grad()
 
