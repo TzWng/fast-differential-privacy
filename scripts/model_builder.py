@@ -7,16 +7,24 @@ class MyVit:
     专门用于构建无 Input/Output Bias 的 ViT 模型工厂类。
     用于验证 Scaling Law 和 SNR 理论，消除常数项干扰。
     """
-    def __init__(self, args):
+def __init__(self, args, override_scale=None):
+        """
+        :param args: 全局参数
+        :param override_scale: 如果传入数值，则强制使用该 scale，忽略 args.scale
+        """
         self.args = args
-        # 解析数据集类别数量 (适配你的 args.cifar_data 格式，如 'cifar10')
-        self.num_classes = int(args.cifar_data[5:]) if hasattr(args, 'cifar_data') else 1000
+        self.num_classes = int(args.cifar_data[5:]) if hasattr(args, 'cifar_data') else 10
+
+        # === 关键修改 ===
+        # 优先使用传入的 override_scale，如果没有传，才用 args.scale
+        current_scale = override_scale if override_scale is not None else args.scale
         
-        # 计算宽度和头数 (适配你的 Scaling 逻辑)
-        # Base: 192 dim, 6 heads (Tiny scale=1.0)
-        self.embed_dim = int(192 * args.scale)
-        self.num_heads = int(6 * args.scale)
+        self.embed_dim = int(192 * current_scale)
+        self.num_heads = int(6 * current_scale)
         self.mlp_ratio = 4.0
+        
+        # 记录一下当前的 scale 方便调试
+        self.current_scale = current_scale
 
     def create_model(self):
         """
