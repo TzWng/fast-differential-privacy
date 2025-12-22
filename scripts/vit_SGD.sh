@@ -14,16 +14,16 @@ MODELS=(
 
 
 
-LRS=(0 -0.5)
+LRS=(-3 -2.5 -2 -1.5 -1 -0.5 0)
 
-for s in 5; do
+for s in 8; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
       --epochs 3\
-      --bs 500 \
-      --mini_bs 500 \
+      --bs 200 \
+      --mini_bs 200 \
       --epsilon 2 \
       --noise 2 \
       --scale "$s" \
@@ -32,6 +32,6 @@ for s in 5; do
       --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_2.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_200.txt"
   done
 done
