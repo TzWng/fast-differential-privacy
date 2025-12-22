@@ -17,7 +17,7 @@ LRS=(-4.5 -4 -3.5 -3 -2.5 -2)
 # LRS=(-12 -11.5 -11 -10.5 -10)
 LRS=(-4 -3 -2 -1 0)
 
-for s in 1 2 3 4 5; do
+for s in 2 3 4 5; do
   for lr in "${LRS[@]}"; do
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
