@@ -55,14 +55,21 @@ def main(args):
 
     # Model
     print('==> Building model..', args.model, '; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
-    model_factory = MyVit(args)
-    net = model_factory.create_model(init_fn=kaiming_init_weights)
-    # base_shapes = get_shapes(base_model)
-    # model_shapes = get_shapes(net)
-    # noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
-    # clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    # D_prime_vector = torch.stack(list(clip_dict.values()))
-    # print(clip_dict)
+    model_base = MyVit(args, is_base=True)
+    base_model = model_base.create_model() 
+    base_shapes = get_shapes(base_model)
+    
+    model_target = MyVit(args, is_base=False)    
+    net = model_target.create_model()
+    net.apply(kaiming_init_weights)
+    model_shapes = get_shapes(net)
+    
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
+    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
+    D_prime_vector = torch.stack(list(clip_dict.values()))
+    print(clip_dict)
+
+    
 
     # net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
     #                         embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
@@ -78,15 +85,22 @@ def main(args):
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    param_groups = [
-        {"params": [p], "lr": base_lr, "name": n}
-        for n, p in net.named_parameters()
-    ]
-  
+    target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
+    
+    param_groups = []
+    for n, p in net.named_parameters():
+        curr_lr = target_lr_dict.get(n, base_lr)
+        if isinstance(curr_lr, torch.Tensor):
+            curr_lr = curr_lr.item()
+            
+        param_groups.append({
+            "params": [p], 
+            "lr": curr_lr, 
+            "name": n
+        })
+      
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(param_groups, lr=base_lr)
-    elif args.optimizer == 'Adam':
-        optimizer = optim.Adam(param_groups, lr=base_lr)
 
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
@@ -114,9 +128,10 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=args.noise,
+            noise_multiplier=noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
+            clipping_coe=D_prime_vector,
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,  # ['patch_embed.proj.bias'],
         )
