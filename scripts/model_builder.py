@@ -7,24 +7,32 @@ class MyVit:
     专门用于构建无 Input/Output Bias 的 ViT 模型工厂类。
     用于验证 Scaling Law 和 SNR 理论，消除常数项干扰。
     """
-def __init__(self, args, override_scale=None):
+    def __init__(self, args, is_base=False):
         """
         :param args: 全局参数
-        :param override_scale: 如果传入数值，则强制使用该 scale，忽略 args.scale
+        :param is_base: 如果为 True，强制 scale=1.0 (Base Model)；否则使用 args.scale (Target Model)
         """
         self.args = args
+        self.is_base = is_base
+        
+        # 解析类别数
         self.num_classes = int(args.cifar_data[5:]) if hasattr(args, 'cifar_data') else 10
 
-        # === 关键修改 ===
-        # 优先使用传入的 override_scale，如果没有传，才用 args.scale
-        current_scale = override_scale if override_scale is not None else args.scale
+        # === 核心逻辑 ===
+        if self.is_base:
+            self.current_scale = 1.0
+            mode_str = "Base Model (Scale 1.0)"
+        else:
+            # Target Model 跟随 args.scale
+            self.current_scale = args.scale
+            mode_str = f"Target Model (Scale {self.current_scale})"
         
-        self.embed_dim = int(192 * current_scale)
-        self.num_heads = int(6 * current_scale)
+        print(f"==> [Builder] Configuring {mode_str}...")
+
+        # 计算具体的维度
+        self.embed_dim = int(192 * self.current_scale)
+        self.num_heads = int(6 * self.current_scale)
         self.mlp_ratio = 4.0
-        
-        # 记录一下当前的 scale 方便调试
-        self.current_scale = current_scale
 
     def create_model(self):
         """
