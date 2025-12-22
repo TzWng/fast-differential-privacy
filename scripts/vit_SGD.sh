@@ -14,9 +14,9 @@ MODELS=(
 
 
 
-LRS=(-0.5 0)
+LRS=(0)
 
-for s in 5; do
+for s in 4 5; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
