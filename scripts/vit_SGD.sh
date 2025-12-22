@@ -32,6 +32,6 @@ for s in 5; do
       --cifar_data CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_2.txt"
   done
 done
