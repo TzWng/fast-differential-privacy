@@ -2,6 +2,22 @@
 from .logger import ExecutionLogger
 import numpy as np
 import torch.nn.functional as F
+from .logger import ExecutionLogger
+from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
+from .model_builder import MyVit
+
+
+def kaiming_init_weights(m):
+    if isinstance(m, nn.Linear):
+        if m is net.head:
+            nn.init.zeros_(m.weight)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+        else:
+            nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+
 
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
@@ -36,50 +52,21 @@ def main(args):
 
     n_acc_steps = args.bs // args.mini_bs  # gradient accumulation steps
 
-    def kaiming_init_weights(m):
-        if isinstance(m, nn.Linear):
-            nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
-            if m.bias is not None:
-                nn.init.zeros_(m.bias)
-
-    def kaiming_init_weights(m):
-        if isinstance(m, nn.Linear):
-            if m is net.head:
-                nn.init.zeros_(m.weight)
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
-            else:
-                nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
-
-
 
     # Model
     print('==> Building model..', args.model, '; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
-    net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
-                            embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
-    net.apply(kaiming_init_weights)
+    model_factory = MyVit(args)
+    net = model_factory.create_model(init_fn=kaiming_init_weights)
+    # base_shapes = get_shapes(base_model)
+    # model_shapes = get_shapes(net)
+    # noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
+    # clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
+    # D_prime_vector = torch.stack(list(clip_dict.values()))
+    # print(clip_dict)
 
-    # 获取原本的 projection 层
-    old_proj = net.patch_embed.proj
-    
-    # 创建一个新的 Conv2d，参数完全照搬，唯独 bias=False
-    new_proj = nn.Conv2d(
-        in_channels=old_proj.in_channels,
-        out_channels=old_proj.out_channels,
-        kernel_size=old_proj.kernel_size,
-        stride=old_proj.stride,
-        padding=old_proj.padding,
-        bias=False  # <--- 关键点：这里设为 False
-    )
-    
-    # 继承原本的权重初始化 (这很重要，保持 timm 的初始化分布)
-    with torch.no_grad():
-        new_proj.weight.copy_(old_proj.weight)
-    
-    # 用新层替换旧层
-    net.patch_embed.proj = new_proj
+    # net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
+    #                         embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
+    # net.apply(kaiming_init_weights)
 
     net = ModuleValidator.fix(net)
     net = net.to(device)
