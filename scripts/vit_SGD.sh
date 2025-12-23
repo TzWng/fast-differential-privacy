@@ -4,8 +4,8 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-3 -2 -1 0)
-for s in 3; do
+LRS=(-1.5 -0.5 0.5)
+for s in 1; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
@@ -21,7 +21,7 @@ for s in 3; do
       --dataset CIFAR100 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_3.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_1.txt"
   done
 done
 
