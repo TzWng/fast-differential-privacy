@@ -16,7 +16,35 @@ class MyVit:
         self.is_base = is_base
         
         # 解析类别数
-        self.num_classes = int(args.cifar_data[5:]) if hasattr(args, 'cifar_data') else 10
+        self.num_classes = self._get_num_classes(args)
+        
+        print(f"==> [Pretrain Factory] Dataset: {args.dataset} | Classes: {self.num_classes}")
+
+    def _get_num_classes(self, args):
+        # 优先检查 dataset_name 是否存在
+        if not hasattr(args, 'dataset'):
+            print("Warning: args.dataset not found. Defaulting to 100 classes.")
+            return 10
+            
+        name = args.dataset
+        
+        # === 你的映射逻辑 ===
+        if name in ['SVHN', 'CIFAR10']:
+            return 10
+        elif name in ['CIFAR100', 'FGVCAircraft']:
+            return 100
+        elif name in ['Food101']:
+            return 101
+        elif name in ['GTSRB']:
+            return 43
+        elif name in ['CelebA']:
+            return 40
+        elif name in ['Places365']:
+            return 365
+        elif name in ['ImageNet']:
+            return 1000
+        elif name in ['INaturalist']:
+            return 10000
 
         # === 核心逻辑 ===
         if self.is_base:
