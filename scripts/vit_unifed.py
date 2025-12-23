@@ -65,9 +65,9 @@ def main(args):
     # net.apply(kaiming_init_weights)
     # model_shapes = get_shapes(net)
 
-    model_base = MyPreVit(args, is_base=True)
+    model_base = MyPreVit(args, model_name="vit_tiny_patch16_224")
     base_model = model_base.create_model() 
-    model_target = MyPreVit(args, is_base=False)
+    model_target = MyPreVit(args)
     net = model_target.create_model()
     net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
