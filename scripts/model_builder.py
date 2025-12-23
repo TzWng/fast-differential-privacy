@@ -99,7 +99,7 @@ class MyVit:
 
 
 class MyPreVit:
-    def __init__(self, args):
+    def __init__(self, args, model_name=None):
         """
         :param args: 必须包含 args.dataset_name (str)
         :param model_name: 强制指定的模型名 (如 'vit_tiny_patch16_224')
@@ -177,11 +177,11 @@ class MyPreVit:
         if isinstance(old_head, nn.Linear):
             in_features = old_head.in_features
             
-            # 重置 Head: 目标类别数 self.num_classes, 无 Bias
+            # 创建新 Head: 目标类别数 self.num_classes, 无 Bias
             new_head = nn.Linear(in_features, self.num_classes, bias=False)
             
-            # 初始化 (Kaiming / Xavier)
-            nn.init.xavier_uniform_(new_head.weight)
+            # === 修改：初始化权重为 0 ===
+            nn.init.constant_(new_head.weight, 0)
             
             model.head = new_head
-            print(f"    [Surgery] Head rebuilt: {in_features} -> {self.num_classes} classes (Bias Free).")
+            print(f"    [Surgery] Head rebuilt: {in_features} -> {self.num_classes} classes (Bias Free). Weights initialized to 0.")
