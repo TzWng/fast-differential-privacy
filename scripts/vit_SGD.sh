@@ -27,12 +27,13 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 MODELS=(
+  vit_tiny_patch16_224
   vit_small_patch16_224
   vit_base_patch16_224
 )
 
 
-LRS=(-4 -3 -2)
+LRS=(-4.5 -3.5 -2.5)
 for model in "${MODELS[@]}"; do
   for lr in "${LRS[@]}"; do
     echo "Running model=$model, lr=$lr"
@@ -49,7 +50,7 @@ for model in "${MODELS[@]}"; do
       --dataset CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_SGD_dpmup.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_SGD_dpmup_1.txt"
   done
 done
 
