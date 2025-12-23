@@ -45,7 +45,6 @@ for model in "${MODELS[@]}"; do
       --mini_bs 500 \
       --epsilon 2 \
       --noise 2 \
-      --scale "$s" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dataset CIFAR10 \
