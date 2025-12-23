@@ -56,21 +56,21 @@ def main(args):
 
     # Model
     print('==> Building model..', args.model, '; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
-    # model_base = MyVit(args, is_base=True)
-    # base_model = model_base.create_model() 
-    # base_shapes = get_shapes(base_model)
-    
-    # model_target = MyVit(args, is_base=False)    
-    # net = model_target.create_model()
-    # net.apply(kaiming_init_weights)
-    # model_shapes = get_shapes(net)
-
-    model_base = MyPreVit(args, model_name="vit_tiny_patch16_224")
+    model_base = MyVit(args, is_base=True)
     base_model = model_base.create_model() 
     base_shapes = get_shapes(base_model)
-    model_target = MyPreVit(args)
+    
+    model_target = MyVit(args, is_base=False)    
     net = model_target.create_model()
+    net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
+
+    # model_base = MyPreVit(args, model_name="vit_tiny_patch16_224")
+    # base_model = model_base.create_model() 
+    # base_shapes = get_shapes(base_model)
+    # model_target = MyPreVit(args)
+    # net = model_target.create_model()
+    # model_shapes = get_shapes(net)
     
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
