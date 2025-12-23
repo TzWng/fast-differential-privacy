@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn.functional as F
 from .logger import ExecutionLogger
 from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
-from .model_builder import MyVit
+from .model_builder import MyVit, MyPreVit
 
 
 
@@ -24,10 +24,10 @@ def main(args):
         torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     ])
 
-    if args.cifar_data == 'CIFAR10':
+    if args.dataset == 'CIFAR10':
         trainset = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
         testset = torchvision.datasets.CIFAR10(root='data/', train=False, download=True, transform=transformation)
-    elif args.cifar_data == 'CIFAR100':
+    elif args.dataset == 'CIFAR100':
         trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
         testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
     else:
@@ -56,11 +56,18 @@ def main(args):
 
     # Model
     print('==> Building model..', args.model, '; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
-    model_base = MyVit(args, is_base=True)
-    base_model = model_base.create_model() 
-    base_shapes = get_shapes(base_model)
+    # model_base = MyVit(args, is_base=True)
+    # base_model = model_base.create_model() 
+    # base_shapes = get_shapes(base_model)
     
-    model_target = MyVit(args, is_base=False)    
+    # model_target = MyVit(args, is_base=False)    
+    # net = model_target.create_model()
+    # net.apply(kaiming_init_weights)
+    # model_shapes = get_shapes(net)
+
+    model_base = MyPreVit(args, is_base=True)
+    base_model = model_base.create_model() 
+    model_target = MyPreVit(args, is_base=False)
     net = model_target.create_model()
     net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
@@ -69,10 +76,6 @@ def main(args):
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
-
-    # net = timm.create_model(args.model, pretrained=False, num_classes=int(args.cifar_data[5:]),
-    #                         embed_dim=int(192 * args.scale), num_heads=int(6 * args.scale), mlp_ratio=4.0)
-    # net.apply(kaiming_init_weights)
 
     net = ModuleValidator.fix(net)
     net = net.to(device)
@@ -207,7 +210,7 @@ if __name__ == "__main__":
     parser.add_argument("--clipping_mode", type=str, default="BK-ghost")
     parser.add_argument("--clipping_style", nargs="+", type=str, default="layer-wise")
     parser.add_argument('--scale', default=1, type=float)
-    parser.add_argument("--cifar_data", type=str, default="CIFAR10")
+    parser.add_argument("--dataset", type=str, default="CIFAR10")
     parser.add_argument("--dimension", type=int, default=224)
     parser.add_argument("--optimizer", type=str, default="Adam")
     parser.add_argument("--origin_params", nargs="+", default=None)
