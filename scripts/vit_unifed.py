@@ -67,6 +67,7 @@ def main(args):
 
     model_base = MyPreVit(args, model_name="vit_tiny_patch16_224")
     base_model = model_base.create_model() 
+    base_shapes = get_shapes(base_model)
     model_target = MyPreVit(args)
     net = model_target.create_model()
     model_shapes = get_shapes(net)
