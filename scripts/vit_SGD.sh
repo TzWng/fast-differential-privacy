@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-3)
-for s in 4 5; do
+for s in 5; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
@@ -26,9 +26,9 @@ for s in 4 5; do
   done
 done
 
-LRS=(1)
-for s in 1 2 3 4 5; do
-  for lr in "${LRS[@]}"; do
+LRS=(1 -3.5 -4)
+for lr in "${LRS[@]}"; do
+  for s in 1 2 3 4 5; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
