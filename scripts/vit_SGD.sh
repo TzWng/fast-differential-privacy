@@ -51,7 +51,7 @@ for model in "${MODELS[@]}"; do
       --dataset CIFAR10 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_SGD.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_SGD_dpmup.txt"
   done
 done
 
