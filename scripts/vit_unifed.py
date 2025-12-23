@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, default="vit_tiny_patch16_224")
-    parser.add_argument("--lr", type=float, default=-11.0)  # 和你画图保持一致
+    parser.add_argument("--lr", type=float, default=0)  # 和你画图保持一致
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--bs", type=int, default=512)
     parser.add_argument("--mini_bs", type=int, default=512)
