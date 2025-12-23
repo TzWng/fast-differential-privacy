@@ -33,7 +33,7 @@ MODELS=(
 )
 
 
-LRS=(-4.5 -3.5 -2.5)
+LRS=(-4 -3 -2 -1)
 for model in "${MODELS[@]}"; do
   for lr in "${LRS[@]}"; do
     echo "Running model=$model, lr=$lr"
@@ -47,10 +47,10 @@ for model in "${MODELS[@]}"; do
       --noise 2 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
-      --dataset CIFAR10 \
+      --dataset CIFAR100 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_SGD_dpmup_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_cifar100_SGD_dpmup.txt"
   done
 done
 
