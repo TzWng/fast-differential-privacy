@@ -27,13 +27,12 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 MODELS=(
-  vit_tiny_patch16_224
   vit_small_patch16_224
   vit_base_patch16_224
 )
 
 
-LRS=(-4 -3 -2 -1)
+LRS=(-4 -3 -2)
 for model in "${MODELS[@]}"; do
   for lr in "${LRS[@]}"; do
     echo "Running model=$model, lr=$lr"
