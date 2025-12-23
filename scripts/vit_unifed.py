@@ -69,7 +69,6 @@ def main(args):
     base_model = model_base.create_model() 
     model_target = MyPreVit(args)
     net = model_target.create_model()
-    net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
     
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
