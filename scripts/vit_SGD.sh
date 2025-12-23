@@ -4,7 +4,7 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-2 -1 0)
+LRS=(-2 -1.5 -1 -0.5 0)
 for s in 4; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
