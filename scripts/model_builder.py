@@ -110,7 +110,7 @@ class MyPreVit:
         # === 使用你提供的精确逻辑获取类别数 ===
         self.num_classes = self._get_num_classes(args)
         
-        print(f"==> [Pretrain Factory] Dataset: {args.dataset_name} | Classes: {self.num_classes}")
+        print(f"==> [Pretrain Factory] Dataset: {args.dataset} | Classes: {self.num_classes}")
 
     def _get_num_classes(self, args):
         # 优先检查 dataset_name 是否存在
