@@ -4,13 +4,13 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-3 -2 -1)
-for s in 1 2 3 4 5; do
+LRS=(-3 -2 -1 0)
+for s in 1; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
-      --epochs 3\
+      --epochs 5\
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
