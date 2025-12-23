@@ -15,51 +15,6 @@ MODELS=(
 
 LRS=(-4)
 
-for s in 3; do
-  for lr in "${LRS[@]}"; do
-    echo "Running scale=$s, lr=$lr"
-    $PYTHON -m scripts.vit_unifed \
-      --lr "$lr" \
-      --epochs 3\
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --scale "$s" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 224 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_1.txt"
-  done
-done
-
-
-LRS=(-3.5 -4)
-
-for s in 4 5; do
-  for lr in "${LRS[@]}"; do
-    echo "Running scale=$s, lr=$lr"
-    $PYTHON -m scripts.vit_unifed \
-      --lr "$lr" \
-      --epochs 3\
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --scale "$s" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 224 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_1.txt"
-  done
-done
-
-
-LRS=(0.5 1)
 for s in 1 2 3 4 5; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
@@ -79,3 +34,6 @@ for s in 1 2 3 4 5; do
       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_SGD_compare_1.txt"
   done
 done
+
+
+
