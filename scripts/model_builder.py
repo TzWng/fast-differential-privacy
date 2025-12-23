@@ -95,3 +95,93 @@ class MyVit:
                 
             model.head = new_head
             print("    [Info] Removed Bias from head")
+
+
+
+class MyPreVit:
+    def __init__(self, args):
+        """
+        :param args: 必须包含 args.dataset_name (str)
+        :param model_name: 强制指定的模型名 (如 'vit_tiny_patch16_224')
+        """
+        self.args = args
+        self.model_name = model_name if model_name else args.model
+        
+        # === 使用你提供的精确逻辑获取类别数 ===
+        self.num_classes = self._get_num_classes(args)
+        
+        print(f"==> [Pretrain Factory] Dataset: {args.dataset_name} | Classes: {self.num_classes}")
+
+    def _get_num_classes(self, args):
+        # 优先检查 dataset_name 是否存在
+        if not hasattr(args, 'dataset'):
+            print("Warning: args.dataset not found. Defaulting to 100 classes.")
+            return 10
+            
+        name = args.dataset
+        
+        # === 你的映射逻辑 ===
+        if name in ['SVHN', 'CIFAR10']:
+            return 10
+        elif name in ['CIFAR100', 'FGVCAircraft']:
+            return 100
+        elif name in ['Food101']:
+            return 101
+        elif name in ['GTSRB']:
+            return 43
+        elif name in ['CelebA']:
+            return 40
+        elif name in ['Places365']:
+            return 365
+        elif name in ['ImageNet']:
+            return 1000
+        elif name in ['INaturalist']:
+            return 10000
+
+
+    def create_model(self):
+        print(f"==> [Pretrain Builder] Loading {self.model_name} (ImageNet Weights)...")
+        
+        # 1. 加载官方预训练模型
+        model = timm.create_model(
+            self.model_name, 
+            pretrained=True
+        )
+        
+        # 2. 手术 I: Input Layer (保留 Weight, 删除 Bias)
+        self._remove_input_bias_and_copy_weights(model)
+
+        # 3. 手术 II: Head Layer (重置为 num_classes, 删除 Bias)
+        self._rebuild_head_bias_free(model)
+
+        return model
+
+    def _remove_input_bias_and_copy_weights(self, model):
+        if not hasattr(model, 'patch_embed') or not hasattr(model.patch_embed, 'proj'):
+            return
+
+        old_proj = model.patch_embed.proj
+        if isinstance(old_proj, nn.Conv2d):
+            new_proj = nn.Conv2d(
+                old_proj.in_channels, old_proj.out_channels,
+                old_proj.kernel_size, old_proj.stride, old_proj.padding,
+                bias=False  # 去除 Bias
+            )
+            with torch.no_grad():
+                new_proj.weight.copy_(old_proj.weight) # 复制权重
+            model.patch_embed.proj = new_proj
+            print(f"    [Surgery] PatchEmbed bias removed. Weights copied.")
+
+    def _rebuild_head_bias_free(self, model):
+        old_head = model.head
+        if isinstance(old_head, nn.Linear):
+            in_features = old_head.in_features
+            
+            # 重置 Head: 目标类别数 self.num_classes, 无 Bias
+            new_head = nn.Linear(in_features, self.num_classes, bias=False)
+            
+            # 初始化 (Kaiming / Xavier)
+            nn.init.xavier_uniform_(new_head.weight)
+            
+            model.head = new_head
+            print(f"    [Surgery] Head rebuilt: {in_features} -> {self.num_classes} classes (Bias Free).")
