@@ -27,8 +27,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-5.5 -4.5 -3.5 -2.5)
-for s in 1; do
+LRS=(-5.5 -4.5 -3.5)
+LRS=(-6 -5 -4)
+for s in 2; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_muon_sgd\
