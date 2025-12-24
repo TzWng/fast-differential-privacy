@@ -69,93 +69,193 @@ def zeropower_via_newtonschulz5(G, steps):
         X = X.T
     return X
         
-class MuonNEW(torch.optim.Optimizer):
-    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, noise=1, head_param_ids=None):
+# class MuonNEW(torch.optim.Optimizer):
+#     def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=6, noise=1, head_param_ids=None):
 
-        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps, noise=noise)
+#         defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps, noise=noise)
+#         super().__init__(params, defaults)
+#         self.head_param_ids = set() if head_param_ids is None else head_param_ids
+
+#         head_params = []
+#         for group in self.param_groups:
+#             for p in group["params"]:
+#                 if not p.requires_grad:
+#                     continue
+#                 if id(p) in self.head_param_ids:
+#                     head_params.append(p)
+
+#         self._head_param_set = set(head_params)
+
+#     def step(self, closure=None):
+#         """Perform a single optimization step.
+
+#         Args:
+#             closure (Callable, optional): A closure that reevaluates the model
+#                 and returns the loss.
+#         """
+#         loss = None
+#         if closure is not None:
+#             with torch.enable_grad():
+#                 loss = closure()
+
+#         for group in self.param_groups:
+#             lr = group["lr"]
+#             noise = group['noise']
+
+#             for p in self._head_param_set:
+#                 if p.grad is None:
+#                     print("head wrong")
+#                     continue
+
+#                 g = p.grad
+
+#                 # apply your MuP-style scaling for 2D head weight
+#                 if g.ndim == 2:
+#                     # if g.size(1) == 3072: 
+#                     #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) * 3 / 50
+#                     # elif g.size(0) == 10: 
+#                     #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) / 3
+#                     spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise / args.bs
+#                     lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
+#                     g = g * lr_scale
+
+#                 # plain SGD update
+#                 p.data.add_(g, alpha=-lr)
+
+#         for group in self.param_groups:
+#             lr = group['lr']
+#             momentum = group['momentum']
+
+#             # generate weight updates in distributed fashion
+#             for i, p in enumerate(group['params']):
+#                 if p in self._head_param_set: 
+#                     continue
+#                 g = p.grad
+#                 if g is None:
+#                     continue
+#                 if g.ndim > 2:
+#                     g = g.view(g.size(0), -1)
+#                 assert g is not None
+#                 state = self.state[p]
+#                 if 'momentum_buffer' not in state:
+#                     state['momentum_buffer'] = torch.zeros_like(g)
+#                 buf = state['momentum_buffer']
+#                 buf.mul_(momentum).add_(g)
+#                 if group['nesterov']:
+#                     g = g.add(buf, alpha=momentum)
+#                 else:
+#                     g = buf
+                    
+#                 if g.ndim >= 2:
+#                     g = zeropower_via_newtonschulz5(g, steps=group['ns_steps'])
+#                     g *= max(1, g.size(0)/g.size(1))**0.5
+#                 else:
+#                     g /= g.norm()
+#                 p.data.add_(g, alpha=-lr)
+
+#         return loss
+
+
+class MuonNEW(optim.Optimizer):
+    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, 
+                 ns_steps=6, noise=1, bs=256, head_param_ids=None):
+        """
+        Args:
+            params: Model parameters
+            lr: Learning rate
+            momentum: Momentum for Muon part (Not used for Head)
+            nesterov: Nesterov flag for Muon part
+            ns_steps: Newton-Schulz iteration steps
+            noise: Noise coefficient for Head scaling calculation
+            bs: Batch Size (Used for Head scaling calculation)
+            head_param_ids: A set(id(p)) marking which parameters belong to the Head
+        """
+        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps, noise=noise, bs=bs)
+        
         super().__init__(params, defaults)
+        
         self.head_param_ids = set() if head_param_ids is None else head_param_ids
+        self._head_param_set = set()
 
-        head_params = []
+        # Pre-processing: Identify specific Head parameter objects and store them 
+        # in _head_param_set for fast lookup during the step
         for group in self.param_groups:
             for p in group["params"]:
-                if not p.requires_grad:
-                    continue
                 if id(p) in self.head_param_ids:
-                    head_params.append(p)
+                    self._head_param_set.add(p)
 
-        self._head_param_set = set(head_params)
-
+    @torch.no_grad()
     def step(self, closure=None):
-        """Perform a single optimization step.
-
-        Args:
-            closure (Callable, optional): A closure that reevaluates the model
-                and returns the loss.
-        """
         loss = None
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
 
         for group in self.param_groups:
+            # Get common hyperparameters
             lr = group["lr"]
-            noise = group['noise']
+            momentum = group["momentum"]
+            noise = group["noise"]
+            ns_steps = group["ns_steps"]
+            nesterov = group["nesterov"]
+            bs = group["bs"] # Retrieve batch size from group
 
-            for p in self._head_param_set:
+            for p in group["params"]:
                 if p.grad is None:
-                    print("head wrong")
                     continue
-
+                
                 g = p.grad
 
-                # apply your MuP-style scaling for 2D head weight
-                if g.ndim == 2:
-                    # if g.size(1) == 3072: 
-                    #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) * 3 / 50
-                    # elif g.size(0) == 10: 
-                    #     spec = torch.linalg.norm(g, ord="fro").clamp(min=1e-6) / 3
-                    spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise / args.bs
-                    lr_scale = (g.size(0)/g.size(1)) ** 0.5 / spec
-                    g = g * lr_scale
-
-                # plain SGD update
-                p.data.add_(g, alpha=-lr)
-
-        for group in self.param_groups:
-            lr = group['lr']
-            momentum = group['momentum']
-
-            # generate weight updates in distributed fashion
-            for i, p in enumerate(group['params']):
-                if p in self._head_param_set: 
-                    continue
-                g = p.grad
-                if g is None:
-                    continue
-                if g.ndim > 2:
-                    g = g.view(g.size(0), -1)
-                assert g is not None
-                state = self.state[p]
-                if 'momentum_buffer' not in state:
-                    state['momentum_buffer'] = torch.zeros_like(g)
-                buf = state['momentum_buffer']
-                buf.mul_(momentum).add_(g)
-                if group['nesterov']:
-                    g = g.add(buf, alpha=momentum)
-                else:
-                    g = buf
+                # ==================================================
+                # Branch 1: Handle Head parameters (Plain SGD, No Momentum)
+                # ==================================================
+                if p in self._head_param_set:
+                    # Apply custom MuP-style scaling (only for 2D weights)
+                    if g.ndim == 2:
+                        # Logic: scale based on dimensions and batch size
+                        spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise / bs
+                        lr_scale = (g.size(0) / g.size(1)) ** 0.5 / spec
+                        g = g * lr_scale
                     
-                if g.ndim >= 2:
-                    g = zeropower_via_newtonschulz5(g, steps=group['ns_steps'])
-                    g *= max(1, g.size(0)/g.size(1))**0.5
+                    # Plain SGD update: subtract gradient directly 
+                    # (does not touch state['momentum_buffer'])
+                    p.data.add_(g, alpha=-lr)
+
+                # ==================================================
+                # Branch 2: Handle Muon parameters (Newton-Schulz + Momentum)
+                # ==================================================
                 else:
-                    g /= g.norm()
-                p.data.add_(g, alpha=-lr)
+                    # Flatten to 2D if dims > 2 (e.g., Conv2d)
+                    if g.ndim > 2:
+                        g = g.view(g.size(0), -1)
+                    
+                    # --- Momentum Handling ---
+                    state = self.state[p]
+                    if 'momentum_buffer' not in state:
+                        state['momentum_buffer'] = torch.zeros_like(g)
+                    
+                    buf = state['momentum_buffer']
+                    buf.mul_(momentum).add_(g)
+                    
+                    if nesterov:
+                        g = g.add(buf, alpha=momentum)
+                    else:
+                        g = buf
+                    
+                    # --- Newton-Schulz Orthogonalization ---
+                    if g.ndim >= 2:
+                        # Orthogonalize
+                        g = zeropower_via_newtonschulz5(g, steps=ns_steps)
+                        # Restore Scaling
+                        g *= max(1, g.size(0) / g.size(1)) ** 0.5
+                    else:
+                        # Simple normalization for 1D parameters (like bias)
+                        g /= (g.norm() + 1e-8)
+
+                    # Update weights
+                    p.data.add_(g, alpha=-lr)
 
         return loss
-
-
 
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
