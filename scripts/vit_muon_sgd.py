@@ -247,7 +247,7 @@ def main(args):
     elif args.optimizer == 'muon':
         head_ids = {id(p) for p in net.patch_embed.proj.parameters()} | {id(p) for p in net.head.parameters()}
         optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
-                            noise=noise, head_param_ids=head_ids)
+                            noise=noise, bs=args.bs, head_param_ids=head_ids)
 
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
