@@ -11,7 +11,7 @@ for s in 1 2 3 4 5; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_sp\
       --lr "$lr" \
-      --epochs 5\
+      --epochs 3\
       --bs 500 \
       --mini_bs 500 \
       --epsilon 2 \
