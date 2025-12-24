@@ -43,7 +43,7 @@ for s in 1; do
       --clipping_style layer-wise \
       --dataset CIFAR10 \
       --dimension 224 \
-      --optimizer SGD \
+      --optimizer muon \
       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar10_muon.txt"
   done
 done
