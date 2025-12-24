@@ -55,7 +55,7 @@ def zeropower_via_newtonschulz5(G, steps):
 
 class MuonNEW(optim.Optimizer):
     def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, 
-                 ns_steps=6, head_param_ids=None):
+                 ns_steps=6, noise=1.0, bs=256, head_param_ids=None):
         """
         Args:
             params: Model parameters
@@ -67,7 +67,8 @@ class MuonNEW(optim.Optimizer):
             bs: Batch Size (Used for Head scaling calculation)
             head_param_ids: A set(id(p)) marking which parameters belong to the Head
         """
-        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
+        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, 
+                        ns_steps=ns_steps, noise=noise, bs=bs)
         
         super().__init__(params, defaults)
         
@@ -95,6 +96,9 @@ class MuonNEW(optim.Optimizer):
             ns_steps = group["ns_steps"]
             nesterov = group["nesterov"]
 
+            noise = group["noise"]
+            bs = group["bs"]
+
             for p in group["params"]:
                 if p.grad is None:
                     continue
@@ -105,6 +109,11 @@ class MuonNEW(optim.Optimizer):
                 # Branch 1: Handle Head parameters (Plain SGD, No Momentum)
                 # ==================================================
                 if p in self._head_param_set:
+                    if g.ndim == 2:
+                        spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise / bs
+                        lr_scale = (g.size(0) / g.size(1)) ** 0.5 / spec
+                        g = g * lr_scale
+                    
                     p.data.add_(g, alpha=-lr)
 
                 # ==================================================
@@ -236,46 +245,9 @@ def main(args):
     
     
     elif args.optimizer == 'muon':
-        head_param_ids = { id(net.patch_embed.proj.weight), id(net.head.weight) }
-        param_groups = []
-        
-        for n, p in net.named_parameters():
-            if not p.requires_grad:
-                continue 
-            # 2. Check if current param is Head
-            is_head = id(p) in head_param_ids
-            
-            if is_head:
-                curr_lr = target_lr_dict.get(n, base_lr)              
-                # Handle single-element Tensor if necessary
-                if isinstance(curr_lr, torch.Tensor):
-                    curr_lr = curr_lr.item()
-                
-                print(f"Head param: {n}, LR: {curr_lr}") 
-            else:
-                # For Body (Muon): Uniformly use base_lr
-                curr_lr = base_lr
- 
-            # 3. Build Group
-            # Note: Creating a group per parameter is fine here to support
-            # distinct LRs for every head parameter.
-            param_groups.append({
-                "params": [p], 
-                "lr": curr_lr, 
-                "name": n,
-            })
-
-        # 4. Instantiate Optimizer
-        # CRITICAL: You must pass 'head_param_ids' so the optimizer knows which params to update via SGD vs Muon.
-        optimizer = MuonNEW(
-            param_groups, 
-            lr=base_lr, 
-            momentum=0.95, 
-            nesterov=True,
-            ns_steps=6, 
-            head_param_ids=head_param_ids
-        )
-      
+        head_ids = {id(p) for p in net.patch_embed.proj.parameters()} | {id(p) for p in net.head.parameters()}
+        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
+                            noise=noise, head_param_ids=head_ids)
 
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
