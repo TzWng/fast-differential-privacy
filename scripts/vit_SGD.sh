@@ -70,7 +70,7 @@ for s in 2 3 4 5; do
   done
 done
 
-# LRS=(-6.5 -5.5 -4.5 -7.5)
+# LRS=(-6.5 -5.5 -8.5 -7.5)
 # for s in 2 3 4 5; do
 #   for lr in "${LRS[@]}"; do
 #     echo "Running scale=$s, lr=$lr"
@@ -92,7 +92,7 @@ done
 # done
 
 
-# LRS=(-7 -8 -8.5)
+# LRS=(-7 -8)
 # for s in 2 3 4 5; do
 #   for lr in "${LRS[@]}"; do
 #     echo "Running scale=$s, lr=$lr"
