@@ -1,11 +1,28 @@
 '''Train CIFAR10/CIFAR100 with PyTorch.'''
-from .logger import ExecutionLogger
+
 import numpy as np
 import torch.nn.functional as F
-import torch.optim as optim
+
+from fastDP import PrivacyEngine 
+import math, torch, os, torchvision, timm
+import torch.nn as nn 
+import torch.optim as optim 
+import torch.nn.functional as F 
+from torchvision import datasets, transforms 
+from opacus.validators import ModuleValidator 
+from opacus.accountants.utils import get_noise_multiplier 
+from torch import nn 
+from tqdm import tqdm 
+
 from .logger import ExecutionLogger
 from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
 from .model_builder import MyVit, MyPreVit
+
+
+
+import warnings; 
+warnings.filterwarnings("ignore")
+
 
 
 def zeropower_via_newtonschulz5(G, steps):
@@ -337,19 +354,6 @@ def main(args):
     logger.log(log2lr=args.lr, train_loss=train_loss, width=192*args.scale, batch=args.bs, sigma=noise)
 
 
-
-from fastDP import PrivacyEngine 
-import math, torch, os, torchvision, timm
-import torch.nn as nn 
-import torch.optim as optim 
-import torch.nn.functional as F 
-from torchvision import datasets, transforms 
-from opacus.validators import ModuleValidator 
-from opacus.accountants.utils import get_noise_multiplier 
-from torch import nn 
-from tqdm import tqdm 
-import warnings; 
-warnings.filterwarnings("ignore")
 
 
 if __name__ == "__main__":
