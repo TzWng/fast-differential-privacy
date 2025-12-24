@@ -48,7 +48,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-7.5 -8.5)
+LRS=(-6.5 -7.5)
 for s in 1; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
