@@ -70,10 +70,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-
-LRS=(-2 -1.5 -1 -0.5 0 0.5 1 1.5)
-LRS=(-2.5)
-for s in 5 4; do
+LRS=(1)
+for s in 1; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_sp\
@@ -89,7 +87,28 @@ for s in 5 4; do
       --dataset CIFAR100 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_sp_2.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_sp.txt"
+  done
+done
+
+LRS=(0.5 1)
+for s in 2; do
+  for lr in "${LRS[@]}"; do
+    echo "Running scale=$s, lr=$lr"
+    $PYTHON -m scripts.vit_sp\
+      --lr "$lr" \
+      --epochs 5\
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 2 \
+      --scale "$s" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dataset CIFAR100 \
+      --dimension 224 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_sp.txt"
   done
 done
 
