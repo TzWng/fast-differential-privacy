@@ -73,9 +73,9 @@ def main(args):
     # model_shapes = get_shapes(net)
     
     noise = 0.9036090970039368
-    clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
-    D_prime_vector = torch.stack(list(clip_dict.values()))
-    print(clip_dict)
+    # clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
+    # D_prime_vector = torch.stack(list(clip_dict.values()))
+    # print(clip_dict)
 
     net = ModuleValidator.fix(net)
     net = net.to(device)
@@ -87,22 +87,22 @@ def main(args):
 
     base_lr = 2 ** args.lr
     # target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
-    target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
+    # target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
     
-    param_groups = []
-    for n, p in net.named_parameters():
-        curr_lr = target_lr_dict.get(n, base_lr)
-        if isinstance(curr_lr, torch.Tensor):
-            curr_lr = curr_lr.item()
+    # param_groups = []
+    # for n, p in net.named_parameters():
+    #     curr_lr = target_lr_dict.get(n, base_lr)
+    #     if isinstance(curr_lr, torch.Tensor):
+    #         curr_lr = curr_lr.item()
             
-        param_groups.append({
-            "params": [p], 
-            "lr": curr_lr, 
-            "name": n
-        })
+    #     param_groups.append({
+    #         "params": [p], 
+    #         "lr": curr_lr, 
+    #         "name": n
+    #     })
       
     if args.optimizer == 'SGD':
-        optimizer = optim.SGD(param_groups, lr=base_lr)
+        optimizer = optim.SGD(net.parameters(), lr=base_lr)
 
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
