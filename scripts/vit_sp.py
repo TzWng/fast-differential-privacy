@@ -64,19 +64,8 @@ def main(args):
     net = model_target.create_model()
     net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
-
-    # model_base = MyPreVit(args, model_name="vit_tiny_patch16_224")
-    # base_model = model_base.create_model() 
-    # base_shapes = get_shapes(base_model)
-    # model_target = MyPreVit(args)
-    # net = model_target.create_model()
-    # model_shapes = get_shapes(net)
     
     noise = 0.9036090970039368
-    # clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
-    # D_prime_vector = torch.stack(list(clip_dict.values()))
-    # print(clip_dict)
-
     net = ModuleValidator.fix(net)
     net = net.to(device)
 
@@ -86,20 +75,6 @@ def main(args):
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    # target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
-    # target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
-    
-    # param_groups = []
-    # for n, p in net.named_parameters():
-    #     curr_lr = target_lr_dict.get(n, base_lr)
-    #     if isinstance(curr_lr, torch.Tensor):
-    #         curr_lr = curr_lr.item()
-            
-    #     param_groups.append({
-    #         "params": [p], 
-    #         "lr": curr_lr, 
-    #         "name": n
-    #     })
       
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(net.parameters(), lr=base_lr)
