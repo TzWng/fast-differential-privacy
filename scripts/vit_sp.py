@@ -133,7 +133,6 @@ def main(args):
             noise_multiplier=noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
-            clipping_coe=D_prime_vector,
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,  # ['patch_embed.proj.bias'],
         )
