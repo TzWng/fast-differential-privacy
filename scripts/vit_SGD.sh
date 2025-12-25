@@ -72,6 +72,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-2 -1.5 -1 -0.5 0 0.5 1 1.5)
+LRS=(1.5 1)
 for s in 5; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
@@ -88,7 +89,7 @@ for s in 5; do
       --dataset CIFAR100 \
       --dimension 224 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_sp_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_sp_2.txt"
   done
 done
 
