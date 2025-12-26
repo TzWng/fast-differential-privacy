@@ -104,7 +104,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 LRS=(-2.5 -2 -1.5)
 for s in 2 3 4; do
   for lr in "${LRS[@]}"; do
-    echo "Running model=$model, lr=$lr"
+    echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
       --epochs 3\
