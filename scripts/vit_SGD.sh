@@ -102,7 +102,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-2.5 -2 -1.5)
-for s in 1 2 3 4; do
+for s in 2 3 4; do
   for lr in "${LRS[@]}"; do
     echo "Running model=$model, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
@@ -112,6 +112,7 @@ for s in 1 2 3 4; do
       --mini_bs 500 \
       --epsilon 2 \
       --noise 0.9036090970039368 \
+      --scale "$s" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dataset CIFAR10 \
