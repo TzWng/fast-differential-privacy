@@ -35,39 +35,6 @@ def get_fan_dims(shape):
     # Case D: 其他 (如 3D PosEmbed), 暂不处理
     return None
     
-def _get_noise4base(base_shapes, target_shapes, target_noise):
-    # 1. Identify shared layers (Keys) between the two models
-    common_keys = [k for k in base_shapes.keys() if k in target_shapes]
-    L = len(common_keys)
-    
-    # Prevent division by zero error if there are no shared layers
-    if L == 0:
-        raise ValueError("The two models share no common layer names (Keys)!")
-
-    f_vector = torch.zeros(L, dtype=torch.float32)
-    
-    # 2. Iterate through shared layers
-    for i, key in enumerate(common_keys):
-        b_shape = base_shapes[key]
-        t_shape = target_shapes[key]
-        
-        # Calculate the ratio based on dimensions
-        # Note: Assumes shape has at least two dimensions [out, in]
-        if len(b_shape) < 2: 
-             # Skip or handle 1D parameters (like bias). 
-             # Here we assign 1.0 to avoid errors, or you could use continue.
-            f_vector[i] = 1.0 
-            continue
-
-        base_dim_metric = b_shape[0] ** 0.5 + b_shape[1] ** 0.5
-        target_dim_metric = t_shape[0] ** 0.5 + t_shape[1] ** 0.5
-        f_vector[i] = (base_dim_metric / target_dim_metric) ** 2
-        
-    sum_term = torch.sum(1.0 / f_vector)
-    base_noise = target_noise * (sum_term / L) ** 0.5
-
-    return base_noise
-
 
 def _get_noise4target(base_shapes, target_shapes, base_noise):
     f_vector_list = []
