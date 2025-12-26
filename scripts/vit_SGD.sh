@@ -125,25 +125,25 @@ done
 
 
 
-# LRS=(-1.5 -1 -0.5)
-# LRS=(-2.5 -2 0 0.5 1)
-# for s in 1 2 3 4; do
-#   for lr in "${LRS[@]}"; do
-#     echo "Running scale=$s, lr=$lr"
-#     $PYTHON -m scripts.vit_unifed \
-#       --lr "$lr" \
-#       --epochs 5\
-#       --bs 500 \
-#       --mini_bs 500 \
-#       --epsilon 2 \
-#       --noise 0.9036090970039368 \
-#       --scale "$s" \
-#       --clipping_mode BK-MixOpt \
-#       --clipping_style layer-wise \
-#       --dataset CIFAR100 \
-#       --dimension 224 \
-#       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_dpmup_new.txt"
-#   done
-# done
+LRS=(-1.5 -1 -0.5)
+LRS=(-2.5 -2 0 0.5 1)
+for s in 1 2 3 4; do
+  for lr in "${LRS[@]}"; do
+    echo "Running scale=$s, lr=$lr"
+    $PYTHON -m scripts.vit_unifed \
+      --lr "$lr" \
+      --epochs 5\
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 0.9036090970039368 \
+      --scale "$s" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dataset CIFAR100 \
+      --dimension 224 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_dpmup_new.txt"
+  done
+done
 
