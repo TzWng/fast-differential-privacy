@@ -146,9 +146,10 @@ def _get_clip4target(base_shapes, target_shapes, target_noise=None):
     
     f_vector = torch.tensor(f_vector_list, dtype=torch.float32)
     sum_term = torch.sum(1.0 / f_vector)
-    D_prime_vector = 1.0 / (f_vector * sum_term) ** 0.5
+
+    clip_coeff_vector = 1.0 / torch.sqrt(f_vector * sum_term)
     
-    return dict(zip(valid_keys, D_prime_vector))
+    return dict(zip(valid_keys, clip_coeff_vector))
 
 def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr):
     target_lrs = {}
