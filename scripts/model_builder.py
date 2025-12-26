@@ -17,7 +17,7 @@ class MyVit:
 
         # 2. === 核心逻辑：配置模型维度 (搬到这里来！) ===
         if self.is_base:
-            self.current_scale = 1.0
+            self.current_scale = 5.0
             mode_str = "Base Model (Scale 1.0)"
         else:
             # Target Model 跟随 args.scale
