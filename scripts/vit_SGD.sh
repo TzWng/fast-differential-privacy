@@ -128,7 +128,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 LRS=(-1.5 -1 -0.5)
 LRS=(-2.5 -2 0 0.5 1)
 LRS=(1 0.5 0 -2 -2.5)
-for s in 4; do
+for s in 3; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_unifed \
