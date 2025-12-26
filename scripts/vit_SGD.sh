@@ -48,8 +48,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
+
 # LRS=(-3.5 -3 -2.5 -2 -1.5 -1 -0.5 0)
-# for s in 5; do
+# for s in 1; do
 #   for lr in "${LRS[@]}"; do
 #     echo "Running scale=$s, lr=$lr"
 #     $PYTHON -m scripts.vit_sp\
@@ -65,53 +66,11 @@ export PYTHONPATH="$PROJECT_ROOT"
 #       --dataset CIFAR10 \
 #       --dimension 224 \
 #       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar10_SGD_compare_sp_1.txt"
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar10_SGD_compare_sp.txt"
 #   done
 # done
 
 
-LRS=(-3.5 -3 -2.5 -2 -1.5 -1 -0.5 0)
-for s in 1; do
-  for lr in "${LRS[@]}"; do
-    echo "Running scale=$s, lr=$lr"
-    $PYTHON -m scripts.vit_sp\
-      --lr "$lr" \
-      --epochs 3\
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --scale "$s" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dataset CIFAR10 \
-      --dimension 224 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar10_SGD_compare_sp.txt"
-  done
-done
-
-
-LRS=(1)
-for s in 5; do
-  for lr in "${LRS[@]}"; do
-    echo "Running scale=$s, lr=$lr"
-    $PYTHON -m scripts.vit_sp\
-      --lr "$lr" \
-      --epochs 5\
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --scale "$s" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dataset CIFAR100 \
-      --dimension 224 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_compare_sp.txt"
-  done
-done
 
 # LRS=(-6 -5 -7 -8)
 # for s in 2 3 4 5; do
@@ -142,24 +101,23 @@ done
 # )
 
 
-# LRS=(-4 -3 -2 -1)
-# for model in "${MODELS[@]}"; do
-#   for lr in "${LRS[@]}"; do
-#     echo "Running model=$model, lr=$lr"
-#     $PYTHON -m scripts.vit_unifed \
-#       --model "$model" \
-#       --lr "$lr" \
-#       --epochs 3\
-#       --bs 500 \
-#       --mini_bs 500 \
-#       --epsilon 2 \
-#       --noise 2 \
-#       --clipping_mode BK-MixOpt \
-#       --clipping_style layer-wise \
-#       --dataset CIFAR100 \
-#       --dimension 224 \
-#       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_cifar100_SGD_dpmup.txt"
-#   done
-# done
+LRS=(-2.5 -2 -1.5)
+for s in 1 2 3 4; do
+  for lr in "${LRS[@]}"; do
+    echo "Running model=$model, lr=$lr"
+    $PYTHON -m scripts.vit_unifed \
+      --lr "$lr" \
+      --epochs 3\
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 0.9036090970039368 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dataset CIFAR10 \
+      --dimension 224 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_ft_cifar10_SGD_dpmup_new.txt"
+  done
+done
 
