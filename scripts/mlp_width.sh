@@ -9,7 +9,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 # # 256 512 1024 2048 4096 8192
 # for lr in "${LRS[@]}"; do 
 #   for wid in 512 1024 2048 4096; do
-#     echo "Running width=$wid, lr=$lr, dim=32"
+#     echo "Running width=256, lr=$lr, dim=32"
 #     $PYTHON -m scripts.dpmup_sgd \
 #       --width "$wid" \
 #       --lr "$lr" \
