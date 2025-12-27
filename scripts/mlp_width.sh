@@ -23,7 +23,7 @@ for lr in "${LRS[@]}"; do
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_dpmup.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_approx_ratio_dinfix_dpmup.txt"
   done
 done
 
