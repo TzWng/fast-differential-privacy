@@ -5,7 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-2.5 -2) # SGD
+LRS=(-2.5 -2 -7.5 -8) # SGD
 # 256 512 1024 2048 4096 8192
 for lr in "${LRS[@]}"; do 
   for wid in 256 512 1024 2048 4096; do
@@ -24,6 +24,29 @@ for lr in "${LRS[@]}"; do
       --dimension 32 \
       --optimizer SGD \
       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_approx_ratio_dinfix_dpmup.txt"
+  done
+done
+
+
+LRS=(-6 -5.5) # SGD
+# 256 512 1024 2048 4096 8192
+for lr in "${LRS[@]}"; do 
+  for s in 0 1 2 4 5 6 7; do
+    echo "Running width=$wid, lr=$lr, dim=32"
+    $PYTHON -m scripts.dpmup_sgd \
+      --width 256 \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --noise 0.28948843479156494 \
+      --seed "$s" \
+      --cifar_data CIFAR10 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/temp_seed.txt"
   done
 done
 
