@@ -5,30 +5,30 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-5.25 -5.75) # SGD
-# 256 512 1024 2048 4096 8192
-for lr in "${LRS[@]}"; do 
-  for wid in 512 1024 2048 4096 8192; do
-    echo "Running width=$wid, lr=$lr, dim=32"
-    $PYTHON -m scripts.dpmup_sgd \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --noise 0.28948843479156494 \
-      --seed 3 \
-      --cifar_data CIFAR10 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_approx_ratio_dinfix_dpmup.txt"
-  done
-done
+# LRS=(-5.25 -5.75) # SGD
+# # 256 512 1024 2048 4096 8192
+# for lr in "${LRS[@]}"; do 
+#   for wid in 512 1024 2048 4096 8192; do
+#     echo "Running width=$wid, lr=$lr, dim=32"
+#     $PYTHON -m scripts.dpmup_sgd \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --noise 0.28948843479156494 \
+#       --seed 3 \
+#       --cifar_data CIFAR10 \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --dimension 32 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_approx_ratio_dinfix_dpmup.txt"
+#   done
+# done
 
 
-LRS=(-5.25 -5.75) # SGD
+LRS=(-2.5 -3 -3.5 -4 -4.5 -5 -5.25 -5.5 -5.75 -6 -6.5 -7 -7.5 -8 -8.5 -9) # SGD
 # 256 512 1024 2048 4096 8192
 for lr in "${LRS[@]}"; do 
   for wid in 256; do
@@ -46,7 +46,7 @@ for lr in "${LRS[@]}"; do
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_approx_ratio_dinfix_dpmup.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/temp_seed_3.txt"
   done
 done
 
