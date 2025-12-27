@@ -378,5 +378,5 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    torch.manual_seed(4)
+    torch.manual_seed(2)
     main(args)
