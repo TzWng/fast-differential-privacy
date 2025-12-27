@@ -5,27 +5,27 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-# LRS=(-8.5 -9 -3.5 -9.5 -10) # SGD
-# # 256 512 1024 2048 4096 8192
-# for lr in "${LRS[@]}"; do 
-#   for wid in 256 512 1024 2048 4096 8192; do
-#     echo "Running width=$wid, lr=$lr, dim=32"
-#     $PYTHON -m scripts.dpmup_sgd \
-#       --width "$wid" \
-#       --lr "$lr" \
-#       --epochs 10 \
-#       --bs 500 \
-#       --mini_bs 500 \
-#       --noise 2 \
-#       --seed 3 \
-#       --cifar_data CIFAR10 \
-#       --clipping_mode BK-MixOpt \
-#       --clipping_style layer-wise \
-#       --dimension 32 \
-#       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/temp.txt"
-#   done
-# done
+LRS=(-6 -5.5 -5 -4.5 -4) # SGD
+# 256 512 1024 2048 4096 8192
+for lr in "${LRS[@]}"; do 
+  for wid in 256 512 1024 2048 4096; do
+    echo "Running width=$wid, lr=$lr, dim=32"
+    $PYTHON -m scripts.dpmup_sgd \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --noise 0.28948843479156494 \
+      --seed 3 \
+      --cifar_data CIFAR10 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_dpmup.txt"
+  done
+done
 
 # LRS=(-6 -5.5 -5 -4.5 -4 -3.5) # SGD
 # # 256 512 1024 2048 4096 8192
@@ -49,28 +49,28 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-# LRS=(-5.5 -6) # SGD
-LRS=(-1.5 -1 -0.5 0 0.5) # SGD
-# 288 512 1152 2048 4608 8192
-for lr in "${LRS[@]}"; do
-  for wid in 256 512 1024 2048 4096; do 
-    echo "Running width=$wid, lr=$lr, dim=32"
-    $PYTHON -m scripts.MLP_approx \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_sp_new.txt"
-  done
-done
+# # LRS=(-5.5 -6) # SGD
+# LRS=(-1.5 -1 -0.5 0 0.5) # SGD
+# # 288 512 1152 2048 4608 8192
+# for lr in "${LRS[@]}"; do
+#   for wid in 256 512 1024 2048 4096; do 
+#     echo "Running width=$wid, lr=$lr, dim=32"
+#     $PYTHON -m scripts.MLP_approx \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --epsilon 2 \
+#       --noise 2 \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_approx_ratio_dinfix_sp_new.txt"
+#   done
+# done
 
 
 # LRS=(-6.25) # SGD
