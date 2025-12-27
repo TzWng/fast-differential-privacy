@@ -221,8 +221,10 @@ def main(args):
 
     
     input_dim = 3 * args.dimension * args.dimension
-    base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    # base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    # delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    base_model = MLP(width=8192, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    delta_model = MLP(width=4096, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
     net = muMLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     net = net.to(device)
     set_base_shapes(net, base_model, delta=delta_model)
