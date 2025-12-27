@@ -30,8 +30,8 @@ done
 
 LRS=(-6 -5.5) # SGD
 # 256 512 1024 2048 4096 8192
-for lr in "${LRS[@]}"; do 
-  for s in 0 1 2 4 5 6 7; do
+for s in 0 1 2 4 5 6 7; do
+  for lr in "${LRS[@]}"; do 
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.dpmup_sgd \
       --width 256 \
