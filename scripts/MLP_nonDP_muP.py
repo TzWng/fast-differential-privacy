@@ -334,13 +334,13 @@ def main(args):
 
     for epoch in range(args.epochs):
         train_loss = train(epoch)
-        test_loss = test(epoch)
+        # test_loss = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=test_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
 
 
 import mup
