@@ -1,12 +1,25 @@
 # @title '''Train CIFAR10/CIFAR100 with PyTorch.'''
 
-import torch.nn as nn
+import numpy as np
 import torch.nn.functional as F
+
+from fastDP import PrivacyEngine 
+import math, torch, os, torchvision, timm
+import torch.nn as nn 
+import torch.optim as optim 
+import torch.nn.functional as F 
+from torchvision import datasets, transforms 
+from opacus.validators import ModuleValidator 
+from opacus.accountants.utils import get_noise_multiplier 
+from torch import nn 
+from tqdm import tqdm 
+
 from .logger import ExecutionLogger
 from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
-import numpy as np
-import torch
-from torch.utils.data import DataLoader
+
+
+import warnings; 
+warnings.filterwarnings("ignore")
 
 
 class MLP(nn.Module):
@@ -346,20 +359,6 @@ def main(args):
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
     logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
-
-
-from fastDP import PrivacyEngine 
-import math, torch, os, torchvision 
-import torch.nn as nn 
-import torch.optim as optim 
-import torch.nn.functional as F 
-from torchvision import datasets, transforms 
-from opacus.validators import ModuleValidator 
-from opacus.accountants.utils import get_noise_multiplier 
-from torch import nn 
-from tqdm import tqdm 
-import warnings; 
-warnings.filterwarnings("ignore")
 
 
 if __name__ == '__main__':
