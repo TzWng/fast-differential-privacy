@@ -16,7 +16,7 @@ for wid in 8192; do
       --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
-      --noise 0.28948843479156494 \
+      --noise 1.02294921875 \
       --seed 3 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
@@ -29,7 +29,7 @@ done
 
 
 # s2l noise 7.067494947837502
-# l2s noise 
+# l2s noise 1.02294921875
 
 # LRS=(-6 -5.5 -5 -4.5 -4 -3.5) # SGD
 # # 256 512 1024 2048 4096 8192
