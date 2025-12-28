@@ -188,21 +188,6 @@ def main(args):
     effective_layers = get_effective_layers(net)
     L = len(effective_layers)
 
-    
-    # f_i_k_vector = torch.zeros(L, dtype=torch.float32)
-    # f_i_k_vector[0] = ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + args.width ** 0.5)) ** 2
-    # f_i_k_vector[1:L-1] = 128 / args.width
-    # f_i_k_vector[L-1] = ((128 ** 0.5 + 10 ** 0.5) / (args.width ** 0.5 + 10 ** 0.5)) ** 2
-
-    f_i_k_vector = torch.zeros(L, dtype=torch.float32)
-    f_i_k_vector[0] = ((input_dim ** 0.5 + 128 ** 0.5) / (input_dim ** 0.5 + 8192 ** 0.5)) ** 2
-    f_i_k_vector[1:L-1] = 128 / 8192
-    f_i_k_vector[L-1] = ((128 ** 0.5 + 10 ** 0.5) / (8192 ** 0.5 + 10 ** 0.5)) ** 2
-    sum_term = torch.sum(1.0 / f_i_k_vector)
-    noise = args.noise * (sum_term / L)**(-0.5)
-    # D_i_prime_vector = 1 / (f_i_k_vector * sum_term) ** 0.5
-    D_i_prime_vector = torch.zeros(L, dtype=torch.float32) + 1 / (L) ** 0.5
-    print("clipping coefficient is", D_i_prime_vector)
 
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
@@ -238,10 +223,9 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=noise,
+            noise_multiplier=args.noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
-            clipping_coe=D_i_prime_vector,
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,  # ['patch_embed.proj.bias'],
         )
