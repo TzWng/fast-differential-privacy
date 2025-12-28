@@ -118,6 +118,7 @@ def main(args):
             sample_rate=args.bs / len(trainset),
             epochs=args.epochs,
         )
+        print("epsilon delta noise is", sigma)
 
         if 'BK' in args.clipping_mode:
             clipping_mode = args.clipping_mode[3:]
