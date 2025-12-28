@@ -42,6 +42,137 @@ class MLP(nn.Module):
         return self.fc_5(out) * self.output_mult
 
 
+def zeropower_via_newtonschulz5(G, steps):
+    """
+    Newton-Schulz iteration to compute the zeroth power / orthogonalization of G. We opt to use a
+    quintic iteration whose coefficients are selected to maximize the slope at zero. For the purpose
+    of minimizing steps, it turns out to be empirically effective to keep increasing the slope at
+    zero even beyond the point where the iteration no longer converges all the way to one everywhere
+    on the interval. This iteration therefore does not produce UV^T but rather something like US'V^T
+    where S' is diagonal with S_{ii}' ~ Uniform(0.5, 1.5), which turns out not to hurt model
+    performance at all relative to UV^T, where USV^T = G is the SVD.
+    """
+    assert len(G.shape) == 2
+    a, b, c = (3.4445, -4.7750,  2.0315)
+    X = G.bfloat16()
+    if G.size(0) > G.size(1):
+        X = X.T
+
+    # Ensure spectral norm is at most 1
+    X = X / (X.norm() + 1e-7)
+    # Perform the NS iterations
+    for _ in range(steps):
+        A = X @ X.T
+        B = b * A + c * A @ A # adapted from suggestion by @jxbz, @leloykun, and @YouJiacheng
+        X = a * X + B @ X
+    
+    if G.size(0) > G.size(1):
+        X = X.T
+    return X
+
+
+class MuonNEW(optim.Optimizer):
+    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, 
+                 ns_steps=6, noise=1, bs=256, head_param_ids=None):
+        """
+        Args:
+            params: Model parameters
+            lr: Learning rate
+            momentum: Momentum for Muon part (Not used for Head)
+            nesterov: Nesterov flag for Muon part
+            ns_steps: Newton-Schulz iteration steps
+            noise: Noise coefficient for Head scaling calculation
+            bs: Batch Size (Used for Head scaling calculation)
+            head_param_ids: A set(id(p)) marking which parameters belong to the Head
+        """
+        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps, noise=noise, bs=bs)
+        
+        super().__init__(params, defaults)
+        
+        self.head_param_ids = set() if head_param_ids is None else head_param_ids
+        self._head_param_set = set()
+
+        # Pre-processing: Identify specific Head parameter objects and store them 
+        # in _head_param_set for fast lookup during the step
+        for group in self.param_groups:
+            for p in group["params"]:
+                if id(p) in self.head_param_ids:
+                    self._head_param_set.add(p)
+
+    @torch.no_grad()
+    def step(self, closure=None):
+        loss = None
+        if closure is not None:
+            with torch.enable_grad():
+                loss = closure()
+
+        for group in self.param_groups:
+            # Get common hyperparameters
+            lr = group["lr"]
+            momentum = group["momentum"]
+            noise = group["noise"]
+            ns_steps = group["ns_steps"]
+            nesterov = group["nesterov"]
+            bs = group["bs"] # Retrieve batch size from group
+
+            for p in group["params"]:
+                if p.grad is None:
+                    continue
+                
+                g = p.grad
+
+                # ==================================================
+                # Branch 1: Handle Head parameters (Plain SGD, No Momentum)
+                # ==================================================
+                if p in self._head_param_set:
+                    # Apply custom MuP-style scaling (only for 2D weights)
+                    if g.ndim == 2:
+                        # Logic: scale based on dimensions and batch size
+                        spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise / bs
+                        lr_scale = (g.size(0) / g.size(1)) ** 0.5 / spec
+                        g = g * lr_scale
+                    
+                    # Plain SGD update: subtract gradient directly 
+                    # (does not touch state['momentum_buffer'])
+                    p.data.add_(g, alpha=-lr)
+
+                # ==================================================
+                # Branch 2: Handle Muon parameters (Newton-Schulz + Momentum)
+                # ==================================================
+                else:
+                    # Flatten to 2D if dims > 2 (e.g., Conv2d)
+                    if g.ndim > 2:
+                        g = g.view(g.size(0), -1)
+                    
+                    # --- Momentum Handling ---
+                    state = self.state[p]
+                    if 'momentum_buffer' not in state:
+                        state['momentum_buffer'] = torch.zeros_like(g)
+                    
+                    buf = state['momentum_buffer']
+                    buf.mul_(momentum).add_(g)
+                    
+                    if nesterov:
+                        g = g.add(buf, alpha=momentum)
+                    else:
+                        g = buf
+                    
+                    # --- Newton-Schulz Orthogonalization ---
+                    if g.ndim >= 2:
+                        # Orthogonalize
+                        g = zeropower_via_newtonschulz5(g, steps=ns_steps)
+                        # Restore Scaling
+                        g *= max(1, g.size(0) / g.size(1)) ** 0.5
+                    else:
+                        # Simple normalization for 1D parameters (like bias)
+                        g /= (g.norm() + 1e-8)
+
+                    # Update weights
+                    p.data.add_(g, alpha=-lr)
+
+        return loss
+
+
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
         print("Mode must be one of 'nonDP','BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt','nonDP-BiTFiT','BiTFiT'")
@@ -88,7 +219,6 @@ def main(args):
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
-    print(clip_dict)
     
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
@@ -96,26 +226,26 @@ def main(args):
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    # target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
     target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
-
-    param_groups = []
-    for n, p in net.named_parameters():
-        curr_lr = target_lr_dict.get(n, base_lr)
-        if isinstance(curr_lr, torch.Tensor):
-            curr_lr = curr_lr.item()
-            
-        param_groups.append({
-            "params": [p], 
-            "lr": curr_lr, 
-            "name": n
-        })
       
     if args.optimizer == 'SGD':
+        param_groups = []
+        for n, p in net.named_parameters():
+            curr_lr = target_lr_dict.get(n, base_lr)
+            if isinstance(curr_lr, torch.Tensor):
+                curr_lr = curr_lr.item()
+                
+            param_groups.append({
+                "params": [p], 
+                "lr": curr_lr, 
+                "name": n
+            })
         optimizer = optim.SGD(param_groups, lr=base_lr)
         # optimizer = optim.SGD(net.parameters(), lr=base_lr)
-    elif args.optimizer == 'Adam':
-        optimizer = optim.Adam(param_groups, lr=base_lr)
+    elif args.optimizer == 'muon':
+        head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
+        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
+                            noise=noise, bs=args.bs, head_param_ids=head_ids)
         
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
