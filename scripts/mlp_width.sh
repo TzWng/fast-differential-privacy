@@ -99,50 +99,50 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 
-# LRS=(-7.25 -6.75 -8.5 -9 -9.5 -10) # SGD
-# # 256 512 1024 2048 4096 8192
-# for lr in "${LRS[@]}"; do 
-#   for wid in 256 512 1024 2048 4096 8192; do
-#     echo "Running width=$wid, lr=$lr, dim=32"
-#     $PYTHON -m scripts.dpmup_sgd \
-#       --width "$wid" \
-#       --lr "$lr" \
-#       --epochs 10 \
-#       --bs 500 \
-#       --mini_bs 500 \
-#       --noise 7.067494947837502 \
-#       --seed 4 \
-#       --cifar_data CIFAR10 \
-#       --clipping_mode BK-MixOpt \
-#       --clipping_style layer-wise \
-#       --dimension 32 \
-#       --optimizer muon \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonsgd_depth5_s2l_epsilon2_dinfix_dpmup.txt"
-#   done
-# done
-
-
-
-LRS=(-12.5 -13) # SGD
+LRS=(-6.25) # SGD
 # 256 512 1024 2048 4096 8192
-for wid in 256 512 1024 2048 4096 8192; do
-  for lr in "${LRS[@]}"; do 
+for lr in "${LRS[@]}"; do 
+  for wid in 256 512 1024 2048 4096 8192; do
     echo "Running width=$wid, lr=$lr, dim=32"
-    $PYTHON -m scripts.MLP_muon \
+    $PYTHON -m scripts.dpmup_sgd \
       --width "$wid" \
       --lr "$lr" \
       --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
-      --noise 1.02294921875 \
+      --noise 7.067494947837502 \
+      --seed 4 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonall_depth5_l2s_epsilon2_dinfix_dpmup.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonsgd_depth5_s2l_epsilon2_dinfix_dpmup.txt"
   done
 done
+
+
+
+# LRS=(-12.5 -13) # SGD
+# # 256 512 1024 2048 4096 8192
+# for wid in 256 512 1024 2048 4096 8192; do
+#   for lr in "${LRS[@]}"; do 
+#     echo "Running width=$wid, lr=$lr, dim=32"
+#     $PYTHON -m scripts.MLP_muon \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --noise 1.02294921875 \
+#       --cifar_data CIFAR10 \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --dimension 32 \
+#       --optimizer muon \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonall_depth5_l2s_epsilon2_dinfix_dpmup.txt"
+#   done
+# done
 
 
 
