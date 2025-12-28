@@ -87,7 +87,7 @@ for wid in 256 512 1024 2048 4096 8192; do
       --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
-      --noise 7.067494947837502 \
+      --noise 1.02294921875 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
