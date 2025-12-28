@@ -65,7 +65,6 @@ for wid in 8192; do
       --bs 500 \
       --mini_bs 500 \
       --noise 1.02294921875 \
-      --seed 3 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
