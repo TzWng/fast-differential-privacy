@@ -41,7 +41,7 @@ for lr in "${LRS[@]}"; do
       --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
-      --noise 10 \
+      --noise 8 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
