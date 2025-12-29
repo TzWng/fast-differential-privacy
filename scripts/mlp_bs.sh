@@ -6,7 +6,7 @@ BS=1024  # 你要的 batch size
 # batch size 500 epsilon=2
 LRS=(-6 -5.5 -5 -4.5 -4 -3.5 -3) # SGD
 # 256 512 1024 2048 4096 8192
-for BS in 125; do
+for BS in 250 500 1000 2000; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 4 * BS / 125 ))
     sig=$(awk "BEGIN {print 3.586439615946674*$BS/500.0}")
@@ -32,7 +32,7 @@ done
 
 LRS=(-8 -7.5 -7 -6.5 -6) # SGD
 # 256 512 1024 2048 4096 8192
-for BS in 125; do
+for BS in 250 500 1000 2000; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 4 * BS / 125 ))
     sig=$(awk "BEGIN {print 3.586439615946674*$BS/500.0}")
