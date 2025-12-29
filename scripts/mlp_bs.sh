@@ -56,7 +56,7 @@ BS=1024  # 你要的 batch size
 
 LRS=(-3 -2.5 -2 -1.5 -1) # SGD
 # 256 512 1024 2048 4096 8192
-for BS in 400; do
+for BS in 50; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 2 * BS / 50 ))
     sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
