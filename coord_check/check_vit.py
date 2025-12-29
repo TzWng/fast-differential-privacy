@@ -29,7 +29,7 @@ warnings.filterwarnings("ignore")
 args = argparse.Namespace(
     model="vit_tiny_patch16_224",
     noise=2,
-    lr=-4, epochs=3, bs=500, mini_bs=500,
+    lr=-4, epochs=3, bs=200, mini_bs=200,
     dimension=224,
     dataset='CIFAR10',
     clipping_mode='BK-MixOpt',
@@ -283,7 +283,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             return model
         return f
 
-    scales = np.arange(1, 3) 
+    scales = np.arange(1, 7) 
     models = {int(s): gen(int(s)) for s in scales}
                       
     transformation = torchvision.transforms.Compose([
