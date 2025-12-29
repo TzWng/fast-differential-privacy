@@ -31,7 +31,7 @@ args = argparse.Namespace(
     noise=1,
     lr=5, epochs=3, bs=100, mini_bs=100,
     dimension=224,
-    dataset='CIFAR10',
+    dataset='CIFAR100',
     clipping_mode='BK-MixOpt',
     clipping_style='layer-wise',
     origin_params=None,
@@ -306,7 +306,7 @@ coord_check_split_terms(
     model_fn=None,
     optimizer_fn=my_custom_optimizer_fn,
     batch_size=args.mini_bs,
-    nsteps=4,
+    nsteps=10,
     nseeds=1,
     args=args
 )
