@@ -8,15 +8,15 @@ LRS=(-6 -5.5 -5 -4.5 -4 -3.5 -3) # SGD
 for BS in 125; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 4 * BS / 125 ))
-    sig=$(awk "BEGIN {print 4*$BS/125.0}")
-    echo "Running width=2048, lr=$lr, dim=32"
+    sig=$(awk "BEGIN {print 7.067494947837502*$BS/500.0}")
+    echo "Running width=2048, lr=$lr, noise=$sig"
     $PYTHON -m scripts.dpmup_sgd \
       --width 2048 \
       --lr "$lr" \
       --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --noise 7.067494947837502 \
+      --bs "$BS" \
+      --mini_bs "$BS" \
+      --noise "$sig" \
       --seed 3 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
