@@ -68,7 +68,7 @@ for BS in 400; do
       --mini_bs "$BS" \
       --noise "$sig" \
       --scale 2 \
-      --cifar_data CIFAR10 \
+      --dataset CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dimension 224 \
