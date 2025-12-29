@@ -295,7 +295,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             df,
             y='l1',
             legend=False,
-            loglog=False,
+            loglog=True,
             save_to=f"/content/SGD_sp.pdf", 
             suptitle=None,
             face_color=None
