@@ -54,15 +54,62 @@ BS=1024  # 你要的 batch size
 # done
 
 
-# LRS=(-4 -3.5 -3 -2.5 -2) # SGD
-# LRS=(-3.5 -4) # SGD
+LRS=(-3.5 -4 -4.5) # SGD
+# 256 512 1024 2048 4096 8192
+for BS in 50; do
+  for lr in "${LRS[@]}"; do 
+    epoch=$(( 2 * BS / 50 ))
+    sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
+    echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
+    $PYTHON -m scripts.vit_unifed \
+      --lr "$lr" \
+      --epochs "$epoch" \
+      --bs "$BS" \
+      --mini_bs "$BS" \
+      --noise "$sig" \
+      --scale 1 \
+      --dataset CIFAR10 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dimension 224 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_sgd_diffbs_dinfix_dpmup.txt"
+  done
+done
+
+LRS=(-4.5 -4 -3.5 -3 -2.5 -2) # SGD
+# 256 512 1024 2048 4096 8192
+for BS in 100 200 400; do
+  for lr in "${LRS[@]}"; do 
+    epoch=$(( 2 * BS / 50 ))
+    sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
+    echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
+    $PYTHON -m scripts.vit_unifed \
+      --lr "$lr" \
+      --epochs "$epoch" \
+      --bs "$BS" \
+      --mini_bs "$BS" \
+      --noise "$sig" \
+      --scale 1 \
+      --dataset CIFAR10 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dimension 224 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_sgd_diffbs_dinfix_dpmup.txt"
+  done
+done
+
+
+
+# LRS=(-8.5 -8 -7.5 -7 -6.5 -6) # SGD
 # # 256 512 1024 2048 4096 8192
-# for BS in 50; do
+# for BS in 50 100 200 400; do
 #   for lr in "${LRS[@]}"; do 
 #     epoch=$(( 2 * BS / 50 ))
 #     sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
 #     echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
-#     $PYTHON -m scripts.vit_unifed \
+#     $PYTHON -m scripts.vit_muon_sgd \
 #       --lr "$lr" \
 #       --epochs "$epoch" \
 #       --bs "$BS" \
@@ -73,58 +120,10 @@ BS=1024  # 你要的 batch size
 #       --clipping_mode BK-MixOpt \
 #       --clipping_style layer-wise \
 #       --dimension 224 \
-#       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_sgd_diffbs_dinfix_dpmup.txt"
+#       --optimizer muon \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_muon_diffbs_dinfix_dpmup.txt"
 #   done
 # done
-
-
-LRS=(-7.5 -8 -8.5) # SGD
-# 256 512 1024 2048 4096 8192
-for BS in 50; do
-  for lr in "${LRS[@]}"; do 
-    epoch=$(( 2 * BS / 50 ))
-    sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
-    echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
-    $PYTHON -m scripts.vit_muon_sgd \
-      --lr "$lr" \
-      --epochs "$epoch" \
-      --bs "$BS" \
-      --mini_bs "$BS" \
-      --noise "$sig" \
-      --scale 1 \
-      --dataset CIFAR10 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dimension 224 \
-      --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_muon_diffbs_dinfix_dpmup.txt"
-  done
-done
-
-
-LRS=(-8.5 -8 -7.5 -7 -6.5 -6) # SGD
-# 256 512 1024 2048 4096 8192
-for BS in 100 200 400; do
-  for lr in "${LRS[@]}"; do 
-    epoch=$(( 2 * BS / 50 ))
-    sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
-    echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
-    $PYTHON -m scripts.vit_muon_sgd \
-      --lr "$lr" \
-      --epochs "$epoch" \
-      --bs "$BS" \
-      --mini_bs "$BS" \
-      --noise "$sig" \
-      --scale 1 \
-      --dataset CIFAR10 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dimension 224 \
-      --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_muon_diffbs_dinfix_dpmup.txt"
-  done
-done
 
 # LRS=(-13)
 # for BS in 125; do
