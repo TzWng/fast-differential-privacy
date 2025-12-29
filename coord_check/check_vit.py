@@ -286,12 +286,12 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             local_args.scale = s  
             
             model_wrapper = MyVit(local_args, is_base=False)
-            model = model_wrapper.create_model()
+            net = model_wrapper.create_model()
 
-            model.apply(kaiming_init_weights)
+            net.apply(kaiming_init_weights)
             
-            model = setprec(model, args.precision)
-            return model
+            net = setprec(net, args.precision)
+            return net
         return f
 
     scales = np.arange(1, 7) 
