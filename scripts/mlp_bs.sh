@@ -5,10 +5,10 @@ BS=1024  # 你要的 batch size
 
 LRS=(-6 -5.5 -5 -4.5 -4 -3.5 -3) # SGD
 # 256 512 1024 2048 4096 8192
-for BS in 125; do
+for BS in 500; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 4 * BS / 125 ))
-    sig=$(awk "BEGIN {print 4.523140664950678*$BS/500.0}")
+    sig=$(awk "BEGIN {print 7.067494947837502*$BS/500.0}")
     echo "Running width=2048, lr=$lr, noise=$sig"
     $PYTHON -m scripts.dpmup_sgd \
       --width 2048 \
