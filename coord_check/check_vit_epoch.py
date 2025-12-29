@@ -165,9 +165,7 @@ def _get_coord_data(models,
     
     device = torch.device("cuda" if cuda else "cpu")
 
-    # 2. 数据处理
-    # 如果是跑 Epoch，通常 fix_data=False，直接用完整的 dataloader
-    # 如果你坚持要 fix_data (比如每个 Epoch 只是重复跑那个固定的 List)，逻辑也兼容
+
     if fix_data and not isinstance(dataloader, list):
         # 如果是 fix_data，这里依然只是取出一个 batch 重复
         # 但为了模拟 "Epoch"，长度可能需要设置一下，或者干脆由 dataloader 本身长度决定
@@ -322,14 +320,12 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
     else:
         raise ValueError("Must specify dataset as CIFAR10 or CIFAR100.")
 
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
-    batch = next(iter(trainloader))
-    fixed_dataloader = [batch] * nsteps
+    full_trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
 
     for mode in ['bs', 'scale', 'both']:
         df = _get_coord_data(
             models,
-            dataloader=fixed_dataloader,   # ★ 用 per-width 数据
+            dataloader=full_trainloader,   # ★ 用 per-width 数据
             optimizer_fn=lambda net: optimizer_fn(net, args, 50000, mode=mode),
             flatten_output=True,
             nseeds=nseeds,
