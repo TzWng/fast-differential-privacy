@@ -14,7 +14,7 @@ for BS in 125; do
     $PYTHON -m scripts.dpmup_sgd \
       --width 2048 \
       --lr "$lr" \
-      --epochs 10 \
+      --epochs "$epoch" \
       --bs "$BS" \
       --mini_bs "$BS" \
       --noise "$sig" \
@@ -40,7 +40,7 @@ for BS in 125; do
     $PYTHON -m scripts.dpmup_sgd \
       --width 2048 \
       --lr "$lr" \
-      --epochs 10 \
+      --epochs "$epoch" \
       --bs "$BS" \
       --mini_bs "$BS" \
       --noise "$sig" \
