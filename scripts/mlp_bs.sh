@@ -67,7 +67,7 @@ for BS in 50; do
       --bs "$BS" \
       --mini_bs "$BS" \
       --noise "$sig" \
-      --scale 2 \
+      --scale 1 \
       --dataset CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
