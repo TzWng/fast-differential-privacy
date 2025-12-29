@@ -95,8 +95,8 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
             "name": n
         })
     
-    optimizer = optim.SGD(param_groups, lr=base_lr)
-    # optimizer = optim.SGD(net.parameters(), lr=base_lr)
+    # optimizer = optim.SGD(param_groups, lr=base_lr)
+    optimizer = optim.SGD(net.parameters(), lr=base_lr)
 
     # 6. Privacy Engine
     if 'nonDP' not in args.clipping_mode:
@@ -112,10 +112,10 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
             net,
             batch_size=args.bs,
             sample_size=trainset_len,
-            noise_multiplier=noise,
+            noise_multiplier=args.noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
-            clipping_coe=D_prime_vector, 
+            # clipping_coe=D_prime_vector, 
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,
         )
