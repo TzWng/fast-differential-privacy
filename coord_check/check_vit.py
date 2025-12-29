@@ -48,24 +48,12 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
     # 获取全局 device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def kaiming_init_weights(m):
-        if isinstance(m, nn.Linear):
-            if m is net.head:
-                nn.init.zeros_(m.weight)
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
-            else:
-                nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
-
     # 1. Base Model (计算 Shape 用，不需要上 GPU)
     model_base = MyVit(args, is_base=True)
     base_model = model_base.create_model()
     base_shapes = get_shapes(base_model)
     
     # 2. Target Model (使用传入的 net)
-    net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
 
     # 3. 计算超参
@@ -279,6 +267,18 @@ def setprec(model, precision='float32'):
 
 
 def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nseeds, args):
+
+    def kaiming_init_weights(m):
+        if isinstance(m, nn.Linear):
+            if m is net.head:
+                nn.init.zeros_(m.weight)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+            else:
+                nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+                    
     def gen(s):
         def f():
             local_args = copy(args)
@@ -287,6 +287,8 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             
             model_wrapper = MyVit(local_args, is_base=False)
             model = model_wrapper.create_model()
+
+            model.apply(kaiming_init_weights)
             
             model = setprec(model, args.precision)
             return model
