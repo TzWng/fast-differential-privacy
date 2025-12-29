@@ -244,11 +244,11 @@ def setprec(model, precision='float32'):
 
 
 def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nseeds, args):
-    def gen(w):
+    def gen(s):
         def f():
             local_args = copy(args)
             # === 修正 1: 这里必须用传入的参数 w ===
-            local_args.width = w  
+            local_args.scale = s  
             
             model_wrapper = MyVit(local_args, is_base=False)
             model = model_wrapper.create_model()
