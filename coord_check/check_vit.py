@@ -318,7 +318,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
         plot_coord_data(
             df,
             y='l1',
-            legend=True,
+            legend=False,
             loglog=False,
             save_to=f"/content/SGD_mup.pdf", 
             suptitle=None,
