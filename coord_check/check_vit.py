@@ -59,8 +59,7 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
     base_model = model_base.create_model() 
     base_shapes = get_shapes(base_model)
     
-    model_target = MyVit(args, is_base=False)    
-    net = model_target.create_model()
+
     net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
 
