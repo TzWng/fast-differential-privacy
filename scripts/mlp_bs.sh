@@ -8,8 +8,8 @@ LRS=(-6 -5.5 -5 -4.5 -4 -3.5 -3) # SGD
 for BS in 500; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 4 * BS / 125 ))
-    sig=$(awk "BEGIN {print 7.067494947837502*$BS/500.0}")
-    echo "Running width=2048, lr=$lr, noise=$sig"
+    sig=$(awk "BEGIN {print 4.417184342398438*$BS/500.0}")
+    echo "Running width=2048, lr=$lr, noise=$sig, epoch=$epoch"
     $PYTHON -m scripts.dpmup_sgd \
       --width 2048 \
       --lr "$lr" \
