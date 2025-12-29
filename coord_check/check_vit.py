@@ -273,7 +273,8 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
     else:
         raise ValueError("Must specify dataset as CIFAR10 or CIFAR100.")
 
-    batch = next(iter(loader))
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+    batch = next(iter(trainloader))
     fixed_dataloader = [batch] * nsteps
 
     for mode in ['bs', 'scale', 'both']:
