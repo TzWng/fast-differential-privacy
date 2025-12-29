@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore")
 
 args = argparse.Namespace(
     model="vit_tiny_patch16_224",
-    noise=0.9,
+    noise=1,
     lr=5, epochs=3, bs=100, mini_bs=100,
     dimension=224,
     dataset='CIFAR10',
@@ -113,12 +113,11 @@ def _record_coords(df, width, name, batch_idx, output_fdict=None, input_fdict=No
 def _get_coord_data(models,
                     dataloader=None,
                     optimizer_fn=None,
-                    nsteps=3,       # 如果启用 epochs，这个参数将被忽略或仅用于 fix_data
-                    epochs=None,    # ★ 新增：传入 args.epochs
+                    nsteps=3,
                     flatten_input=False,
                     flatten_output=False,
                     lossfn='xent',
-                    fix_data=False, # 跑 Epoch 通常建议 False (遍历整个数据集)
+                    fix_data=True, 
                     cuda=True,
                     nseeds=1,
                     show_progress=True
@@ -133,22 +132,14 @@ def _get_coord_data(models,
     
     device = torch.device("cuda" if cuda else "cpu")
 
-
+    # 2. 处理数据固定
     if fix_data and not isinstance(dataloader, list):
-        # 如果是 fix_data，这里依然只是取出一个 batch 重复
-        # 但为了模拟 "Epoch"，长度可能需要设置一下，或者干脆由 dataloader 本身长度决定
         batch = next(iter(dataloader))
-        # 这里的 nsteps 变成了 "一个 Epoch 有多少个 Batch"
-        dataloader = [batch] * (nsteps if nsteps else 10) 
-
-    # 获取每个 Epoch 的总 Batch 数，用于判断何时是 "最后一个 Batch"
-    total_batches = len(dataloader)
+        dataloader = [batch] * nsteps
 
     if show_progress:
         from tqdm import tqdm
-        # 进度条总长 = 种子数 * 模型数 * Epoch 数
-        total_steps = nseeds * len(models) * (epochs if epochs else 1)
-        pbar = tqdm(total=total_steps)
+        pbar = tqdm(total=nseeds * len(models))
 
     for i in range(nseeds):
         torch.manual_seed(i)
@@ -158,68 +149,64 @@ def _get_coord_data(models,
             
             if cuda:
                 model = model.to(device)
+            
+            # [Check] 打印一次模型位置
+            if i == 0 and list(models.keys())[0] == width:
+                first_param = next(model.parameters())
+                print(f"\n[Check] Model (width={width}) device: {first_param.device}")
 
             optimizer = optimizer_fn(model)
 
-            # === 外层循环：Epochs ===
-            # 如果没传 epochs，默认为 1
-            run_epochs = epochs if epochs is not None else 1
-            
-            for epoch in range(1, run_epochs + 1):
+            for batch_idx, batch in enumerate(dataloader, 1):
+                remove_hooks = []
                 
-                # 内层循环：Batches
-                for batch_idx, batch in enumerate(dataloader, 1):
+                # === 3. 注册 Hook (修改处：过滤 Norm 层) ===
+                for name, module in model.named_modules():
+                    weight = getattr(module, 'weight', None)
                     
-                    # ★ 关键修改：只在当前 Epoch 的最后一个 Batch 记录 ★
-                    # 这样横坐标 t 就是 epoch，而不是 step
-                    is_record_step = (batch_idx == total_batches)
-                    
-                    remove_hooks = []
-                    
-                    if is_record_step:
-                        # 只有需要记录时，才注册 Hook
-                        for name, module in model.named_modules():
-                            weight = getattr(module, 'weight', None)
-                            if weight is None or not isinstance(weight, torch.Tensor):
-                                continue
-                            
-                            # 筛选 Linear(2D) 和 Conv(4D)
-                            if weight.ndim in [2, 4]:
-                                # 注意：这里的 batch_idx 参数我们传入 epoch
-                                # 这样画图时 x 轴显示的就是 1, 2, 3 (Epoch)
-                                remove_hooks.append(module.register_forward_hook(
-                                    _record_coords(coord_data_list, width, name, epoch)))
+                    if weight is None or not isinstance(weight, torch.Tensor):
+                        continue
 
-                    (data, target) = batch
-                    
-                    if cuda:
-                        data = data.to(device, non_blocking=True)
-                        target = target.to(device, non_blocking=True)
-                    
-                    if flatten_input:
-                        data = data.view(data.size(0), -1)
+                    if weight.ndim in [2, 4]:
+                        remove_hooks.append(module.register_forward_hook(
+                            _record_coords(coord_data_list, width, name, batch_idx)))
+    
 
-                    output = model(data)
-                    
-                    if flatten_output:
-                        output = output.view(-1, output.shape[-1])
+                (data, target) = batch
+                
+                if cuda:
+                    data = data.to(device, non_blocking=True)
+                    target = target.to(device, non_blocking=True)
+                
+                # [Check] 打印一次数据位置
+                if i == 0 and batch_idx == 1 and list(models.keys())[0] == width:
+                     print(f"[Check] Input Data device: {data.device}")
 
-                    if lossfn == 'xent':
-                        loss = F.cross_entropy(output, target)
-                    else:
-                        raise NotImplementedError
+                if flatten_input:
+                    data = data.view(data.size(0), -1)
 
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
+                output = model(data)
+                
+                if flatten_output:
+                    output = output.view(-1, output.shape[-1])
 
-                    # 移除 Hook
-                    for handle in remove_hooks:
-                        handle.remove()
+                if lossfn == 'xent':
+                    loss = F.cross_entropy(output, target)
+                else:
+                    raise NotImplementedError
 
-                # 每个 Epoch 结束后更新进度条
-                if show_progress:
-                    pbar.update(1)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+                for handle in remove_hooks:
+                    handle.remove()
+
+                if batch_idx == nsteps:
+                    break
+
+            if show_progress:
+                pbar.update(1)
 
     if show_progress:
         pbar.close()
@@ -272,7 +259,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             return net
         return f
 
-    scales = np.arange(1, 7) 
+    scales = np.arange(1, 9) 
     models = {int(s): gen(int(s)) for s in scales}
                       
     transformation = torchvision.transforms.Compose([
@@ -288,16 +275,18 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
     else:
         raise ValueError("Must specify dataset as CIFAR10 or CIFAR100.")
 
-    full_trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+    batch = next(iter(trainloader))
+    fixed_dataloader = [batch] * nsteps
 
     for mode in ['bs', 'scale', 'both']:
         df = _get_coord_data(
             models,
-            dataloader=full_trainloader,   # ★ 用 per-width 数据
+            dataloader=fixed_dataloader,   # ★ 用 per-width 数据
             optimizer_fn=lambda net: optimizer_fn(net, args, 50000, mode=mode),
             flatten_output=True,
             nseeds=nseeds,
-            epochs=args.epochs, # 告诉函数我们要跑 Epoch
+            nsteps=nsteps,
             lossfn='xent',
             fix_data=False,   # 已经自己重复过 batch 了
         )
@@ -317,7 +306,7 @@ coord_check_split_terms(
     model_fn=None,
     optimizer_fn=my_custom_optimizer_fn,
     batch_size=args.mini_bs,
-    nsteps=None, # 这里不再重要了
+    nsteps=4,
     nseeds=1,
     args=args
 )
