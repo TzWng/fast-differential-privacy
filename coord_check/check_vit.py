@@ -43,42 +43,43 @@ device = torch.device("cuda:0")
 
 
 def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
+    # 获取全局 device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def kaiming_init_weights(m):
-      if isinstance(m, nn.Linear):
-          if m is net.head:
-              nn.init.zeros_(m.weight)
-              if m.bias is not None:
-                  nn.init.zeros_(m.bias)
-          else:
-              nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
-              if m.bias is not None:
-                  nn.init.zeros_(m.bias)
-                  
+        if isinstance(m, nn.Linear):
+            if m is net.head:
+                nn.init.zeros_(m.weight)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+            else:
+                nn.init.kaiming_normal_(m.weight, a=1, mode='fan_in')
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+
+    # 1. Base Model (计算 Shape 用，不需要上 GPU)
     model_base = MyVit(args, is_base=True)
-    base_model = model_base.create_model() 
+    base_model = model_base.create_model()
     base_shapes = get_shapes(base_model)
     
-
+    # 2. Target Model (使用传入的 net)
     net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
 
-    
+    # 3. 计算超参
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    D_prime_vector = torch.stack(list(clip_dict.values()))
+    
+    # ★关键修改：必须把 clipping vector 放到 GPU 上
+    D_prime_vector = torch.stack(list(clip_dict.values())).to(device)
 
-    net = ModuleValidator.fix(net)
+    # 4. 修复模型层并上 GPU
+    net = ModuleValidator.fix(net) 
     net = net.to(device)
 
-    print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
-    print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
-  
-    criterion = F.cross_entropy
-
+    # 5. 计算 LR
     base_lr = 2 ** args.lr
     target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
-
 
     param_groups = []
     for n, p in net.named_parameters():
@@ -91,10 +92,10 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
             "lr": curr_lr, 
             "name": n
         })
+    
     optimizer = optim.SGD(param_groups, lr=base_lr)
 
-    # optimizer = torch.optim.SGD(param_groups, lr=2 ** args.lr) # muP
-    # optimizer = torch.optim.SGD(net.parameters(), lr=2 ** args.lr) # SP
+    # 6. Privacy Engine
     if 'nonDP' not in args.clipping_mode:
         if 'BK' in args.clipping_mode:
             clipping_mode = args.clipping_mode[3:]
@@ -111,13 +112,14 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
             noise_multiplier=noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
-            clipping_coe=D_prime_vector,
+            clipping_coe=D_prime_vector, # 现在是 GPU Tensor 了
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,
         )
         privacy_engine.attach(optimizer)
-        print(f"Noise multiplier (σ): {privacy_engine.noise_multiplier:.4f}")
-
+        # 打印一下确认 Noise 算出来了
+        # print(f"Noise multiplier (σ): {privacy_engine.noise_multiplier:.4f}")
+        
     return optimizer
 
 
@@ -156,17 +158,23 @@ def _get_coord_data(models,
                     flatten_input=False,
                     flatten_output=False,
                     lossfn='xent',
-                    fix_data=True,
-                    cuda=True,
+                    fix_data=True, 
+                    cuda=True,     # 确保这里默认为 True
                     nseeds=1,
                     show_progress=True
                     ):
     import pandas as pd
     coord_data_list = []
 
-    # === 核心修改：移除了 dataloader_map 判断逻辑 ===
-    # 恢复原有的 fix_data 逻辑：如果需要固定数据，就取出一个 batch 重复 nsteps 次
-    if fix_data:
+    # 1. 检查环境
+    if cuda and not torch.cuda.is_available():
+        print("Warning: CUDA requested but not available. Falling back to CPU.")
+        cuda = False
+    
+    device = torch.device("cuda" if cuda else "cpu")
+
+    # 2. 处理数据固定 (List or Loader)
+    if fix_data and not isinstance(dataloader, list):
         batch = next(iter(dataloader))
         dataloader = [batch] * nsteps
 
@@ -179,25 +187,41 @@ def _get_coord_data(models,
         for width, model_ctor in models.items():
             model = model_ctor()
             model.train()
+            
+            # ★ 3. 模型强制上 GPU
             if cuda:
-                model = model.cuda()
+                model = model.to(device)
+            
+            # [Debug] 打印一次模型位置
+            if i == 0 and list(models.keys())[0] == width:
+                first_param = next(model.parameters())
+                print(f"\n[Check] Model (width={width}) device: {first_param.device}")
+
             optimizer = optimizer_fn(model)
 
-            # === 直接使用统一的 dataloader ===
             for batch_idx, batch in enumerate(dataloader, 1):
                 remove_hooks = []
-
+                # 注册 Hook
                 for name, module in model.named_modules():
                     remove_hooks.append(module.register_forward_hook(
                         _record_coords(coord_data_list, width, name, batch_idx)))
 
                 (data, target) = batch
+                
+                # ★ 4. 数据强制上 GPU
                 if cuda:
-                    data, target = data.cuda(), target.cuda()
+                    data = data.to(device, non_blocking=True)
+                    target = target.to(device, non_blocking=True)
+                
+                # [Debug] 打印一次数据位置
+                if i == 0 and batch_idx == 1 and list(models.keys())[0] == width:
+                     print(f"[Check] Input Data device: {data.device}")
+
                 if flatten_input:
                     data = data.view(data.size(0), -1)
 
                 output = model(data)
+                
                 if flatten_output:
                     output = output.view(-1, output.shape[-1])
 
