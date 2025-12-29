@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore")
 args = argparse.Namespace(
     lr=-4, epochs=3, bs=200, mini_bs=200,
     dimension=224,
-    dataset_name='CIFAR10', cifar_data='CIFAR10',
+    dataset='CIFAR10',
     clipping_mode='BK-MixOpt',
     clipping_style='layer-wise',
     origin_params=None,
@@ -266,9 +266,9 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
         torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     ])
     
-    if args.cifar_data == 'CIFAR10':
+    if args.dataset == 'CIFAR10':
         trainset = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
-    elif args.cifar_data == 'CIFAR100':
+    elif args.dataset == 'CIFAR100':
         trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
     else:
         raise ValueError("Must specify dataset as CIFAR10 or CIFAR100.")
