@@ -48,42 +48,11 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
     # 获取全局 device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # 1. Base Model (计算 Shape 用，不需要上 GPU)
-    model_base = MyVit(args, is_base=True)
-    base_model = model_base.create_model()
-    base_shapes = get_shapes(base_model)
-    
-    # 2. Target Model (使用传入的 net)
-    model_shapes = get_shapes(net)
-
-    # 3. 计算超参
-    noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
-    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    
-    # ★关键修改：必须把 clipping vector 放到 GPU 上
-    D_prime_vector = torch.stack(list(clip_dict.values())).to(device)
-
-    # 4. 修复模型层并上 GPU
     net = ModuleValidator.fix(net) 
     net = net.to(device)
 
     # 5. 计算 LR
     base_lr = 2 ** args.lr
-    target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
-
-    param_groups = []
-    for n, p in net.named_parameters():
-        curr_lr = target_lr_dict.get(n, base_lr)
-        if isinstance(curr_lr, torch.Tensor):
-            curr_lr = curr_lr.item()
-            
-        param_groups.append({
-            "params": [p], 
-            "lr": curr_lr, 
-            "name": n
-        })
-    
-    # optimizer = optim.SGD(param_groups, lr=base_lr)
     optimizer = optim.SGD(net.parameters(), lr=base_lr)
 
     # 6. Privacy Engine
@@ -103,7 +72,6 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
             noise_multiplier=args.noise,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
-            # clipping_coe=D_prime_vector, 
             clipping_style=args.clipping_style,
             origin_params=args.origin_params,
         )
