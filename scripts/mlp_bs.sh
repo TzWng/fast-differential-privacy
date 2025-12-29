@@ -54,12 +54,12 @@ BS=1024  # 你要的 batch size
 # done
 
 
-LRS=(-9 -8.5 -8 -7.5 -7 -6.5 -6) # SGD
+LRS=(-3 -2.5 -2 -1.5 -1) # SGD
 # 256 512 1024 2048 4096 8192
 for BS in 400; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 2 * BS / 50 ))
-    sig=$(awk "BEGIN {print 3.586439615946674*$BS/50.0}")
+    sig=$(awk "BEGIN {print 1*$BS/400.0}")
     echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
@@ -67,7 +67,7 @@ for BS in 400; do
       --bs "$BS" \
       --mini_bs "$BS" \
       --noise "$sig" \
-      --scale 2\
+      --scale 2 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
