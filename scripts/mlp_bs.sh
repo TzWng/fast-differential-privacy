@@ -54,31 +54,6 @@ BS=1024  # 你要的 batch size
 # done
 
 
-LRS=(-5) # SGD
-# 256 512 1024 2048 4096 8192
-for BS in 50; do
-  for lr in "${LRS[@]}"; do 
-    epoch=$(( 2 * BS / 50 ))
-    sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
-    echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
-    $PYTHON -m scripts.vit_unifed \
-      --lr "$lr" \
-      --epochs "$epoch" \
-      --bs "$BS" \
-      --mini_bs "$BS" \
-      --noise "$sig" \
-      --scale 1 \
-      --dataset CIFAR10 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dimension 224 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_sgd_diffbs_dinfix_dpmup.txt"
-  done
-done
-
-
-
 LRS=(-5 -4.5 -4 -3.5 -3 -2.5) # SGD
 # 256 512 1024 2048 4096 8192
 for BS in 100 200 400; do
