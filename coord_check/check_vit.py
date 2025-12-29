@@ -161,21 +161,21 @@ def _get_coord_data(models,
                     flatten_output=False,
                     lossfn='xent',
                     fix_data=True, 
-                    cuda=True,     # 确保这里默认为 True
+                    cuda=True,
                     nseeds=1,
                     show_progress=True
                     ):
     import pandas as pd
     coord_data_list = []
 
-    # 1. 检查环境
+    # 1. 检查 CUDA
     if cuda and not torch.cuda.is_available():
         print("Warning: CUDA requested but not available. Falling back to CPU.")
         cuda = False
     
     device = torch.device("cuda" if cuda else "cpu")
 
-    # 2. 处理数据固定 (List or Loader)
+    # 2. 处理数据固定
     if fix_data and not isinstance(dataloader, list):
         batch = next(iter(dataloader))
         dataloader = [batch] * nsteps
@@ -190,11 +190,10 @@ def _get_coord_data(models,
             model = model_ctor()
             model.train()
             
-            # ★ 3. 模型强制上 GPU
             if cuda:
                 model = model.to(device)
             
-            # [Debug] 打印一次模型位置
+            # [Check] 打印一次模型位置
             if i == 0 and list(models.keys())[0] == width:
                 first_param = next(model.parameters())
                 print(f"\n[Check] Model (width={width}) device: {first_param.device}")
@@ -203,19 +202,29 @@ def _get_coord_data(models,
 
             for batch_idx, batch in enumerate(dataloader, 1):
                 remove_hooks = []
-                # 注册 Hook
+                
+                # === 3. 注册 Hook (修改处：过滤 Norm 层) ===
                 for name, module in model.named_modules():
+                    
+                    # 过滤掉常见的 Norm 层
+                    if isinstance(module, (nn.LayerNorm, nn.BatchNorm1d, nn.BatchNorm2d, nn.GroupNorm)):
+                        continue
+                    
+                    # (可选) 也可以把 Dropout 过滤掉，通常也不需要统计
+                    if isinstance(module, nn.Dropout):
+                        continue
+
+                    # 注册
                     remove_hooks.append(module.register_forward_hook(
                         _record_coords(coord_data_list, width, name, batch_idx)))
 
                 (data, target) = batch
                 
-                # ★ 4. 数据强制上 GPU
                 if cuda:
                     data = data.to(device, non_blocking=True)
                     target = target.to(device, non_blocking=True)
                 
-                # [Debug] 打印一次数据位置
+                # [Check] 打印一次数据位置
                 if i == 0 and batch_idx == 1 and list(models.keys())[0] == width:
                      print(f"[Check] Input Data device: {data.device}")
 
@@ -249,7 +258,6 @@ def _get_coord_data(models,
         pbar.close()
 
     return pd.DataFrame(coord_data_list)
-
 
 
 def get_coord_data(models, dataloader, optimizer_fn, **kwargs):
