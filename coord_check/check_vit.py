@@ -12,6 +12,7 @@ from tqdm import tqdm
 from copy import copy 
 
 from fastDP import PrivacyEngine
+from opacus.validators import ModuleValidator 
 from .plot_coord_data import plot_coord_data
 
 import numpy as np
