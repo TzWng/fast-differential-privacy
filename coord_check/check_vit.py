@@ -194,18 +194,15 @@ def _get_coord_data(models,
                 
                 # === 3. 注册 Hook (修改处：过滤 Norm 层) ===
                 for name, module in model.named_modules():
+                    weight = getattr(module, 'weight', None)
                     
-                    # 过滤掉常见的 Norm 层
-                    if isinstance(module, (nn.LayerNorm, nn.BatchNorm1d, nn.BatchNorm2d, nn.GroupNorm)):
-                        continue
-                    
-                    # (可选) 也可以把 Dropout 过滤掉，通常也不需要统计
-                    if isinstance(module, nn.Dropout):
+                    if weight is None or not isinstance(weight, torch.Tensor):
                         continue
 
-                    # 注册
-                    remove_hooks.append(module.register_forward_hook(
-                        _record_coords(coord_data_list, width, name, batch_idx)))
+                    if weight.ndim in [2, 4]:
+                        remove_hooks.append(module.register_forward_hook(
+                            _record_coords(coord_data_list, width, name, batch_idx)))
+    
 
                 (data, target) = batch
                 
