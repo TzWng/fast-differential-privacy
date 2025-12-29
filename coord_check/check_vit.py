@@ -27,6 +27,7 @@ warnings.filterwarnings("ignore")
 
 args = argparse.Namespace(
     lr=-4, epochs=3, bs=200, mini_bs=200,
+    dimension=224,
     dataset_name='CIFAR10', cifar_data='CIFAR10',
     clipping_mode='BK-MixOpt',
     clipping_style='layer-wise',
@@ -243,7 +244,7 @@ def setprec(model, precision='float32'):
 
 
 def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nseeds, args):
-  def gen(w):
+    def gen(w):
         def f():
             local_args = copy(args)
             # === 修正 1: 这里必须用传入的参数 w ===
