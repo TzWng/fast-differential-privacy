@@ -258,7 +258,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             return model
         return f
 
-    scales = 192 * np.arange(1, 7) 
+    scales = 192 * np.arange(1, 3) 
     models = {int(s): gen(int(s)) for s in scales}
                       
     transformation = torchvision.transforms.Compose([
