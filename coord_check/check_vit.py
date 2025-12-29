@@ -29,9 +29,9 @@ warnings.filterwarnings("ignore")
 args = argparse.Namespace(
     model="vit_tiny_patch16_224",
     noise=2,
-    lr=-4, epochs=3, bs=200, mini_bs=200,
+    lr=0, epochs=3, bs=200, mini_bs=200,
     dimension=224,
-    dataset='CIFAR10',
+    dataset='CIFAR100',
     clipping_mode='BK-MixOpt',
     clipping_style='layer-wise',
     origin_params=None,
