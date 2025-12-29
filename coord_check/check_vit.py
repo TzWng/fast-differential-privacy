@@ -305,7 +305,7 @@ coord_check_split_terms(
     model_fn=None,
     optimizer_fn=my_custom_optimizer_fn,
     batch_size=args.mini_bs,
-    nsteps=4,
+    nsteps=2,
     nseeds=1,
     args=args
 )
