@@ -291,7 +291,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             return model
         return f
 
-    scales = np.arange(1, 4) 
+    scales = np.arange(1, 7) 
     models = {int(s): gen(int(s)) for s in scales}
                       
     transformation = torchvision.transforms.Compose([
@@ -339,6 +339,6 @@ coord_check_split_terms(
     optimizer_fn=my_custom_optimizer_fn,
     batch_size=args.mini_bs,
     nsteps=4,
-    nseeds=1,
+    nseeds=3,
     args=args
 )
