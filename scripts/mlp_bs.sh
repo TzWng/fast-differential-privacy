@@ -59,7 +59,7 @@ LRS=(-3 -2.5 -2 -1.5 -1) # SGD
 for BS in 400; do
   for lr in "${LRS[@]}"; do 
     epoch=$(( 2 * BS / 50 ))
-    sig=$(awk "BEGIN {print 1*$BS/400.0}")
+    sig=$(awk "BEGIN {print 1.4983855926238738*$BS/400.0}")
     echo "Running batch size=$BS, lr=$lr, noise=$sig, epoch=$epoch"
     $PYTHON -m scripts.vit_unifed \
       --lr "$lr" \
