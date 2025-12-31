@@ -152,6 +152,40 @@ def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr
         
     return target_lrs
 
+def _get_lr4target_adam(base_shapes, target_shapes, base_noise, target_noise, base_lr):
+    target_lrs = {}
+    common_keys = [k for k in base_shapes.keys() if k in target_shapes]
+
+    for key in common_keys:
+        # === 1. 调用公共函数 (包含 Bias/Norm 的处理) ===
+        base_fans = get_fan_dims(base_shapes[key])
+        target_fans = get_fan_dims(target_shapes[key])
+        
+        # 如果是 None (比如 PosEmbed), 保持 base_lr
+        if base_fans is None or target_fans is None:
+            target_lrs[key] = base_lr
+            continue
+
+        b_out, b_in = base_fans
+        t_out, t_in = target_fans
+        
+        # === 2. 计算 Metrics ===
+        # 这里 Bias 会被当作 [N, 1] 矩阵参与计算
+        norm_base = b_out**0.5 + b_in**0.5
+        scale_base = (b_out / b_in) ** 0.5
+        
+        norm_target = t_out**0.5 + t_in**0.5
+        scale_target = (t_out / t_in) ** 0.5
+
+        # === 3. Scaling Ratio ===
+        metric_base = scale_base / norm_base
+        metric_target = scale_target / norm_target
+        
+        ratio = metric_target / metric_base
+        target_lrs[key] = base_lr * ratio
+        
+    return target_lrs
+
 # def _get_lr4target(target_shapes, target_noise, base_lr):
 #     """
 #     Scale the learning rate based solely on the Target model's shape and noise.
