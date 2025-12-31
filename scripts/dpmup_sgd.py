@@ -269,7 +269,7 @@ def main(args):
                 "name": n
             })
         optimizer = optim.Adam(param_groups, lr=base_lr)
-    else args.optimizer == 'muon':
+    elif args.optimizer == 'muon':
         head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
         optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
                             noise=noise, bs=args.bs, head_param_ids=head_ids)
