@@ -160,6 +160,24 @@ for lr in "${LRS[@]}"; do
   done
 done
 
+LRS=(-11.5 -12) # SGD
+# 288 512 1152 2048 4608 8192
+for lr in "${LRS[@]}"; do
+  for wid in 256 512 1024 2048 4096 8192; do 
+    echo "Running width=$wid, lr=$lr"
+    $PYTHON -m scripts.MLP_nonDP_muP \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpmup.txt"
+  done
+done
+
 
 
 # LRS=(-15 -14.5 -14 -13.5 -13 -12.5 -12 -11.5 -11) # SGD
