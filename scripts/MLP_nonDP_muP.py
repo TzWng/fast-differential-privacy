@@ -215,19 +215,19 @@ def main(args):
 
     n_acc_steps = args.bs // args.mini_bs  # gradient accumulation steps
 
-    # Model
-    input_dim = 3 * args.dimension * args.dimension
-    net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    # # Model
+    # input_dim = 3 * args.dimension * args.dimension
+    # net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
 
     
-    # input_dim = 3 * args.dimension * args.dimension
-    # # base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    # # delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    # base_model = MLP(width=8193, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    # delta_model = MLP(width=4096, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    # net = muMLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
-    # net = net.to(device)
-    # set_base_shapes(net, base_model, delta=delta_model)
+    input_dim = 3 * args.dimension * args.dimension
+    # base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    # delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    base_model = MLP(width=8193, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    delta_model = MLP(width=4096, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    net = muMLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
+    net = net.to(device)
+    set_base_shapes(net, base_model, delta=delta_model)
 
     
 
@@ -245,33 +245,10 @@ def main(args):
     ]
 
     if args.optimizer == 'SGD':
-        # optimizer = MuSGD(net.parameters(), lr=base_lr)
-
-        # def print_parameter_lrs(model, optimizer):
-        #     # 1. 建立参数 ID 到参数名称的映射
-        #     # 因为 optimizer.param_groups 里存的是 tensor 对象，没有名字
-        #     param_id_to_name = {id(p): n for n, p in model.named_parameters()}
-            
-        #     print(f"{'Layer Name':<40} | {'Shape':<20} | {'Learning Rate'}")
-        #     print("-" * 80)
-            
-        #     # 2. 遍历优化器的 param_groups
-        #     for group in optimizer.param_groups:
-        #         lr = group['lr']  # 获取当前组的特定学习率
-                
-        #         for p in group['params']:
-        #             # 找到对应的参数名
-        #             name = param_id_to_name.get(id(p), "Unknown Parameter")
-        #             shape = str(list(p.shape))
-                    
-        #             # 打印该参数的名称、形状和它实际使用的 LR
-        #             print(f"{name:<40} | {shape:<20} | {lr:.6f}")
-        
-        # # 使用示例
-        # print_parameter_lrs(net, optimizer)
-        optimizer = optim.SGD(net.parameters(), lr=base_lr)
+        optimizer = MuSGD(net.parameters(), lr=base_lr)
+        # optimizer = optim.SGD(net.parameters(), lr=base_lr)
     elif args.optimizer == 'Adam':
-        optimizer = optim.Adam(param_groups, lr=base_lr)
+        optimizer = MuAdam(net.parameters(), lr=base_lr)
     elif args.optimizer == 'muon':
         head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
         optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
@@ -344,7 +321,7 @@ def main(args):
 
 
 import mup
-from mup import MuSGD, get_shapes, set_base_shapes, make_base_shapes, MuReadout
+from mup import MuSGD, MuAdam, get_shapes, set_base_shapes, make_base_shapes, MuReadout
 import math, torch, os, torchvision 
 import torch.nn as nn 
 import torch.optim as optim 
