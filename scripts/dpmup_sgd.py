@@ -15,7 +15,7 @@ from torch import nn
 from tqdm import tqdm 
 
 from .logger import ExecutionLogger
-from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
+from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target, _get_lr4target_adam
 
 
 import warnings; 
@@ -239,9 +239,9 @@ def main(args):
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
       
     if args.optimizer == 'SGD':
+        target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
         param_groups = []
         for n, p in net.named_parameters():
             curr_lr = target_lr_dict.get(n, base_lr)
@@ -255,7 +255,21 @@ def main(args):
             })
         optimizer = optim.SGD(param_groups, lr=base_lr)
         # optimizer = optim.SGD(net.parameters(), lr=base_lr)
-    elif args.optimizer == 'muon':
+    elif args.optimizer == 'Adam':
+        target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr)
+        param_groups = []
+        for n, p in net.named_parameters():
+            curr_lr = target_lr_dict.get(n, base_lr)
+            if isinstance(curr_lr, torch.Tensor):
+                curr_lr = curr_lr.item()
+                
+            param_groups.append({
+                "params": [p], 
+                "lr": curr_lr, 
+                "name": n
+            })
+        optimizer = optim.Adam(param_groups, lr=base_lr)
+    else args.optimizer == 'muon':
         head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
         optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
                             noise=noise, bs=args.bs, head_param_ids=head_ids)
