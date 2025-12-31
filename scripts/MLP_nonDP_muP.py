@@ -221,10 +221,8 @@ def main(args):
 
     
     input_dim = 3 * args.dimension * args.dimension
-    # base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    # delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    base_model = MLP(width=8193, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
-    delta_model = MLP(width=4096, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    base_model = MLP(width=128, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
+    delta_model = MLP(width=256, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256)
     net = muMLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     net = net.to(device)
     set_base_shapes(net, base_model, delta=delta_model)
@@ -249,6 +247,7 @@ def main(args):
         # optimizer = optim.SGD(net.parameters(), lr=base_lr)
     elif args.optimizer == 'Adam':
         optimizer = MuAdam(net.parameters(), lr=base_lr)
+        # optimizer = optim.Adam(net.parameters(), lr=base_lr)
     elif args.optimizer == 'muon':
         head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
         optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
