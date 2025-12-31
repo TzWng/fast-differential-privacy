@@ -122,9 +122,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-9.5 9) # SGD
+LRS=(-12.5 -13 -9) # SGD
 # 256 512 1024 2048 4096 8192
-for wid in 512 1024 2048 4096 8192; do
+for wid in 256 512 1024 2048 4096 8192; do
   for lr in "${LRS[@]}"; do 
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.dpmup_sgd \
