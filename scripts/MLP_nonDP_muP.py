@@ -246,7 +246,7 @@ def main(args):
         optimizer = MuSGD(net.parameters(), lr=base_lr)
         # optimizer = optim.SGD(net.parameters(), lr=base_lr)
     elif args.optimizer == 'Adam':
-        optimizer = MuAdam(net.parameters(), lr=base_lr)
+        # optimizer = MuAdam(net.parameters(), lr=base_lr)
         optimizer = optim.Adam(net.parameters(), lr=base_lr)
     elif args.optimizer == 'muon':
         head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
