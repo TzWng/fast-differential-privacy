@@ -122,10 +122,30 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-# LRS=(-12.5 -13 -13.5 -14) # SGD
-# # 512 1024 2048 4096 8192
-# for wid in 256 512 1024 2048 4096 8192; do 
-#   for lr in "${LRS[@]}"; do
+LRS=(-12.5 -13 -13.5 -14) # SGD
+# 512 1024 2048 4096 8192
+for wid in 256 512 1024 2048 4096 8192; do 
+  for lr in "${LRS[@]}"; do
+    echo "Running width=$wid, lr=$lr"
+    $PYTHON -m scripts.MLP_nonDP_muP \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpsp.txt"
+  done
+done
+
+
+
+# LRS=(-7.5 -7) # SGD
+# # 288 512 1152 2048 4608 8192
+# for lr in "${LRS[@]}"; do
+#   for wid in 512 1024 2048 4096 8192; do 
 #     echo "Running width=$wid, lr=$lr"
 #     $PYTHON -m scripts.MLP_nonDP_muP \
 #       --width "$wid" \
@@ -136,47 +156,11 @@ export PYTHONPATH="$PROJECT_ROOT"
 #       --cifar_data CIFAR10 \
 #       --dimension 32 \
 #       --optimizer Adam \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpsp.txt"
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpmup.txt"
 #   done
 # done
 
 
-
-LRS=(-7.5 -7) # SGD
-# 288 512 1152 2048 4608 8192
-for lr in "${LRS[@]}"; do
-  for wid in 512 1024 2048 4096 8192; do 
-    echo "Running width=$wid, lr=$lr"
-    $PYTHON -m scripts.MLP_nonDP_muP \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpmup.txt"
-  done
-done
-
-LRS=(-11.5 -12) # SGD
-# 288 512 1152 2048 4608 8192
-for lr in "${LRS[@]}"; do
-  for wid in 256 512 1024 2048 4096 8192; do 
-    echo "Running width=$wid, lr=$lr"
-    $PYTHON -m scripts.MLP_nonDP_muP \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpmup.txt"
-  done
-done
 
 
 
