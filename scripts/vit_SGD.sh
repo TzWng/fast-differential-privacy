@@ -5,6 +5,28 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
+LRS=(-9 -8 -7 -6)
+for s in 1; do
+  for lr in "${LRS[@]}"; do
+    echo "Running scale=$s, lr=$lr"
+    $PYTHON -m scripts.vit_unifed\
+      --lr "$lr" \
+      --epochs 3\
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 2 \
+      --scale "$s" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dataset CIFAR10 \
+      --dimension 224 \
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar10_adam.txt"
+  done
+done
+
+
 # LRS=(-5.25 -7.5)
 # for s in 5; do
 #   for lr in "${LRS[@]}"; do
@@ -101,9 +123,9 @@ export PYTHONPATH="$PROJECT_ROOT"
 # )
 
 
-# LRS=(-2.5 -2 -1.5)
-# LRS=(-3.5 -3 -1 -0.5 0)
-# for s in 1 2 3 4; do
+
+# LRS=(-6 -5 -4 -3)
+# for s in 1; do
 #   for lr in "${LRS[@]}"; do
 #     echo "Running scale=$s, lr=$lr"
 #     $PYTHON -m scripts.vit_unifed \
@@ -125,26 +147,27 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 
-LRS=(-1.5 -1 -0.5)
-LRS=(-2.5 -2 0 0.5 1)
-LRS=(1 0.5 0 -2 -2.5)
-for s in 3; do
-  for lr in "${LRS[@]}"; do
-    echo "Running scale=$s, lr=$lr"
-    $PYTHON -m scripts.vit_unifed \
-      --lr "$lr" \
-      --epochs 5\
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 0.9036090970039368 \
-      --scale "$s" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dataset CIFAR100 \
-      --dimension 224 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_dpmup_new_1.txt"
-  done
-done
+# LRS=(1 0.5 0 -2 -2.5)
+# for s in 3; do
+#   for lr in "${LRS[@]}"; do
+#     echo "Running scale=$s, lr=$lr"
+#     $PYTHON -m scripts.vit_unifed \
+#       --lr "$lr" \
+#       --epochs 5\
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --epsilon 2 \
+#       --noise 0.9036090970039368 \
+#       --scale "$s" \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --dataset CIFAR100 \
+#       --dimension 224 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_SGD_dpmup_new_1.txt"
+#   done
+# done
+
+
+
 
