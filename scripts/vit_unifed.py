@@ -3,7 +3,7 @@ from .logger import ExecutionLogger
 import numpy as np
 import torch.nn.functional as F
 from .logger import ExecutionLogger
-from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
+from .get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target, _get_lr4target_adam
 from .model_builder import MyVit, MyPreVit
 
 
@@ -65,12 +65,6 @@ def main(args):
     net.apply(kaiming_init_weights)
     model_shapes = get_shapes(net)
 
-    # model_base = MyPreVit(args, model_name="vit_tiny_patch16_224")
-    # base_model = model_base.create_model() 
-    # base_shapes = get_shapes(base_model)
-    # model_target = MyPreVit(args)
-    # net = model_target.create_model()
-    # model_shapes = get_shapes(net)
     
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
@@ -86,23 +80,37 @@ def main(args):
     criterion = F.cross_entropy
 
     base_lr = 2 ** args.lr
-    # target_lr_dict = _get_lr4target(model_shapes, noise/args.bs, base_lr)
-    target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
-    
-    param_groups = []
-    for n, p in net.named_parameters():
-        curr_lr = target_lr_dict.get(n, base_lr)
-        if isinstance(curr_lr, torch.Tensor):
-            curr_lr = curr_lr.item()
-            
-        param_groups.append({
-            "params": [p], 
-            "lr": curr_lr, 
-            "name": n
-        })
       
     if args.optimizer == 'SGD':
+        target_lr_dict = _get_lr4target(base_shapes, model_shapes, args.noise, noise, base_lr)
+    
+        param_groups = []
+        for n, p in net.named_parameters():
+            curr_lr = target_lr_dict.get(n, base_lr)
+            if isinstance(curr_lr, torch.Tensor):
+                curr_lr = curr_lr.item()
+                
+            param_groups.append({
+                "params": [p], 
+                "lr": curr_lr, 
+                "name": n
+            })
         optimizer = optim.SGD(param_groups, lr=base_lr)
+        
+    elif args.optimizer == 'Adam':
+        target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr)
+        param_groups = []
+        for n, p in net.named_parameters():
+            curr_lr = target_lr_dict.get(n, base_lr)
+            if isinstance(curr_lr, torch.Tensor):
+                curr_lr = curr_lr.item()
+                
+            param_groups.append({
+                "params": [p], 
+                "lr": curr_lr, 
+                "name": n
+            })
+        optimizer = optim.Adam(param_groups, lr=base_lr)
 
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
