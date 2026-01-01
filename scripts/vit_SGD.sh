@@ -5,7 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-10 -11 -12 -13)
+LRS=(-7 -5)
 for s in 1; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
