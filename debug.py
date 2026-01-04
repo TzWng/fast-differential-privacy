@@ -46,7 +46,7 @@ eval_only = False # if True, script exits right after the first eval
 always_save_checkpoint = False # if True, always save a checkpoint after each eval
 init_from = 'scratch' # 'scratch' or 'resume' or 'gpt2*'
 # wandb logging
-wandb_log = False # disabled by default
+wandb_log = True # disabled by default
 wandb_project = 'DPscaling'
 # data
 dataset = 'shakespeare_char'
@@ -374,9 +374,9 @@ while True:
                 
                 del p.private_grad
 
-    # clip the gradient
-    if grad_clip != 0.0:
-        torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+    # # clip the gradient
+    # if grad_clip != 0.0:
+    #     torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
     # step the optimizer
     optimizer.step()
     # flush the gradients as soon as we can, no need for this memory anymore
