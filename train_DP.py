@@ -83,6 +83,7 @@ n_embd = n_head*64
 nonembed_param=12* n_layer*(n_embd)**2
 total_param=nonembed_param+(50340+block_size)*(n_embd/n_head/12)**(1/3)*(nonembed_param**(1/3))
 max_iters = round(total_compute/nonembed_param/block_size/total_bs/6) # total number of training iterations
+print(f"🚀 Total iterations needed: {max_iters}")
 eval_interval = math.ceil(max_iters/200)
 log_interval = eval_interval
 warmup_iters = int(0.02*max_iters)#2000 # how many steps to warm up for
