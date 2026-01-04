@@ -42,11 +42,14 @@ def _get_noise4target(base_shapes, target_shapes, base_noise):
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
     
     for key in common_keys:
+        # === 🟢 FIX: Skip Bias to align with Block count (e.g. 64) ===
+        if key.endswith(".bias"):
+            continue
+
         b_shape = base_shapes[key]
         t_shape = target_shapes[key]
 
         # === 1. Use unified function to parse dimensions ===
-        # This now handles 1D layers (Bias/Norm) correctly as well
         base_fans = get_fan_dims(b_shape)
         target_fans = get_fan_dims(t_shape)
         
@@ -65,7 +68,7 @@ def _get_noise4target(base_shapes, target_shapes, base_noise):
         f_vector_list.append(ratio)
         
     L = len(f_vector_list)
-    print(f"Effective Layers for Noise (All Layers): {L}") # Should be 64 for n_layer=10
+    print(f"Effective Layers for Noise (Blocks Only): {L}") 
     
     if L == 0: return base_noise # Fallback
 
@@ -83,6 +86,10 @@ def _get_clip4target(base_shapes, target_shapes, target_noise=None):
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
     
     for key in common_keys:
+        # === 🟢 FIX: Skip Bias ===
+        if key.endswith(".bias"):
+            continue
+
         b_shape = base_shapes[key]
         t_shape = target_shapes[key]
         
@@ -119,6 +126,10 @@ def _get_lr4target(base_shapes, target_shapes, base_noise, target_noise, base_lr
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
 
     for key in common_keys:
+        # === 🟢 FIX: Skip Bias (Bias usually shares LR with Weight) ===
+        if key.endswith(".bias"):
+            continue
+
         # === 1. Use unified function ===
         base_fans = get_fan_dims(base_shapes[key])
         target_fans = get_fan_dims(target_shapes[key])
@@ -155,6 +166,10 @@ def _get_lr4target_adam(base_shapes, target_shapes, base_noise, target_noise, ba
     common_keys = [k for k in base_shapes.keys() if k in target_shapes]
 
     for key in common_keys:
+        # === 🟢 FIX: Skip Bias ===
+        if key.endswith(".bias"):
+            continue
+
         # === 1. Use unified function ===
         base_fans = get_fan_dims(base_shapes[key])
         target_fans = get_fan_dims(target_shapes[key])
