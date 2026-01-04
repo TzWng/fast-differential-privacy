@@ -74,7 +74,7 @@ backend = 'nccl' # 'nccl', 'gloo', etc.
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1' etc., or try 'mps' on macbooks
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32', 'bfloat16', or 'float16'
 optim_type='adam'#'adam'#shampoo
-noise_multiplier=0.0
+noise_multiplier=1.0
 per_sample_clip=True
 compile = False # use PyTorch 2.0 to compile the model to be faster
 # -----------------------------------------------------------------------------
@@ -173,7 +173,15 @@ if init_from == 'scratch':
     model_args['vocab_size'] = meta_vocab_size if meta_vocab_size is not None else 50304
     gptconf = GPTConfig(**model_args)
     model = GPT(gptconf)
-    get_shapes(model)
+    base_shapes = get_shapes(model)
+    model_shapes = get_shapes(model)
+
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1)
+    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
+    D_prime_vector = torch.stack(list(clip_dict.values()))
+    print(clip_dict)
+
+
 elif init_from == 'resume':
     print(f"Resuming training from {out_dir}")
     # resume training from a checkpoint.
