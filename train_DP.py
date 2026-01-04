@@ -30,6 +30,10 @@ from torch.distributed import init_process_group, destroy_process_group
 from modelDP import GPTConfig, GPT
 #from fastDP import PrivacyEngine_Distributed_extending as PrivacyEngine
 from fastDP import PrivacyEngine as PrivacyEngine
+
+from scripts.get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
+
+
 import warnings
 warnings.filterwarnings("ignore")
 # -----------------------------------------------------------------------------
@@ -169,6 +173,7 @@ if init_from == 'scratch':
     model_args['vocab_size'] = meta_vocab_size if meta_vocab_size is not None else 50304
     gptconf = GPTConfig(**model_args)
     model = GPT(gptconf)
+    get_shapes(model)
 elif init_from == 'resume':
     print(f"Resuming training from {out_dir}")
     # resume training from a checkpoint.
