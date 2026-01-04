@@ -1,6 +1,6 @@
 """
-This training script can be run both on a single gpu in debug mode,
-and also in a larger training run with distributed data parallel (ddp).
+Simplified training script with muP and FastDP.
+Strategy: Linear Warmup -> Fixed Learning Rate (No Decay).
 """
 
 import os
@@ -8,7 +8,7 @@ import sys
 import time
 import math
 import pickle
-import argparse # 🟢 新增：用于接收 .sh 参数
+import argparse
 from contextlib import nullcontext
 
 import numpy as np
@@ -16,94 +16,79 @@ import torch
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.distributed import init_process_group, destroy_process_group
 
-# 请确保 modelDP.py 和 fastDP 文件夹在同级目录
+# Custom modules
 from modelDP import GPTConfig, GPT
 from fastDP import PrivacyEngine as PrivacyEngine
-# 请确保 scripts/get_params_gpt2.py 存在且包含我们刚才修改过的函数
 from scripts.get_params_gpt2 import get_shapes, _get_noise4target, _get_clip4target, _get_lr4target_adam
 
 import warnings
 warnings.filterwarnings("ignore")
 
 # -----------------------------------------------------------------------------
-# 1. Argument Parsing (替换原有的硬编码配置)
+# 1. Argument Parsing
 # -----------------------------------------------------------------------------
-# 强制刷新 print，防止 .sh 运行时无输出
 sys.stdout.reconfigure(line_buffering=True)
 
-parser = argparse.ArgumentParser(description='GPT-2 muP Training')
+parser = argparse.ArgumentParser(description='GPT-2 muP Training (Fixed LR)')
 
 # Model Config
-parser.add_argument('--n_layer', type=int, default=10, help='Layers for Target Model')
-parser.add_argument('--n_head', type=int, default=20, help='Heads for Target Model')
-parser.add_argument('--n_head_base', type=int, default=5, help='Heads for Base Model (muP)')
-parser.add_argument('--block_size', type=int, default=1024, help='Context length')
+parser.add_argument('--n_layer', type=int, default=10, help='Number of layers')
+parser.add_argument('--n_head', type=int, default=20, help='Number of heads')
+parser.add_argument('--n_head_base', type=int, default=5, help='Base model heads for muP')
+parser.add_argument('--block_size', type=int, default=1024, help='Context size')
 
 # Optimization Config
-parser.add_argument('--batch_size', type=int, default=16, help='Micro batch size per GPU')
+parser.add_argument('--batch_size', type=int, default=16, help='Micro batch size')
 parser.add_argument('--grad_accum', type=int, default=8, help='Gradient accumulation steps')
 parser.add_argument('--total_steps', type=int, default=1000, help='Total training steps')
 parser.add_argument('--optim_type', type=str, default='adam', choices=['adam', 'sgd'])
 
-# muP Hyperparams
+# muP Base Hyperparams
 parser.add_argument('--base_optimal_lr', type=float, default=5e-3, help='Optimal LR for Base Model')
 parser.add_argument('--base_optimal_noise', type=float, default=1.0, help='Optimal Noise for Base Model')
 
 # DP Config
-parser.add_argument('--per_sample_clip', action='store_true', help='Enable DP clipping')
+parser.add_argument('--per_sample_clip', action='store_true', default=True, help='Enable DP clipping')
 
-# IO / System
+# System/IO
 parser.add_argument('--out_dir', type=str, default='out', help='Output directory')
-parser.add_argument('--init_from', type=str, default='scratch', choices=['scratch', 'resume', 'gpt2'])
-parser.add_argument('--wandb', action='store_true', help='Enable WandB logging')
+parser.add_argument('--init_from', type=str, default='scratch', choices=['scratch', 'resume'])
+parser.add_argument('--wandb', action='store_true', help='Enable WandB')
 parser.add_argument('--compile', action='store_true', help='Use torch.compile')
 
 args = parser.parse_args()
 
-# -----------------------------------------------------------------------------
-# 2. Global Variables Mapping (映射回原有变量名)
-# -----------------------------------------------------------------------------
-num_GPUs = torch.cuda.device_count()
+# ⚠️ 关键修复：configurator.py 已经被删除了，不要再 exec 它是引发 AssertionError 的元凶
+
+# Map args to globals
 out_dir = args.out_dir
 eval_iters = 200
-eval_only = False
 always_save_checkpoint = False
 init_from = args.init_from
 
-# wandb logging
 wandb_log = args.wandb
 wandb_project = 'DPscaling'
 wandb_run_name = f'gpt2-muP-H{args.n_head}-FixedLR'
 
-# data
 dataset = 'shakespeare_char'
 gradient_accumulation_steps = args.grad_accum
 batch_size = args.batch_size
 block_size = args.block_size
 
-# model
 n_layer = args.n_layer
 n_head = args.n_head
 n_head_base = args.n_head_base
 dropout = 0.0
 bias = False
 
-# optimizer
-learning_rate = args.base_optimal_lr # 默认值，会被 muP 覆盖
+learning_rate = args.base_optimal_lr 
 weight_decay = 1e-1
 beta1 = 0.9
 beta2 = 0.95
-grad_clip = 0.0 # DP 下通常禁用全局裁剪
 
-# DP settings
-noise_multiplier = 1.0 # 占位符，会被 muP 计算覆盖
-per_sample_clip = args.per_sample_clip
-
-# system
 backend = 'nccl'
 device = 'cuda'
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16'
-optim_type = args.optim_type
 compile = args.compile
 
 # muP Containers
@@ -112,7 +97,7 @@ D_prime_vector = None
 target_lrs = None
 
 # -----------------------------------------------------------------------------
-# 3. DDP Initialization
+# 2. DDP Setup
 # -----------------------------------------------------------------------------
 ddp = int(os.environ.get('RANK', -1)) != -1
 if ddp:
@@ -128,10 +113,12 @@ else:
     master_process = True
     seed_offset = 0
     ddp_world_size = 1
+    num_GPUs = torch.cuda.device_count()
 
 total_bs = gradient_accumulation_steps * batch_size * ddp_world_size
+tokens_per_iter = total_bs * block_size
 if master_process:
-    print(f"🚀 Total Batch Size: {total_bs}", flush=True)
+    print(f"🚀 Total Batch Size: {total_bs}, Tokens/Iter: {tokens_per_iter:,}", flush=True)
     os.makedirs(out_dir, exist_ok=True)
 
 torch.manual_seed(1337 + seed_offset)
@@ -142,7 +129,7 @@ ptdtype = {'float32': torch.float32, 'bfloat16': torch.bfloat16, 'float16': torc
 ctx = nullcontext() if device_type == 'cpu' else torch.amp.autocast(enabled=True, device_type=device_type, dtype=ptdtype)
 
 # -----------------------------------------------------------------------------
-# 4. Data Loader
+# 3. Data Loader
 # -----------------------------------------------------------------------------
 data_dir = os.path.join('data', dataset)
 def get_batch(split):
@@ -167,7 +154,7 @@ if os.path.exists(meta_path):
     meta_vocab_size = meta['vocab_size']
 
 # -----------------------------------------------------------------------------
-# 5. Model Init & muP Calculation (核心改动区域)
+# 4. Model & muP Calculation
 # -----------------------------------------------------------------------------
 n_embd = n_head * 64 
 model_args = dict(n_layer=n_layer, n_head=n_head, n_embd=n_embd, block_size=block_size,
@@ -177,7 +164,7 @@ model_args['vocab_size'] = meta_vocab_size if meta_vocab_size is not None else 5
 def calculate_mup_params():
     print(f"--- [muP] Calculating params Base(H={n_head_base}) -> Target(H={n_head}) ---", flush=True)
     
-    # A. Base Model (小模型)
+    # 1. Base Model
     base_args = model_args.copy()
     base_args['n_head'] = n_head_base
     base_args['n_embd'] = n_head_base * 64
@@ -185,12 +172,12 @@ def calculate_mup_params():
     base_shapes = get_shapes(base_model)
     del base_model
     
-    # B. Target Model (大模型)
+    # 2. Target Model
     target_conf = GPTConfig(**model_args)
     target_model = GPT(target_conf)
     target_shapes = get_shapes(target_model)
     
-    # C. Calculate Scaling
+    # 3. Calculate
     _noise = _get_noise4target(base_shapes, target_shapes, base_noise=args.base_optimal_noise)
     _clip_dict = _get_clip4target(base_shapes, target_shapes, target_noise=_noise)
     _D_vec = torch.stack(list(_clip_dict.values()))
@@ -216,31 +203,27 @@ elif init_from == 'resume':
     gptconf = GPTConfig(**checkpoint['model_args'])
     model = GPT(gptconf)
     state_dict = checkpoint['model']
-    # remove prefix logic
     unwanted_prefix = '_orig_mod.'
     for k,v in list(state_dict.items()):
         if k.startswith(unwanted_prefix):
             state_dict[k[len(unwanted_prefix):]] = state_dict.pop(k)
     model.load_state_dict(state_dict)
     
-    # Recalculate muP params for consistency
     _, noise, D_prime_vector, target_lrs = calculate_mup_params()
     iter_num = checkpoint['iter_num']
 
 model.to(device)
 
 if master_process:
-    print(f"muP: Noise={noise:.4f}", flush=True)
+    print(f"muP: Noise={noise:.4f} | LR Scaling applied.", flush=True)
 
 # -----------------------------------------------------------------------------
-# 6. Optimizer (Layer-wise LR Setup)
+# 5. Optimizer (Layer-wise LR)
 # -----------------------------------------------------------------------------
-# 这里必须使用手动 param_groups 来支持 muP 的 layer-wise LR
 param_groups = []
 for name, param in model.named_parameters():
     if not param.requires_grad: continue
     
-    # 获取该层对应的 LR
     if name in target_lrs:
         local_lr = target_lrs[name]
     elif name.endswith('.bias'):
@@ -252,9 +235,9 @@ for name, param in model.named_parameters():
     wd = weight_decay if param.dim() >= 2 else 0.0
     param_groups.append({'params': [param], 'lr': local_lr, 'weight_decay': wd, 'base_mup_lr': local_lr})
 
-if optim_type == 'adam':
+if args.optim_type == 'adam':
     optimizer = torch.optim.AdamW(param_groups, betas=(beta1, beta2))
-elif optim_type == 'sgd':
+elif args.optim_type == 'sgd':
     optimizer = torch.optim.SGD(param_groups, momentum=beta1)
 
 if init_from == 'resume' and 'optimizer' in checkpoint:
@@ -262,9 +245,9 @@ if init_from == 'resume' and 'optimizer' in checkpoint:
 checkpoint = None 
 
 # -----------------------------------------------------------------------------
-# 7. Privacy Engine Setup
+# 6. Privacy Engine
 # -----------------------------------------------------------------------------
-enable_DP = per_sample_clip or (noise > 0)
+enable_DP = args.per_sample_clip or (noise > 0)
 
 if enable_DP:
     len_data = len(np.memmap(os.path.join(data_dir, 'train.bin'), dtype=np.uint16, mode='r'))
@@ -273,19 +256,19 @@ if enable_DP:
         batch_size=total_bs,
         num_steps=args.total_steps,
         sample_size=len_data,
-        noise_multiplier=noise, # muP calculated noise
+        noise_multiplier=noise,
         num_GPUs=ddp_world_size,
         torch_seed_is_fixed=False,
         grad_accum_steps=gradient_accumulation_steps,
         clipping_mode="ghost",
-        clipping_coe=D_prime_vector, # muP calculated clipping
+        clipping_coe=D_prime_vector,
         clipping_style='layer-wise',
     )
     if master_process:
         print("=======", "Privacy Engine Loaded", "=======", flush=True)
 
 # -----------------------------------------------------------------------------
-# 8. Compile & Utils
+# 7. Compile & Utils
 # -----------------------------------------------------------------------------
 if compile:
     print("compiling...", flush=True)
@@ -321,7 +304,7 @@ if wandb_log and master_process:
     wandb.init(project=wandb_project, name=wandb_run_name, config=args)
 
 # -----------------------------------------------------------------------------
-# 9. Training Loop
+# 8. Training Loop
 # -----------------------------------------------------------------------------
 X, Y = get_batch('train')
 t0 = time.time()
@@ -331,13 +314,13 @@ running_mfu = -1.0
 raw_model = model.module if ddp else model
 
 while iter_num <= args.total_steps:
-    # Update LR (Fixed/Warmup only)
+    # Update LR (Fixed)
     lr_mult = get_lr_mult(iter_num)
     for param_group in optimizer.param_groups:
         param_group['lr'] = param_group['base_mup_lr'] * lr_mult
 
     # Eval
-    if iter_num % 200 == 0 and master_process:
+    if iter_num % 100 == 0 and master_process:
         losses = estimate_loss()
         print(f"step {iter_num}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}", flush=True)
         if wandb_log:
@@ -350,17 +333,17 @@ while iter_num <= args.total_steps:
         
         with ctx:
             logits, loss = model(X, Y)
+            # loss = loss / gradient_accumulation_steps (已移除)
             
         X, Y = get_batch('train')
         loss.backward()
 
-    # DP Manifold (Manual Gradient Processing)
+    # DP Manifold
     if enable_DP:
         for n, p in model.named_parameters():
             if hasattr(p, 'private_grad'):
                 if ddp:
                     torch.distributed.all_reduce(p.private_grad.contiguous(), op=torch.distributed.ReduceOp.SUM)
-                # Apply normalization here
                 p.grad = p.private_grad / ddp_world_size / batch_size / gradient_accumulation_steps 
                 del p.private_grad
 
@@ -372,7 +355,6 @@ while iter_num <= args.total_steps:
     dt = t1 - t0
     t0 = t1
     if iter_num % 10 == 0 and master_process:
-        # loss 本身是 batch loss，无需乘以 grad_accum
         lossf = loss.item() 
         if local_iter_num >= 5:
             mfu = raw_model.estimate_mfu(batch_size * gradient_accumulation_steps, dt)
