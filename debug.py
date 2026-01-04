@@ -189,6 +189,8 @@ if init_from == 'scratch':
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
+    target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 1.0531207066658843, noise, learning_rate)
+    print(target_lrs)
 
 
 elif init_from == 'resume':
