@@ -59,7 +59,7 @@ n_head = 5
 dropout = 0.0 # for pretraining 0 is good, for finetuning try 0.1+
 bias = False # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
-learning_rate = 16e-3 # max learning rate
+learning_rate = 32e-3 # max learning rate
 total_compute = 1e16
 weight_decay = 1e-1
 beta1 = 0.9
