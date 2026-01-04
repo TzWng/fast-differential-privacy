@@ -31,7 +31,7 @@ from modelDP import GPTConfig, GPT
 #from fastDP import PrivacyEngine_Distributed_extending as PrivacyEngine
 from fastDP import PrivacyEngine as PrivacyEngine
 
-from scripts.get_params import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
+from scripts.get_params_gpt2 import get_shapes, _get_noise4target, _get_lr4target, _get_clip4target
 from opacus.accountants.utils import get_noise_multiplier 
 
 import warnings
