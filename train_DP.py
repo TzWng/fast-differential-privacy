@@ -220,7 +220,7 @@ if enable_DP==True:
                 num_steps=max_iters,
                 sample_size=len_data,
                 noise_multiplier=noise_multiplier,
-                num_GPUs=ddp_world_size,,
+                num_GPUs=ddp_world_size,
                 torch_seed_is_fixed=False,
                 epochs=99999, # this is not used when noise_multiplier is provided
                 grad_accum_steps=gradient_accumulation_steps,
