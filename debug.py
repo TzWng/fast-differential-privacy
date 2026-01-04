@@ -244,7 +244,7 @@ if enable_DP==True:
             steps=max_iters,
         )
     print("epsilon delta noise is", sigma)
-    privacy_engine = PrivacyEngine(
+    PrivacyEngine(
                 model,
                 batch_size=total_bs,
                 num_steps=max_iters,
@@ -259,8 +259,6 @@ if enable_DP==True:
                 clipping_style='layer-wise',
                 #numerical_stability_constant=1.0,
             )
-    # privacy_engine.attach(optimizer)
-    print("Noise multiplier (σ):", privacy_engine.noise_multiplier)
     print("=======", "Privacy Engine Loaded", "=======", ddp_world_size)
 
 # compile the model
