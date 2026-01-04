@@ -259,6 +259,7 @@ if enable_DP==True:
                 clipping_style='layer-wise',
                 #numerical_stability_constant=1.0,
             )
+    print("Noise multiplier (σ):", privacy_engine.noise_multiplier)
     print("=======", "Privacy Engine Loaded", "=======", ddp_world_size)
 
 # compile the model
