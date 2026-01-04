@@ -334,14 +334,14 @@ while True:
         loss.backward()
 
     if enable_DP == True:
-    for n, p in model.named_parameters():
-        if hasattr(p, 'private_grad'):
-            if ddp:
-                torch.distributed.all_reduce(p.private_grad.contiguous(), op=torch.distributed.ReduceOp.SUM)
-            
-            p.grad = p.private_grad / ddp_world_size / p.batch_size
-            
-            del p.private_grad
+        for n, p in model.named_parameters():
+            if hasattr(p, 'private_grad'):
+                if ddp:
+                    torch.distributed.all_reduce(p.private_grad.contiguous(), op=torch.distributed.ReduceOp.SUM)
+                
+                p.grad = p.private_grad / ddp_world_size / p.batch_size
+                
+                del p.private_grad
 
     # clip the gradient
     if grad_clip != 0.0:
