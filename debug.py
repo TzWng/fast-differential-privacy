@@ -184,7 +184,7 @@ if init_from == 'scratch':
     model = GPT(gptconf)
     model_shapes = get_shapes(model)
 
-    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1.0531207066658843)
     print("current noise is", noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
@@ -244,7 +244,7 @@ if enable_DP==True:
             steps=max_iters,
         )
     print("epsilon delta noise is", sigma)
-    PrivacyEngine(
+    privacy_engine = PrivacyEngine(
                 model,
                 batch_size=total_bs,
                 num_steps=max_iters,
@@ -259,7 +259,8 @@ if enable_DP==True:
                 clipping_style='layer-wise',
                 #numerical_stability_constant=1.0,
             )
-    print("Noise multiplier (σ):", PrivacyEngine.noise_multiplier)
+    # privacy_engine.attach(optimizer)
+    print("Noise multiplier (σ):", privacy_engine.noise_multiplier)
     print("=======", "Privacy Engine Loaded", "=======", ddp_world_size)
 
 # compile the model
