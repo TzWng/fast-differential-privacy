@@ -185,12 +185,12 @@ if init_from == 'scratch':
     model = GPT(gptconf)
     model_shapes = get_shapes(model)
 
-    noise = _get_noise4target(base_shapes, model_shapes, base_noise=0.9886955315856205)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1)
     print("current noise is", noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
-    target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 0.9886955315856205, noise, learning_rate)
+    target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 1, noise, learning_rate)
     print(target_lrs)
 
 
