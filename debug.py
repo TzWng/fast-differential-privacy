@@ -171,10 +171,17 @@ if init_from == 'scratch':
     if meta_vocab_size is None:
         print("defaulting to vocab_size of GPT-2 to 50304 (50257 rounded up for efficiency)")
     model_args['vocab_size'] = meta_vocab_size if meta_vocab_size is not None else 50304
+
+    base_args = model_args.copy()
+    base_args['n_head'] = 5          # Base Head
+    base_args['n_embd'] = 5 * 64
+    base_conf = GPTConfig(**base_args)
+    base_model = GPT(base_conf)      # Create Base Model
+    base_shapes = get_shapes(base_model) # Get Base Shapes
+    del base_model
+    
     gptconf = GPTConfig(**model_args)
     model = GPT(gptconf)
-    base_shapes = get_shapes(model)
-    print(base_shapes)
     model_shapes = get_shapes(model)
 
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=1)
@@ -247,6 +254,7 @@ if enable_DP==True:
                 epochs=99999, # this is not used when noise_multiplier is provided
                 grad_accum_steps=gradient_accumulation_steps,
                 clipping_mode = "ghost", 
+                clipping_coe=D_prime_vector,
                 clipping_style='layer-wise',
                 #numerical_stability_constant=1.0,
             )
