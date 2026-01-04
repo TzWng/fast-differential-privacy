@@ -64,7 +64,8 @@ class CausalSelfAttention(nn.Module):
             y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=self.dropout if self.training else 0, is_causal=True)
         else:
             # manual implementation of attention
-            att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
+            # att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
+            att = (q @ k.transpose(-2, -1)) * (1.0 / k.size(-1))
             att = att.masked_fill(self.bias[:,:,:T,:T] == 0, float('-inf'))
             att = F.softmax(att, dim=-1)
             att = self.attn_dropout(att)
@@ -135,6 +136,9 @@ class GPT(nn.Module):
 
         # init all weights
         self.apply(self._init_weights)
+        for pn, p in self.named_parameters():
+            if pn.endswith('c_proj.weight'):
+                torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
         print("number of parameters: %.2fM" % (self.get_num_params()/1e6,))
 
     def get_num_params(self, non_embedding=True):
