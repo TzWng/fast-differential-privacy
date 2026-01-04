@@ -224,7 +224,7 @@ if enable_DP==True:
                 torch_seed_is_fixed=False,
                 epochs=99999, # this is not used when noise_multiplier is provided
                 grad_accum_steps=gradient_accumulation_steps,
-                clipping_mode = "BK-ghost", 
+                clipping_mode = "ghost", 
                 clipping_style='layer-wise',
                 #numerical_stability_constant=1.0,
             )
