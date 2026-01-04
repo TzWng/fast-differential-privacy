@@ -46,7 +46,7 @@ wandb_log = True # disabled by default
 wandb_project = 'DPscaling'
 # data
 dataset = 'shakespeare_char'
-gradient_accumulation_steps = 1 # used to simulate larger batch sizes
+gradient_accumulation_steps = 8 # used to simulate larger batch sizes
 batch_size = 64 # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 1024
 # model
