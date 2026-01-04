@@ -54,8 +54,8 @@ gradient_accumulation_steps = 8 # used to simulate larger batch sizes
 batch_size = 16 # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 1024
 # model
-n_layer = 10
-n_head = 5
+n_layer = 36
+n_head = 20
 dropout = 0.0 # for pretraining 0 is good, for finetuning try 0.1+
 bias = False # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
@@ -184,12 +184,12 @@ if init_from == 'scratch':
     model = GPT(gptconf)
     model_shapes = get_shapes(model)
 
-    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1.0531207066658843)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1)
     print("current noise is", noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
-    target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 1.0531207066658843, noise, learning_rate)
+    target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 1, noise, learning_rate)
     print(target_lrs)
 
 
