@@ -220,6 +220,13 @@ checkpoint = None # free up memory
 
 if enable_DP==True:
     len_data = len(np.memmap(os.path.join(data_dir, 'train.bin'), dtype=np.uint16, mode='r'))
+    sigma = get_noise_multiplier(
+            target_epsilon=2,
+            target_delta=1e-5,
+            sample_rate=total_bs / len_data,
+            num_steps=max_iters,
+        )
+    print("epsilon delta noise is", sigma)
     PrivacyEngine(
                 model,
                 batch_size=total_bs,
