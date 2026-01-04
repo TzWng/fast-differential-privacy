@@ -220,7 +220,7 @@ if enable_DP==True:
                 num_steps=max_iters,
                 sample_size=len_data,
                 noise_multiplier=noise_multiplier,
-                num_GPUs=torch.distributed.get_world_size(),
+                num_GPUs=ddp_world_size,,
                 torch_seed_is_fixed=False,
                 epochs=99999, # this is not used when noise_multiplier is provided
                 grad_accum_steps=gradient_accumulation_steps,
@@ -228,7 +228,7 @@ if enable_DP==True:
                 clipping_style='layer-wise',
                 #numerical_stability_constant=1.0,
             )
-    print("=======", "Privacy Engine Loaded", "=======",torch.distributed.get_world_size())
+    print("=======", "Privacy Engine Loaded", "=======", ddp_world_size)
 
 # compile the model
 if compile:
