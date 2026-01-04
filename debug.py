@@ -184,7 +184,8 @@ if init_from == 'scratch':
     model = GPT(gptconf)
     model_shapes = get_shapes(model)
 
-    noise = _get_noise4target(base_shapes, model_shapes, base_noise=4.9850109011627906)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1)
+    print("current noise is", noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
