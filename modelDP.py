@@ -136,9 +136,14 @@ class GPT(nn.Module):
 
         # init all weights
         self.apply(self._init_weights)
+
+        scale_factor = 1.0 / math.sqrt(2 * config.n_layer)
+        
         for pn, p in self.named_parameters():
             if pn.endswith('c_proj.weight'):
-                torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
+                with torch.no_grad():
+                    p.data.mul_(scale_factor)
+                    
         print("number of parameters: %.2fM" % (self.get_num_params()/1e6,))
 
     def get_num_params(self, non_embedding=True):
