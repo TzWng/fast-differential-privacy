@@ -184,7 +184,7 @@ if init_from == 'scratch':
     model = GPT(gptconf)
     model_shapes = get_shapes(model)
 
-    noise = _get_noise4target(base_shapes, model_shapes, base_noise=1)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=4.9850109011627906)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
@@ -248,7 +248,7 @@ if enable_DP==True:
                 batch_size=total_bs,
                 num_steps=max_iters,
                 sample_size=len_data,
-                noise_multiplier=noise_multiplier,
+                noise_multiplier=noise,
                 num_GPUs=ddp_world_size,
                 torch_seed_is_fixed=False,
                 epochs=99999, # this is not used when noise_multiplier is provided
