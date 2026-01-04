@@ -232,7 +232,7 @@ if enable_DP==True:
             target_epsilon=2,
             target_delta=1e-5,
             sample_rate=total_bs / len_data,
-            num_steps=max_iters,
+            steps=max_iters,
         )
     print("epsilon delta noise is", sigma)
     PrivacyEngine(
