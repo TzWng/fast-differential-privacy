@@ -224,9 +224,8 @@ if enable_DP==True:
                 torch_seed_is_fixed=False,
                 epochs=99999, # this is not used when noise_multiplier is provided
                 grad_accum_steps=gradient_accumulation_steps,
-                per_sample_clip=per_sample_clip,
-                clipping_fn='automatic',
-                clipping_style='all-layer',
+                clipping_mode = "BK-ghost", 
+                clipping_style='layer-wise',
                 #numerical_stability_constant=1.0,
             )
     print("=======", "Privacy Engine Loaded", "=======",torch.distributed.get_world_size())
