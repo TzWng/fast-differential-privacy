@@ -59,7 +59,7 @@ n_head = 20
 dropout = 0.0 # for pretraining 0 is good, for finetuning try 0.1+
 bias = False # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
-learning_rate = 5e-3 # max learning rate
+learning_rate = 1e-3 # max learning rate
 total_compute = 1e16
 weight_decay = 1e-1
 beta1 = 0.9
@@ -230,7 +230,23 @@ model.to(device)
 
 
 # optimizer
-optimizer = model.configure_optimizers(optim_type,weight_decay, learning_rate, (beta1, beta2), device_type)
+# optimizer = model.configure_optimizers(optim_type,weight_decay, learning_rate, (beta1, beta2), device_type)
+param_groups = []
+for name, param in model.named_parameters():
+    if not param.requires_grad: continue
+    
+    if name in target_lrs:
+        local_lr = target_lrs[name]
+    elif name.endswith('.bias'):
+        weight_name = name.replace('.bias', '.weight')
+        local_lr = target_lrs.get(weight_name, learning_rate)
+    else:
+        local_lr = learning_rate
+        
+    wd = weight_decay if param.dim() >= 2 else 0.0
+    param_groups.append({'params': [param], 'lr': local_lr, 'weight_decay': wd, 'base_mup_lr': local_lr})
+optimizer = torch.optim.AdamW(param_groups, betas=(beta1, beta2))
+
 if init_from == 'resume':
     optimizer.load_state_dict(checkpoint['optimizer'])
 checkpoint = None # free up memory
