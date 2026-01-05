@@ -184,6 +184,7 @@ if init_from == 'scratch':
     gptconf = GPTConfig(**model_args)
     model = GPT(gptconf)
     model_shapes = get_shapes(model)
+    print(model_shapes)
 
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=0.9682751666851359)
     print("current noise is", noise)
