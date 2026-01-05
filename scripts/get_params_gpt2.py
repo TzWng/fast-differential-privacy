@@ -1,6 +1,12 @@
 import torch
 import math
 
+def get_shapes(model):
+    # If you want to implement a custom shapes function, you can use this name
+    if hasattr(model, "get_shapes"):
+        return model.get_shapes()
+    return {name: param.shape for name, param in model.named_parameters()}
+    
 # ==============================================================================
 # 1. Helper Function: Spectral Metric for Raw Noise (Clipping/Noise Calculation)
 # ==============================================================================
