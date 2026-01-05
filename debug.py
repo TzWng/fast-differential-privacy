@@ -180,7 +180,7 @@ if init_from == 'scratch':
     base_model = GPT(base_conf)      # Create Base Model
     base_shapes = get_shapes(base_model) # Get Base Shapes
     del base_model
-    
+    print(base_shapes)
     gptconf = GPTConfig(**model_args)
     model = GPT(gptconf)
     model_shapes = get_shapes(model)
