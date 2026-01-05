@@ -59,7 +59,7 @@ n_head = 20
 dropout = 0.0 # for pretraining 0 is good, for finetuning try 0.1+
 bias = False # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
-learning_rate = 8e-3 # max learning rate
+learning_rate = 2e-3 # max learning rate
 total_compute = 1e16
 weight_decay = 1e-1
 beta1 = 0.9
@@ -336,13 +336,13 @@ raw_model = model.module if ddp else model # unwrap DDP container if needed
 running_mfu = -1.0
 while True:
 
-    # determine the learning rate multiplier for this iteration
-    if decay_lr:
-        lr_factor = get_lr(iter_num) / learning_rate
-    else:
-        lr_factor = 1.0
+    # determine and set the learning rate for this iteration
+    lr = get_lr(iter_num) if decay_lr else learning_rate
+    
+    # 2. 计算衰减比例 (Factor)
+    lr_factor = lr / learning_rate
 
-    # Apply the decay factor to each group's specific muP LR
+    # 3. 将衰减比例应用到每个参数组特有的 base_mup_lr 上
     for param_group in optimizer.param_groups:
         param_group['lr'] = param_group['base_mup_lr'] * lr_factor
 
