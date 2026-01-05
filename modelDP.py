@@ -161,15 +161,35 @@ class GPT(nn.Module):
 
     def _init_weights(self, module):
         if isinstance(module, nn.Linear):
-            # A. Head  -> 0
+            # 1. Zero-init for the output Head 
+            # (Recommended by muP to prevent initial logit explosion)
             if module is self.lm_head:
                 torch.nn.init.zeros_(module.weight)
-            # B. others -> Kaiming Fan-in
+            
+            # 2. Other Linear layers -> Kaiming Fan-in initialization (Standard for muP)
             else:
-                torch.nn.init.kaiming_normal_(module.weight, a=0, mode='fan_in', nonlinearity='relu')          
-            # C. Bias -> 0
+                torch.nn.init.kaiming_normal_(module.weight, a=0, mode='fan_in', nonlinearity='relu')
+                
+                # =======================================================
+                # Zero Initialization for Query Weights
+                # =======================================================
+                # Logic: Identify the Attention projection layer (c_attn) by checking
+                # if the output dimension is 3x the input dimension [3*n_embd, n_embd].
+                if module.weight.shape[0] == 3 * module.in_features:
+                    # The weights in c_attn are stacked as [Query, Key, Value].
+                    # We zero out the first 1/3 of the rows (corresponding to Query).
+                    n_embd = module.in_features
+                    with torch.no_grad():
+                        module.weight.data[:n_embd, :] = 0.0
+                # =======================================================
+
+            # 3. Bias -> Zero initialization
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
+
+        elif isinstance(module, nn.Embedding):
+            # 4. Embedding -> Standard Normal init (std=0.02)
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
         elif isinstance(module, nn.Embedding):
             # D. Embedding ->  muP (0.02)
