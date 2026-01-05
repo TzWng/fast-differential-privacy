@@ -113,6 +113,7 @@ def _get_lr4target_adam(base_shapes, target_shapes, base_noise, target_noise, ba
         
         # === 1. Check Layer Type ===
         # If it is a Vector (Norm Layer), we force Ratio = 1.0 (Constant Transfer)
+        # since fan_in = fan_out, sign(diag(v)) = O(1), thus no need to change
         if len(b_shape) == 1:
             target_lrs[key] = base_lr
             continue
