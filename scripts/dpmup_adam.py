@@ -166,15 +166,14 @@ class MuonNEW(optim.Optimizer):
                     denom = (exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(eps)
                     
                     # 3. 计算自定义 Scaling Factor
-                    # 只有 2D 矩阵 (weights) 才有 size(0) 和 size(1)
-                    # 如果是 bias (1D)，通常保持 scale=1 或者只用 size(0)**0.5，这里为了安全加了判断
-                    width_scale = 1.0
+                    scaling_factor = 1.0
                     if g.ndim == 2:
-                        width_scale = (g.size(0) ** 0.5 + g.size(1) ** 0.5)
+                        spec = g.size(0) ** 0.5 + g.size(1) ** 0.5
+                        scaling_factor = (g.size(0) / g.size(1)) ** 0.5 / spec
 
                     # 4. 组合最终的 step size
                     # step_size = lr * scale * (sqrt(1-beta2^t) / (1-beta1^t))
-                    step_size = (lr * width_scale) / bias_correction1
+                    step_size = (lr * scaling_factor) / bias_correction1
 
                     # Update parameters
                     p.data.addcdiv_(exp_avg, denom, value=-step_size)
