@@ -141,7 +141,8 @@ class MuonNEW(optim.Optimizer):
                     # Apply custom MuP-style scaling (only for 2D weights)
                     if g.ndim == 2:
                         # Logic: scale based on dimensions and batch size
-                        spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise / bs
+                        # spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) * noise /  # SGD
+                        spec = (g.size(0) ** 0.5 + g.size(1) ** 0.5) # Adam
                         lr_scale = (g.size(0) / g.size(1)) ** 0.5 / spec
                         g = g * lr_scale
                     
