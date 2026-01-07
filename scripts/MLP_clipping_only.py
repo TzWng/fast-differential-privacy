@@ -119,7 +119,7 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=args.noise,
+            noise_multiplier=sigma,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
             clipping_style=args.clipping_style,
@@ -154,17 +154,19 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):
-                        if args.optimizer == 'SGD':
-                            if grad.ndim == 2:
-                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
-                            elif grad.ndim == 1:
-                                lr_scale = (param.shape[0]) ** 0.5
+                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                        lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
+                        # if args.optimizer == 'SGD':
+                        #     if grad.ndim == 2:
+                        #         lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
+                        #     elif grad.ndim == 1:
+                        #         lr_scale = (param.shape[0]) ** 0.5
 
-                        elif args.optimizer == 'Adam':
-                            if grad.ndim == 2:
-                                lr_scale = 1 / param.shape[1]        
-                            elif grad.ndim == 1:
-                                lr_scale = 1
+                        # elif args.optimizer == 'Adam':
+                        #     if grad.ndim == 2:
+                        #         lr_scale = 1 / param.shape[1]        
+                        #     elif grad.ndim == 1:
+                        #         lr_scale = 1
                                                                                               
                     group["lr"] = base_lr * lr_scale
 
@@ -188,7 +190,7 @@ def main(args):
             break
 
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=sigma)
 
 
 from fastDP import PrivacyEngine 
