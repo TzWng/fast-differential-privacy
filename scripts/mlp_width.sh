@@ -162,7 +162,7 @@ for lr in "${LRS[@]}"; do
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonadam_depth5_s2l_nonDP_dinfix_dpmup.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonadam_depth5_s2l_epsilon2_dinfix_nondp.txt"
   done
 done
 
