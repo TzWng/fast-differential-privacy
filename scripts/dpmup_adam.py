@@ -104,7 +104,6 @@ class MuonNEW(optim.Optimizer):
             adam_eps: Epsilon for Adam (Head only)
         """
         defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps, 
-                        noise=noise, bs=bs, 
                         adam_betas=adam_betas, adam_eps=adam_eps)
         
         super().__init__(params, defaults)
