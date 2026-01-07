@@ -84,130 +84,113 @@ def zeropower_via_newtonschulz5(G, steps):
     return X
 
 
-import torch
-import torch.optim as optim
-import math
+def muon_update(grad, momentum, beta=0.95, ns_steps=5, nesterov=True):
+    momentum.lerp_(grad, 1 - beta)
+    update = grad.lerp_(momentum, beta) if nesterov else momentum
+    if update.ndim == 4: # for the case of conv filters
+        update = update.view(len(update), -1)
+    update = zeropower_via_newtonschulz5(update, steps=ns_steps)
+    update *= max(1, grad.size(-2) / grad.size(-1))**0.5
+    return update
 
-class MuonNEW(optim.Optimizer):
-    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, 
-                 ns_steps=6, head_param_ids=None,
-                 adam_betas=(0.95, 0.95), adam_eps=1e-8):
-        """
-        Args:
-            params: Model parameters
-            lr: Learning rate
-            momentum: Momentum for Muon part
-            nesterov: Nesterov flag for Muon part
-            ns_steps: Newton-Schulz iteration steps
-            head_param_ids: A set(id(p)) marking which parameters belong to the Head
-            adam_betas: Betas for Adam (Head only)
-            adam_eps: Epsilon for Adam (Head only)
-        """
-        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps, 
-                        adam_betas=adam_betas, adam_eps=adam_eps)
-        
-        super().__init__(params, defaults)
-        
-        self.head_param_ids = set() if head_param_ids is None else head_param_ids
-        self._head_param_set = set()
 
-        # Pre-processing
-        for group in self.param_groups:
-            for p in group["params"]:
-                if id(p) in self.head_param_ids:
-                    self._head_param_set.add(p)
+def adam_update(grad, buf1, buf2, step, betas, eps):
+    buf1.lerp_(grad, 1 - betas[0])
+    buf2.lerp_(grad.square(), 1 - betas[1])
+    buf1c = buf1 / (1 - betas[0]**step)
+    buf2c = buf2 / (1 - betas[1]**step)
+    return buf1c / (buf2c.sqrt() + eps)
+
+
+class MuonWithAuxAdam(torch.optim.Optimizer):
+    """
+    Distributed Muon variant that can be used for all parameters in the network, since it runs an
+    internal AdamW for the parameters that are not compatible with Muon. The user must manually
+    specify which parameters shall be optimized with Muon and which with Adam by passing in a
+    list of param_groups with the `use_muon` flag set.
+
+    The point of this class is to allow the user to have a single optimizer in their code, rather
+    than having both a Muon and an Adam which each need to be stepped.
+
+    You can see an example usage below:
+
+    https://github.com/KellerJordan/modded-nanogpt/blob/master/records/052525_MuonWithAuxAdamExample/b01550f9-03d8-4a9c-86fe-4ab434f1c5e0.txt#L470
+    ```
+    hidden_matrix_params = [p for n, p in model.blocks.named_parameters() if p.ndim >= 2 and "embed" not in n]
+    embed_params = [p for n, p in model.named_parameters() if "embed" in n]
+    scalar_params = [p for p in model.parameters() if p.ndim < 2]
+    head_params = [model.lm_head.weight]
+
+    from muon import MuonWithAuxAdam
+    adam_groups = [dict(params=head_params, lr=0.22), dict(params=embed_params, lr=0.6), dict(params=scalar_params, lr=0.04)]
+    adam_groups = [dict(**g, betas=(0.8, 0.95), eps=1e-10, use_muon=False) for g in adam_groups]
+    muon_group = dict(params=hidden_matrix_params, lr=0.05, momentum=0.95, use_muon=True)
+    param_groups = [*adam_groups, muon_group]
+    optimizer = MuonWithAuxAdam(param_groups)
+    ```
+    """
+    def __init__(self, param_groups):
+        for group in param_groups:
+            assert "use_muon" in group
+            if group["use_muon"]:
+                group["params"] = sorted(group["params"], key=lambda x: x.size(), reverse=True)
+                # defaults
+                group["lr"] = group.get("lr", 0.02)
+                group["momentum"] = group.get("momentum", 0.95)
+                group["weight_decay"] = group.get("weight_decay", 0)
+                assert set(group.keys()) == set(["params", "lr", "momentum", "weight_decay", "use_muon"])
+            else:
+                # defaults
+                group["lr"] = group.get("lr", 3e-4)
+                group["betas"] = group.get("betas", (0.9, 0.95))
+                group["eps"] = group.get("eps", 1e-10)
+                group["weight_decay"] = group.get("weight_decay", 0)
+                assert set(group.keys()) == set(["params", "lr", "betas", "eps", "weight_decay", "use_muon"])
+        super().__init__(param_groups, dict())
 
     @torch.no_grad()
     def step(self, closure=None):
+
         loss = None
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
 
         for group in self.param_groups:
-            lr = group["lr"]
-            momentum = group["momentum"]
-            ns_steps = group["ns_steps"]
-            nesterov = group["nesterov"]
-            
-            # Adam specific params
-            beta1, beta2 = group["adam_betas"]
-            eps = group["adam_eps"]
-
-            for p in group["params"]:
-                if p.grad is None:
-                    continue
-                
-                g = p.grad
-
-                # ==================================================
-                # Branch 1: Handle Head parameters (Adam + Custom Scaling)
-                # ==================================================
-                if p in self._head_param_set:
+            if group["use_muon"]:
+                params = group["params"]
+                params_pad = params + [torch.empty_like(params[-1])] * (dist.get_world_size() - len(params) % dist.get_world_size())
+                for base_i in range(len(params))[::dist.get_world_size()]:
+                    if base_i + dist.get_rank() < len(params):
+                        p = params[base_i + dist.get_rank()]
+                        if p.grad is None:
+                            # continue
+                            p.grad = torch.zeros_like(p)  # Force synchronization
+                        state = self.state[p]
+                        if len(state) == 0:
+                            state["momentum_buffer"] = torch.zeros_like(p)
+                        update = muon_update(p.grad, state["momentum_buffer"], beta=group["momentum"])
+                        p.mul_(1 - group["lr"] * group["weight_decay"])
+                        p.add_(update.reshape(p.shape), alpha=-group["lr"])
+                    dist.all_gather(params_pad[base_i:base_i + dist.get_world_size()], params_pad[base_i + dist.get_rank()])
+            else:
+                for p in group["params"]:
+                    if p.grad is None:
+                        # continue
+                        p.grad = torch.zeros_like(p)  # Force synchronization
                     state = self.state[p]
-
-                    # 状态初始化
                     if len(state) == 0:
-                        state['step'] = 0
-                        state['exp_avg'] = torch.zeros_like(p, memory_format=torch.preserve_format)
-                        state['exp_avg_sq'] = torch.zeros_like(p, memory_format=torch.preserve_format)
-
-                    exp_avg, exp_avg_sq = state['exp_avg'], state['exp_avg_sq']
-                    state['step'] += 1
-
-                    # 1. 计算 Adam 的一阶和二阶矩 (No Weight Decay)
-                    exp_avg.mul_(beta1).add_(g, alpha=1 - beta1)
-                    exp_avg_sq.mul_(beta2).addcmul_(g, g, value=1 - beta2)
-
-                    # 2. Bias Correction
-                    bias_correction1 = 1 - beta1 ** state['step']
-                    bias_correction2 = 1 - beta2 ** state['step']
-                    
-                    denom = (exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(eps)
-                    
-                    # 3. 计算自定义 Scaling Factor
-                    scaling_factor = 1.0
-                    if g.ndim == 2:
-                        spec = g.size(0) ** 0.5 + g.size(1) ** 0.5
-                        scaling_factor = (g.size(0) / g.size(1)) ** 0.5 / spec
-
-                    # 4. 组合最终的 step size
-                    # step_size = lr * scale * (sqrt(1-beta2^t) / (1-beta1^t))
-                    step_size = (lr * scaling_factor) / bias_correction1
-
-                    # Update parameters
-                    p.data.addcdiv_(exp_avg, denom, value=-step_size)
-
-                # ==================================================
-                # Branch 2: Handle Muon parameters (Original Logic Unchanged)
-                # ==================================================
-                else:
-                    if g.ndim > 2:
-                        g = g.view(g.size(0), -1)
-                    
-                    state = self.state[p]
-                    if 'momentum_buffer' not in state:
-                        state['momentum_buffer'] = torch.zeros_like(g)
-                    
-                    buf = state['momentum_buffer']
-                    buf.mul_(momentum).add_(g)
-                    
-                    if nesterov:
-                        g = g.add(buf, alpha=momentum)
-                    else:
-                        g = buf
-                    
-                    if g.ndim >= 2:
-                        g = zeropower_via_newtonschulz5(g, steps=ns_steps)
-                        g *= max(1, g.size(0) / g.size(1)) ** 0.5
-                    else:
-                        g /= (g.norm() + 1e-8)
-
-                    p.data.add_(g, alpha=-lr)
+                        state["exp_avg"] = torch.zeros_like(p)
+                        state["exp_avg_sq"] = torch.zeros_like(p)
+                        state["step"] = 0
+                    state["step"] += 1
+                    update = adam_update(p.grad, state["exp_avg"], state["exp_avg_sq"],
+                                         state["step"], group["betas"], group["eps"])
+                    p.mul_(1 - group["lr"] * group["weight_decay"])
+                    p.add_(update, alpha=-group["lr"])
 
         return loss
-
-
+        
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
         print("Mode must be one of 'nonDP','BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt','nonDP-BiTFiT','BiTFiT'")
@@ -292,8 +275,38 @@ def main(args):
             })
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
-        head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
-        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6, head_param_ids=head_ids)
+        muon_lr = base_lr
+        adam_base_lr = 1e-4
+        
+        # 计算 Adam 层的 Transfer LR
+        target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr=adam_base_lr)
+        
+        param_groups = []
+        
+        for n, p in net.named_parameters():
+            # Muon: 中间层权重，强制使用 args.lr
+            if p.ndim >= 2 and any(k in n for k in ["fc_2", "fc_3", "fc_4"]):
+                param_groups.append({
+                    "params": [p],
+                    "lr": muon_lr,
+                    "use_muon": True,
+                    "weight_decay": 0.0
+                })
+            # Adam: 头尾层权重(查字典替换) + Bias(使用默认值)
+            else:
+                curr_lr = target_lr_dict.get(n, adam_base_lr)
+                if isinstance(curr_lr, torch.Tensor):
+                    curr_lr = curr_lr.item()
+                    
+                param_groups.append({
+                    "params": [p],
+                    "lr": curr_lr,
+                    "use_muon": False,
+                    "betas": (0.9, 0.95),
+                    "weight_decay": 0.01
+                })
+    
+        optimizer = MuonWithAuxAdam(param_groups)
         
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
