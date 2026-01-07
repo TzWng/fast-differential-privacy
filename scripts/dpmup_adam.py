@@ -271,10 +271,10 @@ def main(args):
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
         muon_lr = base_lr
-        adam_base_lr = 2e-3
+        adam_base_lr = 3e-4
         
-        # 计算 Adam 层的 Transfer LR
-        target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr=adam_base_lr)
+        # # 计算 Adam 层的 Transfer LR
+        # target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr=adam_base_lr)
         
         param_groups = []
         
@@ -289,10 +289,10 @@ def main(args):
                 })
             # Adam: 头尾层权重(查字典替换) + Bias(使用默认值)
             else:
-                curr_lr = target_lr_dict.get(n, adam_base_lr)
-                if isinstance(curr_lr, torch.Tensor):
-                    curr_lr = curr_lr.item()
-                    
+                # curr_lr = target_lr_dict.get(n, adam_base_lr)
+                # if isinstance(curr_lr, torch.Tensor):
+                #     curr_lr = curr_lr.item()
+                curr_lr = adam_base_lr
                 param_groups.append({
                     "params": [p],
                     "lr": curr_lr,
@@ -395,13 +395,13 @@ def main(args):
 
     for epoch in range(args.epochs):
         train_loss = train(epoch)
-        # test_loss = test(epoch)
+        test_loss = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=test_loss, width=args.width, batch=args.bs, sigma=noise)
 
 
 if __name__ == '__main__':
