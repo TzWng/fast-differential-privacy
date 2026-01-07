@@ -295,8 +295,7 @@ def main(args):
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
         head_ids = {id(p) for p in net.fc_1.parameters()} | {id(p) for p in net.fc_5.parameters()}
-        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6,
-                            noise=noise, bs=args.bs, head_param_ids=head_ids)
+        optimizer = MuonNEW(net.parameters(), lr=base_lr, momentum=0.95, nesterov=True, ns_steps=6, head_param_ids=head_ids)
         
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
