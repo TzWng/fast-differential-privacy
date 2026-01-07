@@ -145,6 +145,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-12 -11 -10 -9 -8) # SGD
+LRS=(-11.5 -10.5 -9.5 -8.5) # SGD
 # 256 512 1024 2048 4096 8192
 for wid in 512 1024 2048 4096 8192; do 
   for lr in "${LRS[@]}"; do
@@ -162,7 +163,7 @@ for wid in 512 1024 2048 4096 8192; do
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer muon \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonadam_depth5_s2l_epsilon2_dinfix_nondp.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonadam_depth5_s2l_epsilon2_dinfix_nondp_1.txt"
   done
 done
 
