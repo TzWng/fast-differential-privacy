@@ -271,7 +271,7 @@ def main(args):
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
         muon_lr = base_lr
-        adam_base_lr = 1e-3
+        adam_base_lr = 2e-3
         
         # 计算 Adam 层的 Transfer LR
         target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr=adam_base_lr)
