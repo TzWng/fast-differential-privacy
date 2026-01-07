@@ -271,7 +271,7 @@ def main(args):
         optimizer = optim.Adam(param_groups, lr=base_lr)
     elif args.optimizer == 'muon':
         muon_lr = base_lr
-        adam_base_lr = 3e-4
+        adam_base_lr = base_lr
         
         # # 计算 Adam 层的 Transfer LR
         # target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr=adam_base_lr)
@@ -286,13 +286,18 @@ def main(args):
                     "lr": muon_lr,
                     "use_muon": True,
                     "weight_decay": 0.0
-                })
-            # Adam: 头尾层权重(查字典替换) + Bias(使用默认值)
+                })            
             else:
+                curr_lr = adam_base_lr
+                if p.ndim >= 2:
+                    n_out = p.size(0) # 输出维度 n_l
+                    n_in = p.size(1)  # 输入维度 n_{l-1}
+                    
+                    scale_factor = (n_out * n_in) ** 0.5
+                    curr_lr = adam_base_lr / scale_factor
                 # curr_lr = target_lr_dict.get(n, adam_base_lr)
                 # if isinstance(curr_lr, torch.Tensor):
                 #     curr_lr = curr_lr.item()
-                curr_lr = adam_base_lr
                 param_groups.append({
                     "params": [p],
                     "lr": curr_lr,
