@@ -36,35 +36,6 @@ class MLP(nn.Module):
         out = self.nonlin(self.fc_4(out))
         return self.fc_5(out) * self.output_mult
 
-
-
-# class MLP(nn.Module):
-#     def __init__(self, width=128, input_dim=3072, num_classes=10, nonlin=F.relu, output_mult=1.0, input_mult=1.0):
-#         super(MLP, self).__init__()
-#         self.nonlin = nonlin
-#         self.input_mult = input_mult
-#         self.output_mult = output_mult
-#         self.fc_1 = nn.Linear(input_dim, width, bias=False)
-#         self.fc_2 = nn.Linear(width, width, bias=False)
-#         self.fc_3 = nn.Linear(width, num_classes, bias=False)
-#         self.reset_parameters()
-
-
-#     def reset_parameters(self):
-#         nn.init.kaiming_normal_(self.fc_1.weight, a=1, mode='fan_in')
-#         self.fc_1.weight.data /= self.input_mult**0.5
-#         nn.init.kaiming_normal_(self.fc_2.weight, a=1, mode='fan_in')
-#         nn.init.zeros_(self.fc_3.weight)
-
-
-#     def forward(self, x):
-#         if x.dim() > 2:
-#             x = x.view(x.size(0), -1)
-#         out = self.nonlin(self.fc_1(x) * self.input_mult**0.5)
-#         out = self.nonlin(self.fc_2(out))
-#         return self.fc_3(out) * self.output_mult
-
-
     
 def main(args):
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
@@ -110,8 +81,6 @@ def main(args):
     
     criterion = F.cross_entropy
 
-    # bs_factor = np.log2(args.bs / 125)  # 125->0, 250->1, 500->2, ...
-    # base_lr = 2 ** (args.lr - bs_factor)
     base_lr = 2 ** args.lr
 
     param_groups = [
@@ -192,40 +161,11 @@ def main(args):
                                 lr_scale = (param.shape[0]) ** 0.5
 
                         elif args.optimizer == 'Adam':
-                            # if param.shape[1] == 3 * args.dimension * args.dimension:
-                            #     lr_scale = (1 / param.shape[1]) ** 0.5 / args.dimension
                             if grad.ndim == 2:
                                 lr_scale = 1 / param.shape[1]        
                             elif grad.ndim == 1:
                                 lr_scale = 1
-                        
-                        # sgn = grad.sign()  
-                        # spec = torch.linalg.norm(sgn, ord=2).clamp(min=eps)     
-                        # if args.optimizer == 'SGD':
-                        #     if param.shape[1] == 3 * args.dimension * args.dimension:
-                        #         lr_scale = (param.shape[0] / args.dimension) ** 0.5 / spec
-                        #     elif param.shape[0] == 10:
-                        #         lr_scale = (1.0 / param.shape[1]) ** 0.5 / spec
-                        #     elif grad.ndim == 2:
-                        #         lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
-                        #     elif grad.ndim == 1:
-                        #         lr_scale = (param.shape[0]) ** 0.5 # / spec                      
-                        # elif args.optimizer == 'Adam':
-                        #     if param.shape[1] == 3 * args.dimension * args.dimension:
-                        #         print("spectral norm for first is", spec)
-                        #         lr_scale = (param.shape[0]) ** 0.5 / args.dimension / spec
-                        #     elif param.shape[0] == 10:
-                        #         print("spectral norm for last is", spec)
-                        #         lr_scale = (1.0 / param.shape[1]) ** 0.5 / spec
-                        #     elif grad.ndim == 2:
-                        #         print("spectral norm for middle is", spec)
-                        #         lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec     
-                        #     elif grad.ndim == 1:
-                        #         lr_scale = 1
-                                
-                      
-                        
-                            
+                                                                                              
                     group["lr"] = base_lr * lr_scale
 
                 optimizer.step()
