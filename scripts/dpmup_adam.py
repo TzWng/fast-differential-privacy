@@ -305,7 +305,6 @@ def main(args):
                     "betas": (0.9, 0.95),
                     "weight_decay": 0.01
                 })
-        print(param_groups)
         optimizer = MuonWithAuxAdam(param_groups)
         
 
