@@ -28,7 +28,6 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-
 # LRS=(-11 -10.5 -10 -9.5 -9 -8.5 -8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5 -4) # SGD
 # # 256 512 1024 2048 4096 8192
 # for wid in 256 512 1024 2048 4096 8192; do
@@ -121,24 +120,45 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-
-LRS=(-12.5 -13 -13.5 -14) # SGD
-# 512 1024 2048 4096 8192
-for wid in 256 512 1024 2048 4096 8192; do 
-  for lr in "${LRS[@]}"; do
-    echo "Running width=$wid, lr=$lr"
-    $PYTHON -m scripts.MLP_nonDP_muP \
+LRS=(-13 -12 -11 -10 -9) # SGD
+# 256 512 1024 2048 4096 8192
+for wid in 256; do
+  for lr in "${LRS[@]}"; do 
+    echo "Running width=$wid, lr=$lr, dim=32"
+    $PYTHON -m scripts.dpmup_adam \
       --width "$wid" \
       --lr "$lr" \
       --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
+      --noise 7.067494947837502 \
+      --seed 4 \
       --cifar_data CIFAR10 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
       --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpsp.txt"
+      --optimizer muon \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonadam_depth5_s2l_epsilon2_dinfix_dpmup.txt"
   done
 done
+
+# LRS=(-12.5 -13 -13.5 -14) # SGD
+# # 512 1024 2048 4096 8192
+# for wid in 256 512 1024 2048 4096 8192; do 
+#   for lr in "${LRS[@]}"; do
+#     echo "Running width=$wid, lr=$lr"
+#     $PYTHON -m scripts.MLP_nonDP_muP \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer Adam \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_s2l_dinfix_nondpsp.txt"
+#   done
+# done
 
 
 
