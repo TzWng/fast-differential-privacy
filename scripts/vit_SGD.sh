@@ -50,29 +50,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-11)
-for s in 5; do
-  for lr in "${LRS[@]}"; do
-    echo "Running scale=$s, lr=$lr" 
-    $PYTHON -m scripts.vit_sp\
-      --lr "$lr" \
-      --epochs 5\
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --scale "$s" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dataset CIFAR100 \
-      --dimension 224 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_Adam_compare_sp_1.txt"
-  done
-done
 
-
-LRS=(-8)
+LRS=(-8.5)
 for s in 4; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr" 
