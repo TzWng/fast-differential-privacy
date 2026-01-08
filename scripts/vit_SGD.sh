@@ -5,34 +5,13 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-8 -9 -10)
-for s in 1; do
-  for lr in "${LRS[@]}"; do
-    echo "Running scale=$s, lr=$lr"
-    $PYTHON -m scripts.vit_sp\
-      --lr "$lr" \
-      --epochs 5\
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 2 \
-      --scale "$s" \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dataset CIFAR100 \
-      --dimension 224 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_Adam_compare_sp.txt"
-  done
-done
-
-# LRS=(-8 -9)
+# LRS=(-8 -9 -10)
 # for s in 1; do
 #   for lr in "${LRS[@]}"; do
 #     echo "Running scale=$s, lr=$lr"
 #     $PYTHON -m scripts.vit_sp\
 #       --lr "$lr" \
-#       --epochs 3\
+#       --epochs 5\
 #       --bs 500 \
 #       --mini_bs 500 \
 #       --epsilon 2 \
@@ -40,12 +19,33 @@ done
 #       --scale "$s" \
 #       --clipping_mode BK-MixOpt \
 #       --clipping_style layer-wise \
-#       --dataset CIFAR10 \
+#       --dataset CIFAR100 \
 #       --dimension 224 \
 #       --optimizer Adam \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar10_Adam_compare_sp_1.txt"
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_Adam_compare_sp.txt"
 #   done
 # done
+
+LRS=(-10 -11)
+for s in 1; do
+  for lr in "${LRS[@]}"; do
+    echo "Running scale=$s, lr=$lr"
+    $PYTHON -m scripts.vit_sp\
+      --lr "$lr" \
+      --epochs 3\
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 2 \
+      --scale "$s" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dataset CIFAR10 \
+      --dimension 224 \
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar10_Adam_compare_sp.txt"
+  done
+done
 
 
 # LRS=(-7.5)
