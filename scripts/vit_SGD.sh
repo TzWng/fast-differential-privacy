@@ -67,7 +67,7 @@ for s in 5; do
       --dataset CIFAR100 \
       --dimension 224 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_Adam_compare_sp_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_Adam_compare_sp.txt"
   done
 done
 
@@ -89,7 +89,7 @@ for s in 4; do
       --dataset CIFAR100 \
       --dimension 224 \
       --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_Adam_compare_sp_1.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/Vit_cifar100_Adam_compare_sp.txt"
   done
 done
 
