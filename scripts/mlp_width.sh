@@ -4,28 +4,27 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-# LRS=(-17.5 -16.5 -15.5 -14.5 -13.5) # SGD
-# # 256 512 1024 2048 4096 8192
-# for wid in 256 512 1024 2048 4096; do 
-#   for lr in "${LRS[@]}"; do
-#     echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
-#     $PYTHON -m scripts.MLP_clipping_only \
-#       --width "$wid" \
-#       --lr "$lr" \
-#       --epochs 10 \
-#       --bs 500 \
-#       --mini_bs 500 \
-#       --epsilon 2 \
-#       --noise 0 \
-#       --clipping_mode BK-MixOpt \
-#       --clipping_style layer-wise \
-#       --cifar_data CIFAR10 \
-#       --dimension 32 \
-#       --optimizer Adam \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_diffwidth_true_fail.txt"
-#   done
-# done
-
+LRS=(-13 -14 -15 -16 -17 -18) # SGD
+# 256 512 1024 2048 4096 8192
+for wid in 4096; do 
+  for lr in "${LRS[@]}"; do
+    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
+    $PYTHON -m scripts.MLP_clipping_only \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 0 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --cifar_data CIFAR10 \
+      --dimension 32 \
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_Adam_depth5_diffwidth_true_fail_1.txt"
+  done
+done
 
 # LRS=(-18 -17 -16 -15 -14 -13) # SGD
 # # 256 512 1024 2048 4096 8192
@@ -49,50 +48,28 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-8.5 -7.5 -6.5 -5.5 -4.5) # SGD
-# 256 512 1024 2048 4096 8192
-for wid in 256 512 1024 2048 4096; do 
-  for lr in "${LRS[@]}"; do
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
-    $PYTHON -m scripts.MLP_clipping_only \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 0 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_true_fail.txt"
-  done
-done
 
-
-LRS=(-9 -8 -7 -6 -5 -4) # SGD
-# 256 512 1024 2048 4096 8192
-for wid in 512 1024 2048 4096; do 
-  for lr in "${LRS[@]}"; do
-    echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
-    $PYTHON -m scripts.MLP_clipping_only \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --epsilon 2 \
-      --noise 0 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --cifar_data CIFAR10 \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_true_fail.txt"
-  done
-done
+# LRS=(-9 -8 -7 -6 -5 -4) # SGD
+# # 256 512 1024 2048 4096 8192
+# for wid in 512 1024 2048 4096; do 
+#   for lr in "${LRS[@]}"; do
+#     echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
+#     $PYTHON -m scripts.MLP_clipping_only \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --epsilon 2 \
+#       --noise 0 \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --cifar_data CIFAR10 \
+#       --dimension 32 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_true_fail.txt"
+#   done
+# done
 
 # LRS=(-11 -10.5 -10 -9.5 -9 -8.5 -8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5 -4) # SGD
 # # 256 512 1024 2048 4096 8192
