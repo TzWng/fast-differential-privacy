@@ -79,7 +79,7 @@ BS=1024  # 你要的 batch size
 # done
 
 
-LRS=(-12 -11 -10) # SGD
+LRS=(-13 -14 -15) # SGD
 # 256 512 1024 2048 4096 8192
 for BS in 50; do
   for lr in "${LRS[@]}"; do 
