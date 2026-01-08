@@ -51,8 +51,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 
-LRS=(-8.5)
-for s in 4; do
+LRS=(-10.5)
+for s in 5; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr" 
     $PYTHON -m scripts.vit_sp\
