@@ -78,6 +78,8 @@ def main(args):
       
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(net.parameters(), lr=base_lr)
+    elif args.optimizer == 'Adam':
+        optimizer = optim.Adam(net.parameters(), lr=base_lr)
 
 
     if 'BiTFiT' in args.clipping_mode:  # not needed for DP-BiTFiT but use here for safety
