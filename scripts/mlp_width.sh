@@ -48,7 +48,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-8) # SGD
+LRS=(-9) # SGD
 # 256 512 1024 2048 4096 8192
 for wid in 4096; do 
   for lr in "${LRS[@]}"; do
@@ -66,7 +66,7 @@ for wid in 4096; do
       --cifar_data CIFAR10 \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_true_fail.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_diffwidth_true_fail_1.txt"
   done
 done
 
