@@ -4,7 +4,7 @@ PYTHON=python3.10
 BS=1024  # 你要的 batch size
 
 # batch size 500 epsilon=2
-LRS=(-11 -12) # SGD
+LRS=(-13 -12.5 -11.5 -10.5) # SGD
 # 256 512 1024 2048 4096 8192
 for BS in 125; do
   for lr in "${LRS[@]}"; do 
