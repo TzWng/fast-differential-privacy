@@ -50,8 +50,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-8)
-for s in 4; do
+LRS=(-11)
+for s in 5; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr" 
     $PYTHON -m scripts.vit_sp\
@@ -72,8 +72,8 @@ for s in 4; do
 done
 
 
-LRS=(-11)
-for s in 5; do
+LRS=(-8)
+for s in 4; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr" 
     $PYTHON -m scripts.vit_sp\
