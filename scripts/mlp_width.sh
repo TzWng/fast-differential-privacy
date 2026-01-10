@@ -4,9 +4,9 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-6 -7 -7.5 -8 -8.5 -9) # SGD
+LRS=(-2 -1.5 -1 -0.5 0 0.5 1) # SGD
 # 256 512 1024 2048 4096 8192
-for wid in 512 1024 2048 4096; do 
+for wid in 256; do 
   for lr in "${LRS[@]}"; do
     echo "Running width=$wid, lr=$lr, noise=$sig, dim=32"
     $PYTHON -m scripts.MLP_clipping_only \
