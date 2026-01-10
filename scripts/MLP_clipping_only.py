@@ -160,7 +160,7 @@ def main(args):
                             # 修改 1: 先判断 ndim == 2，防止 Bias (1D) 导致报错
                             if grad.ndim == 2 and param.shape[1] == 3072:
                                 # 修改 2: 去掉了 args.dimension 后面的 "]"
-                                lr_scale = (param.shape[0] / args.dimension) ** 0.5
+                                lr_scale = (param.shape[0]) ** 0.5 / args.dimension
                             elif grad.ndim == 2:
                                 lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
                             elif grad.ndim == 1:
@@ -169,7 +169,7 @@ def main(args):
                         elif args.optimizer == 'Adam':
                             # 同理修正：先确保是 2D 才能访问 shape[1]
                             if grad.ndim == 2 and param.shape[1] == 3072:
-                                lr_scale = 1 / args.dimension
+                                lr_scale = 1 / (args.dimension * param.shape[1] ** 0.5)
                             elif grad.ndim == 2:
                                 lr_scale = 1 / param.shape[1]
                             elif grad.ndim == 1:
