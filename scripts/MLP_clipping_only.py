@@ -119,7 +119,7 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=sigma,
+            noise_multiplier=0,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
             clipping_style=args.clipping_style,
@@ -154,19 +154,19 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                        lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
-                        # if args.optimizer == 'SGD':
-                        #     if grad.ndim == 2:
-                        #         lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
-                        #     elif grad.ndim == 1:
-                        #         lr_scale = (param.shape[0]) ** 0.5
+                        # spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                        # lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
+                        if args.optimizer == 'SGD':
+                            if grad.ndim == 2:
+                                lr_scale = (param.shape[0] / param.shape[1]) ** 0.5
+                            elif grad.ndim == 1:
+                                lr_scale = (param.shape[0]) ** 0.5
 
-                        # elif args.optimizer == 'Adam':
-                        #     if grad.ndim == 2:
-                        #         lr_scale = 1 / param.shape[1]        
-                        #     elif grad.ndim == 1:
-                        #         lr_scale = 1
+                        elif args.optimizer == 'Adam':
+                            if grad.ndim == 2:
+                                lr_scale = 1 / param.shape[1]        
+                            elif grad.ndim == 1:
+                                lr_scale = 1
                                                                                               
                     group["lr"] = base_lr * lr_scale
 
@@ -195,7 +195,6 @@ def main(args):
 
 from fastDP import PrivacyEngine 
 import math, torch, os, torchvision 
-torch.manual_seed(2) 
 import torch.nn as nn 
 import torch.optim as optim 
 import torch.nn.functional as F 
@@ -233,5 +232,5 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    torch.manual_seed(2)
+    torch.manual_seed(4)
     main(args)
