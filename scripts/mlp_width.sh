@@ -4,6 +4,30 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
+
+LRS=(0) # SGD
+# 256 512 1024 2048 4096 8192
+for wid in 8192; do
+  for lr in "${LRS[@]}"; do 
+    echo "Running width=$wid, lr=$lr, dim=32"
+    $PYTHON -m scripts.dpmup_sgd \
+      --width "$wid" \
+      --lr "$lr" \
+      --epochs 10 \
+      --bs 500 \
+      --mini_bs 500 \
+      --noise 1 \
+      --seed 3 \
+      --cifar_data CIFAR10 \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dimension 32 \
+      --optimizer SGD \
+      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_epsilon2_dinfix_dpmup.txt"
+  done
+done
+
+
 # LRS=(-2 -1.5 -1 -0.5 0 0.5 1 1.5) # SGD
 # # 256 512 1024 2048 4096 8192
 # for wid in 8192; do 
@@ -141,27 +165,27 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-LRS=(-11 -10.5 -10 -9.5 -9 -8.5 -8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5 -4) # SGD
-# 256 512 1024 2048 4096 8192
-for wid in 256 512 1024 2048 4096 8192; do
-  for lr in "${LRS[@]}"; do 
-    echo "Running width=$wid, lr=$lr, dim=32"
-    $PYTHON -m scripts.dpmup_sgd \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --noise 1.02294921875 \
-      --seed 3 \
-      --cifar_data CIFAR10 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dimension 32 \
-      --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_epsilon2_dinfix_dpmup.txt"
-  done
-done
+# LRS=(-11 -10.5 -10 -9.5 -9 -8.5 -8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5 -4) # SGD
+# # 256 512 1024 2048 4096 8192
+# for wid in 256 512 1024 2048 4096 8192; do
+#   for lr in "${LRS[@]}"; do 
+#     echo "Running width=$wid, lr=$lr, dim=32"
+#     $PYTHON -m scripts.dpmup_sgd \
+#       --width "$wid" \
+#       --lr "$lr" \
+#       --epochs 10 \
+#       --bs 500 \
+#       --mini_bs 500 \
+#       --noise 1.02294921875 \
+#       --seed 3 \
+#       --cifar_data CIFAR10 \
+#       --clipping_mode BK-MixOpt \
+#       --clipping_style layer-wise \
+#       --dimension 32 \
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_SGD_depth5_l2s_epsilon2_dinfix_dpmup.txt"
+#   done
+# done
 
 
 # LRS=(-11 -10.5 -10 -9.5 -9 -8.5 -8 -7.5 -7 -6.5 -6 -5.5 -5 -4.5 -4) # SGD
