@@ -68,6 +68,10 @@ def plot_coord_data(df, y='l1', save_to=None, suptitle=None, x='width', hue='mod
     import seaborn as sns
     sns.set()
 
+    plt.rcParams.update({
+        'font.size': 15
+    })
+
     def tight_layout(plt):
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 
@@ -84,8 +88,8 @@ def plot_coord_data(df, y='l1', save_to=None, suptitle=None, x='width', hue='mod
         t = int(t)
         plt.subplot(1, len(ts), t)
         sns.lineplot(x=x, y=y, data=df[df.t == t], hue=hue, hue_order=hue_order, legend=legend if t == 1 else None)
-        plt.xlabel('width', fontsize=30)
-        plt.title(f't={t}', fontsize=30)
+        plt.xlabel('width', fontsize=20)
+        plt.title(f't={t}', fontsize=20)
         if t != 1:
             plt.ylabel('')
         if loglog:
