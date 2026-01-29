@@ -229,11 +229,8 @@ def main(args):
     net = MLP(width=args.width, input_dim=input_dim, nonlin=torch.relu, output_mult=32, input_mult=1/256).to(device)
     base_shapes = get_shapes(base_model)
     model_shapes = get_shapes(net)
-    # noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
-    noise = _get_noise4target(model_shapes, base_shapes, base_noise=args.noise)
-    print("noise for small model", noise)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=1)
     D_prime_vector = torch.stack(list(clip_dict.values()))
 
     print(clip_dict)
