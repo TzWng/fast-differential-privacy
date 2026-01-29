@@ -232,6 +232,8 @@ def main(args):
     noise = _get_noise4target(base_shapes, model_shapes, base_noise=args.noise)
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
+
+    print(clip_dict)
     
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
     print('Number of trainable parameters: ', sum([p.numel() for p in net.parameters() if p.requires_grad]))
@@ -254,6 +256,7 @@ def main(args):
                 "name": n
             })
         optimizer = optim.SGD(param_groups, lr=base_lr)
+        print(param_groups)
         # optimizer = optim.SGD(net.parameters(), lr=base_lr)
     elif args.optimizer == 'Adam':
         target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr)
