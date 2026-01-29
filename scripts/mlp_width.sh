@@ -16,7 +16,7 @@ for wid in 8192; do
       --epochs 10 \
       --bs 500 \
       --mini_bs 500 \
-      --noise 1 \
+      --noise 6.91 \
       --seed 3 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
