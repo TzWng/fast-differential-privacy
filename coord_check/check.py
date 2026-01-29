@@ -88,7 +88,7 @@ def my_custom_optimizer_fn(net, args, trainset_len, mode='full'):
         for name, param in net.named_parameters()
     ]
     optimizer = torch.optim.SGD(param_groups, lr=2 ** args.lr) # muP
-    optimizer = torch.optim.SGD(net.parameters(), lr=2 ** args.lr) # SP
+    # optimizer = torch.optim.SGD(net.parameters(), lr=2 ** args.lr) # SP
     if 'nonDP' not in args.clipping_mode:
         if 'BK' in args.clipping_mode:
             clipping_mode = args.clipping_mode[3:]
@@ -291,7 +291,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             y='l1',
             legend=True,
             loglog=True,
-            save_to=f"/content/SGD_sp.pdf", 
+            save_to=f"/content/SGD_mup.pdf", 
             suptitle=None,
             face_color=None
         )
@@ -302,6 +302,6 @@ coord_check_split_terms(
     optimizer_fn=my_custom_optimizer_fn,
     batch_size=args.mini_bs,
     nsteps=4,
-    nseeds=3,
+    nseeds=5,
     args=args
 )
