@@ -84,8 +84,8 @@ def plot_coord_data(df, y='l1', save_to=None, suptitle=None, x='width', hue='mod
         t = int(t)
         plt.subplot(1, len(ts), t)
         sns.lineplot(x=x, y=y, data=df[df.t == t], hue=hue, hue_order=hue_order, legend=legend if t == 1 else None)
-        plt.xlabel('width', fontsize=14)
-        plt.title(f't={t}', fontsize=14)
+        plt.xlabel('width', fontsize=30)
+        plt.title(f't={t}', fontsize=30)
         if t != 1:
             plt.ylabel('')
         if loglog:
