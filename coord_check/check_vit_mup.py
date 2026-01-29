@@ -328,7 +328,7 @@ def coord_check_split_terms(lr, model_fn, optimizer_fn, batch_size, nsteps, nsee
             y='l1',
             legend=False,
             loglog=True,
-            save_to=f"/content/SGD_mup.pdf", 
+            save_to=f"/content/Vit_sgd_mup_coor.pdf", 
             suptitle=None,
             face_color=None
         )
