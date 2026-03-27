@@ -14,8 +14,8 @@ for wid in 256; do
       --width "$wid" \
       --lr "$lr" \
       --epochs 10 \
-      --bs 50 \
-      --mini_bs 50 \
+      --bs 1000 \
+      --mini_bs 1000 \
       --noise 2 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
