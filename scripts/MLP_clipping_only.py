@@ -155,7 +155,7 @@ def main(args):
                    
                     if grad is not None and grad.ndim in (1, 2):
                         spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
-                        print("spectral norm is", spec)
+                        print(f"Spectral norm for {name}: {spec.item():.6f}")
                         # lr_scale = (param.shape[0] / param.shape[1]) ** 0.5 / spec
                         if args.optimizer == 'SGD':
                             # 修改 1: 先判断 ndim == 2，防止 Bias (1D) 导致报错
