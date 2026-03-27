@@ -14,14 +14,14 @@ for wid in 256; do
       --width "$wid" \
       --lr "$lr" \
       --epochs 10 \
-      --bs 1000 \
-      --mini_bs 1000 \
+      --bs 125 \
+      --mini_bs 125 \
       --noise 2 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dimension 32 \
-      --optimizer SGD \
+      --optimizer Adam \
       --log_path "/content/drive/MyDrive/DP_muP/logs/temp.txt"
   done
 done
