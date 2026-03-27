@@ -21,7 +21,7 @@ for wid in 256; do
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dimension 32 \
-      --optimizer SGD \
+      --optimizer Adam \
       --log_path "/content/drive/MyDrive/DP_muP/logs/temp.txt"
   done
 done
