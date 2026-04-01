@@ -241,6 +241,17 @@ def main(args):
             loss.backward()
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):
+                
+                for group in optimizer.param_groups:
+                    name = group.get("name", "")
+                    param = group["params"][0]
+                    grad = param.private_grad
+                    lr_scale = 1.0                  
+                   
+                    if grad is not None and grad.ndim in (1, 2):
+                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / args.bs
+                        print(f"Spectral norm for {name}: {spec.item():.6f}")
+                        
                 optimizer.step()
                 optimizer.zero_grad()
 
