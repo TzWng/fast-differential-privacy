@@ -7,15 +7,15 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(0) # SGD
 # 256 512 1024 2048 4096 8192
-for wid in 256; do
+for wid in 512; do
   for lr in "${LRS[@]}"; do 
     echo "Running width=$wid, lr=$lr, dim=32"
     $PYTHON -m scripts.MLP_sp \
       --width "$wid" \
       --lr "$lr" \
       --epochs 10 \
-      --bs 250 \
-      --mini_bs 250 \
+      --bs 125 \
+      --mini_bs 125 \
       --noise 2 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
