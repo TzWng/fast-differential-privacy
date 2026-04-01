@@ -249,9 +249,11 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / 1500
+                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / 2500
                         if grad.ndim == 2 and param.shape[1] == 3072:
-                            spec = spec / 3         
+                            spec = spec / 3 
+                        if param.shape[1] == 10:
+                            spec = spec * 2
                         print(f"Spectral norm for {name}: {spec.item():.6f}")
                         
                 optimizer.step()
