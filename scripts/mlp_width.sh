@@ -10,7 +10,7 @@ LRS=(0) # SGD
 for wid in 1024; do
   for lr in "${LRS[@]}"; do 
     echo "Running width=$wid, lr=$lr, dim=32"
-    $PYTHON -m scripts.MLP_clipping_only \
+    $PYTHON -m scripts.MLP_sp \
       --width "$wid" \
       --lr "$lr" \
       --epochs 10 \
