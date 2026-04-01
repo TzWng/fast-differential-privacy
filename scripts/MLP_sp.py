@@ -253,9 +253,9 @@ def main(args):
                         if grad.ndim == 2 and param.shape[1] == 3072:
                             spec = spec / 3 
                         if name == "fc_3.weight":
-                            spec = spec * 1.38
+                            spec = spec * 1.1
                         if name == "fc_4.weight":
-                            spec = spec * 1.38 * 1.1
+                            spec = spec * 1.1 * 1.1
                         if param.shape[0] == 10:
                             spec = spec * 2
                         print(f"Spectral norm for {name}: {spec.item():.6f}")
