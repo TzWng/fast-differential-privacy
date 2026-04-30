@@ -249,7 +249,7 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):
-                        grad_sign = torch.sign(grad)
+                        grad_sign = torch.sign(grad / args.bs)
                         spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
                         print(f"Spectral norm for {name}: {spec.item():.2f}")
                         
