@@ -249,7 +249,7 @@ def main(args):
                     lr_scale = 1.0                  
                    
                     if grad is not None and grad.ndim in (1, 2):
-                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps) / 2500
+                        spec = torch.linalg.norm(grad, ord=2).clamp(min=eps)
                         # if grad.ndim == 2 and param.shape[1] == 3072:
                         #     spec = spec / 3 
                         # if name == "fc_3.weight":
