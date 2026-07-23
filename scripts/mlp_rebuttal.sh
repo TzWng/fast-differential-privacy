@@ -96,10 +96,10 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-2.25 -2 -1.75 -1.5 -1.25) # SGD
-SEEDS=(2 3 4 5)
+LRS=(-2.5 -2.25 -2 -1.75 -1.5 -1.25) # SGD
+SEEDS=(1 2 3 4 5)
 for seed in "${SEEDS[@]}"; do
-  for wid in 256; do
+  for wid in 512; do
     for lr in "${LRS[@]}"; do
       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
       $PYTHON -m scripts.MLP_sp \
