@@ -5,8 +5,7 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-4.5 -4 -3.5 -3 -2.5 -2) # SGD
-LRS=(-5 -4.75 -4.25 -3.75 -3.25 -2.75)
+LRS=(-4.5 -4.25 -4 -3.75 -3.5 -3.25 -3 -2.75 -2.5) # SGD
 # 256 512 1024 2048 4096 8192
 for wid in 256 512 1024 2048 4096 8192; do
   for lr in "${LRS[@]}"; do 
@@ -18,13 +17,13 @@ for wid in 256 512 1024 2048 4096 8192; do
       --bs 500 \
       --mini_bs 500 \
       --noise 7.067494947837502 \
-      --seed 0 \
+      --seed 1 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpmup_seed0.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpmup_seed1.txt"
   done
 done
 
