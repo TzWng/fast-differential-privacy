@@ -109,7 +109,7 @@ for seed in "${SEEDS[@]}"; do
         --bs 500 \
         --mini_bs 500 \
         --noise 1.02294921875 \
-        --seed 2 \
+        --seed seed \
         --cifar_data CIFAR10 \
         --clipping_mode BK-MixOpt \
         --clipping_style layer-wise \
