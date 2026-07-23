@@ -250,10 +250,10 @@ def main(args):
                     grad = param.private_grad
                     lr_scale = 1.0                  
                    
-                    if grad is not None and grad.ndim in (1, 2):
-                        grad_sign = torch.sign(grad / args.bs)
-                        spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
-                        print(f"Spectral norm for {name}: {spec.item():.2f}")
+                    # if grad is not None and grad.ndim in (1, 2):
+                    #     grad_sign = torch.sign(grad / args.bs)
+                    #     spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
+                    #     print(f"Spectral norm for {name}: {spec.item():.2f}")
                         
                 optimizer.step()
                 optimizer.zero_grad()
