@@ -257,7 +257,7 @@ def main(args):
                 "name": n
             })
         optimizer = optim.SGD(param_groups, lr=base_lr)
-        print(param_groups)
+        # print(param_groups)
         # optimizer = optim.SGD(net.parameters(), lr=base_lr)
     elif args.optimizer == 'Adam':
         target_lr_dict = _get_lr4target_adam(base_shapes, model_shapes, args.noise, noise, base_lr)
