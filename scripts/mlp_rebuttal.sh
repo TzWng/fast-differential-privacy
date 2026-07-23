@@ -72,29 +72,56 @@ export PYTHONPATH="$PROJECT_ROOT"
 #   done
 # done
 
-# LRS=(-8.75) # SGD
-# SEEDS=(1 2 3 4 5)
-# for seed in "${SEEDS[@]}"; do
-#   for lr in "${LRS[@]}"; do
-#     echo "Running width=8192, seed=$seed, lr=$lr, dim=32"
-#     $PYTHON -m scripts.dpmup_sgd \
-#       --width 8192 \
+
+# LRS=(-5 -4.5 -4 -3.5 -3 -2.5 -2 -1.5) # SGD
+# # 256 512 1024 2048 4096 8192
+# for wid in 256 512 1024 2048 4096 8192; do
+#   for lr in "${LRS[@]}"; do 
+#     echo "Running width=$wid, lr=$lr, dim=32"
+#     $PYTHON -m scripts.MLP_sp \
+#       --width "$wid" \
 #       --lr "$lr" \
 #       --epochs 10 \
 #       --bs 500 \
 #       --mini_bs 500 \
-#       --noise 7.067494947837502 \
-#       --seed "$seed" \
+#       --noise 1.02294921875 \
+#       --seed 2 \
 #       --cifar_data CIFAR10 \
 #       --clipping_mode BK-MixOpt \
 #       --clipping_style layer-wise \
 #       --dimension 32 \
-#       --optimizer Adam \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_Adam_depth5_s2l_epsilon2_dinfix_dpmup_seed${seed}.txt"
+#       --optimizer SGD \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed2.txt"
 #   done
 # done
 
-# LRS=(-5 -4.5 -4 -3.5 -3 -2.5 -2) # SGD
+
+LRS=(-2.25 -2 -1.75 -1.5 -1.25) # SGD
+SEEDS=(2 3 4 5)
+for seed in "${SEEDS[@]}"; do
+  for wid in 256; do
+    for lr in "${LRS[@]}"; do
+      echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
+      $PYTHON -m scripts.MLP_sp \
+        --width "$wid" \
+        --lr "$lr" \
+        --epochs 10 \
+        --bs 500 \
+        --mini_bs 500 \
+        --noise 1.02294921875 \
+        --seed 2 \
+        --cifar_data CIFAR10 \
+        --clipping_mode BK-MixOpt \
+        --clipping_style layer-wise \
+        --dimension 32 \
+        --optimizer SGD \
+        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed${seed}.txt"
+    done
+  done
+done
+
+
+# LRS=(-13.5 -13 -12.5 -12 -11.5 -11 -10.5) 
 # # 256 512 1024 2048 4096 8192
 # for wid in 256 512 1024 2048 4096 8192; do
 #   for lr in "${LRS[@]}"; do 
@@ -111,31 +138,8 @@ export PYTHONPATH="$PROJECT_ROOT"
 #       --clipping_mode BK-MixOpt \
 #       --clipping_style layer-wise \
 #       --dimension 32 \
-#       --optimizer SGD \
-#       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed1.txt"
+#       --optimizer Adam \
+#       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_Adam_depth5_s2l_epsilon2_dinfix_dpsp_seed1.txt"
 #   done
 # done
-
-
-LRS=(-13.5 -13 -12.5 -12 -11.5 -11 -10.5) 
-# 256 512 1024 2048 4096 8192
-for wid in 256 512 1024 2048 4096 8192; do
-  for lr in "${LRS[@]}"; do 
-    echo "Running width=$wid, lr=$lr, dim=32"
-    $PYTHON -m scripts.MLP_sp \
-      --width "$wid" \
-      --lr "$lr" \
-      --epochs 10 \
-      --bs 500 \
-      --mini_bs 500 \
-      --noise 1.02294921875 \
-      --seed 1 \
-      --cifar_data CIFAR10 \
-      --clipping_mode BK-MixOpt \
-      --clipping_style layer-wise \
-      --dimension 32 \
-      --optimizer Adam \
-      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_Adam_depth5_s2l_epsilon2_dinfix_dpsp_seed1.txt"
-  done
-done
 
