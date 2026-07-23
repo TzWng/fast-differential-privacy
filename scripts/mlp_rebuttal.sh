@@ -84,12 +84,13 @@ for wid in 256 512 1024 2048 4096 8192; do
       --bs 500 \
       --mini_bs 500 \
       --noise 1.02294921875 \
+      --seed 1 \
       --cifar_data CIFAR10 \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed1.txt"
   done
 done
 
