@@ -96,10 +96,10 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-LRS=(-2.5 -2.25 -2 -1.75 -1.5) # SGD
+LRS=(-2 -1.75 -1.5 -1.25) # SGD
 SEEDS=(1 2 3 4 5)
 for seed in "${SEEDS[@]}"; do
-  for wid in 1024; do
+  for wid in 256; do
     for lr in "${LRS[@]}"; do
       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
       $PYTHON -m scripts.MLP_sp \
@@ -109,7 +109,7 @@ for seed in "${SEEDS[@]}"; do
         --bs 500 \
         --mini_bs 500 \
         --noise 1.02294921875 \
-        --seed seed \
+        --seed "$seed" \
         --cifar_data CIFAR10 \
         --clipping_mode BK-MixOpt \
         --clipping_style layer-wise \
