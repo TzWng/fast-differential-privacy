@@ -9,7 +9,7 @@ SEEDS=(5 7)
 for seed in "${SEEDS[@]}"; do
   for wid in 256 512 1024 2048 4096 8192; do
     for lr in "${LRS[@]}"; do
-      echo "Running width=256, seed=$seed, lr=$lr, dim=32"
+      echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
       $PYTHON -m scripts.dpmup_sgd \
         --width "$wid" \
         --lr "$lr" \
