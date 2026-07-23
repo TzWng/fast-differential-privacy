@@ -11,6 +11,7 @@ for seed in "${SEEDS[@]}"; do
     for lr in "${LRS[@]}"; do
       echo "Running width=256, seed=$seed, lr=$lr, dim=32"
       $PYTHON -m scripts.dpmup_sgd \
+        --width "$wid" \
         --lr "$lr" \
         --epochs 10 \
         --bs 500 \
