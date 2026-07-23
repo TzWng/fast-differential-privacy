@@ -23,7 +23,7 @@ for wid in 256 512 1024 2048 4096 8192; do
       --clipping_style layer-wise \
       --dimension 32 \
       --optimizer SGD \
-      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpmup_temp.txt"
+      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpmup_seed2.txt"
   done
 done
 
