@@ -4,7 +4,7 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-LRS=(-4 -3.75 -3.5 -3.25 -3 -2.75) # SGD
+LRS=(-3.75 -3.5 -3.25 -3 -2.75) # SGD
 SEEDS=(5 7)
 for seed in "${SEEDS[@]}"; do
   for wid in 256 512 1024 2048 4096 8192; do
