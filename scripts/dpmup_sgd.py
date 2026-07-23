@@ -195,6 +195,7 @@ def main(args):
 
     # Data
     print('==> Preparing data..')
+    data_root = '/content/drive/MyDrive/DP_muP/data/' 
 
     transformation = torchvision.transforms.Compose([
         torchvision.transforms.Resize(args.dimension),
@@ -203,8 +204,8 @@ def main(args):
     ])
 
     if args.cifar_data == 'CIFAR10':
-        trainset = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
-        testset = torchvision.datasets.CIFAR10(root='data/', train=False, download=True, transform=transformation)
+        trainset = torchvision.datasets.CIFAR10(root=data_root, train=True, download=True, transform=transformation)
+        testset = torchvision.datasets.CIFAR10(root=data_root, train=False, download=True, transform=transformation)
     elif args.cifar_data == 'CIFAR100':
         trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
         testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
