@@ -344,7 +344,7 @@ def main(args):
         print('Epoch: ', epoch, len(trainloader), 'Train Loss: %.3f | Acc: %.3f%% (%d/%d)'
               % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
-        return train_loss / (batch_idx + 1)
+        return train_loss / (batch_idx + 1), 100. * correct / total
 
     def test(epoch):
         net.eval()
@@ -365,17 +365,20 @@ def main(args):
             print('Epoch: ', epoch, len(testloader), 'Test Loss: %.3f | Acc: %.3f%% (%d/%d)'
                   % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
             
-            return test_loss / (batch_idx + 1)
+            return test_loss / (batch_idx + 1), 100. * correct / total
 
+    train_acc = test_acc = float('nan')
     for epoch in range(args.epochs):
-        train_loss = train(epoch)
-        # test_loss = test(epoch)
+        train_loss, train_acc = train(epoch)
+        test_loss, test_acc = test(epoch)
         if math.isnan(train_loss):
             break
 
+
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, train_acc=train_acc, test_acc=test_acc, width=args.width, batch=args.bs, sigma=noise)
+    # logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=noise)
 
 
 if __name__ == '__main__':
