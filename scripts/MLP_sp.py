@@ -118,6 +118,8 @@ def main(args):
     # Data
     print('==> Preparing data..')
 
+    data_root = '/content/drive/MyDrive/DP_muP/data/' 
+
     transformation = torchvision.transforms.Compose([
         torchvision.transforms.Resize(args.dimension),
         torchvision.transforms.ToTensor(),
@@ -125,8 +127,8 @@ def main(args):
     ])
 
     if args.cifar_data == 'CIFAR10':
-        trainset = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
-        testset = torchvision.datasets.CIFAR10(root='data/', train=False, download=True, transform=transformation)
+        trainset = torchvision.datasets.CIFAR10(root=data_root, train=True, download=True, transform=transformation)
+        testset = torchvision.datasets.CIFAR10(root=data_root, train=False, download=True, transform=transformation)
     elif args.cifar_data == 'CIFAR100':
         trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
         testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
@@ -265,16 +267,53 @@ def main(args):
         print('Epoch: ', epoch, len(trainloader), 'Train Loss: %.3f | Acc: %.3f%% (%d/%d)'
               % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
-        return train_loss / (batch_idx + 1)
+        return train_loss / (batch_idx + 1), 100. * correct / total
+        
+    def test():
+        net.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for inputs, targets in testloader:
+                inputs, targets = inputs.to(device), targets.to(device)
+                inputs = inputs.view(inputs.size(0), -1)
+                outputs = net(inputs)
+                _, predicted = outputs.max(1)
+                total += targets.size(0)
+                correct += predicted.eq(targets).sum().item()
+        return 100. * correct / total
 
+    def test(epoch):
+        net.eval()
+        test_loss = 0
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for batch_idx, (inputs, targets) in enumerate(tqdm(testloader)):
+                inputs, targets = inputs.to(device), targets.to(device)
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
+
+                test_loss += loss.item()
+                _, predicted = outputs.max(1)
+                total += targets.size(0)
+                correct += predicted.eq(targets).sum().item()
+
+            print('Epoch: ', epoch, len(testloader), 'Test Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                  % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+            
+            return test_loss / (batch_idx + 1), 100. * correct / total
+
+    train_acc = test_acc = float('nan')
     for epoch in range(args.epochs):
-        train_loss = train(epoch)
+        train_loss, train_acc = train(epoch)
+        test_loss, test_acc = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, train_acc=train_acc, test_acc=test_acc, width=args.width, batch=args.bs, sigma=noise)
 
 
 from fastDP import PrivacyEngine 
@@ -309,6 +348,7 @@ if __name__ == '__main__':
     parser.add_argument('--cifar_data', type=str, default='CIFAR10')
     parser.add_argument('--dimension', type=int, default=32)
     parser.add_argument('--optimizer', type=str, default='SGD')
+    parser.add_argument('--seed', default=4, type=int)
     parser.add_argument('--origin_params', nargs='+', default=None)
     parser.add_argument(
         '--log_path',
@@ -317,5 +357,5 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    torch.manual_seed(4)
+    torch.manual_seed(args.seed)
     main(args)
