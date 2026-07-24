@@ -290,7 +290,7 @@ def main(args):
             break
             
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, train_acc=train_acc, test_acc=test_acc, width=args.width, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, train_acc=train_acc, test_acc=test_acc, width=args.width, batch=args.bs, sigma=args.noise)
 
 
 from fastDP import PrivacyEngine 
