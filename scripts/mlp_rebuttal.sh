@@ -52,36 +52,10 @@ export PYTHONPATH="$PROJECT_ROOT"
 # done
 
 
-# LRS=(-3 -3.25) # SGD
-# SEEDS=(5 4 3 2 1)
-# for seed in "${SEEDS[@]}"; do
-#   for wid in 2048; do
-#     for lr in "${LRS[@]}"; do
-#       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
-#       $PYTHON -m scripts.MLP_sp \
-#         --width "$wid" \
-#         --lr "$lr" \
-#         --epochs 10 \
-#         --bs 500 \
-#         --mini_bs 500 \
-#         --noise 1.02294921875 \
-#         --seed "$seed" \
-#         --cifar_data CIFAR10 \
-#         --clipping_mode BK-MixOpt \
-#         --clipping_style layer-wise \
-#         --dimension 32 \
-#         --optimizer SGD \
-#         --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed${seed}.txt"
-#     done
-#   done
-# done
-
-
-LRS=(-10.25 -10.5 -10.75 -11) # SGD
-LRS=(-11 -11.25 -11.5 -11.75 -12 -12.25 -12.5 -12.75 -13 -13.25) # SGD
-SEEDS=(3 4 5)
+LRS=(-2.5 -2.75 -3 -3.25 -3.5 -3.75 -4) # SGD
+SEEDS=(5 4 3 2 1)
 for seed in "${SEEDS[@]}"; do
-  for wid in 2048 4096 8192; do
+  for wid in 4096 8192; do
     for lr in "${LRS[@]}"; do
       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
       $PYTHON -m scripts.MLP_sp \
@@ -96,11 +70,37 @@ for seed in "${SEEDS[@]}"; do
         --clipping_mode BK-MixOpt \
         --clipping_style layer-wise \
         --dimension 32 \
-        --optimizer Adam \
-        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_Adam_depth5_s2l_epsilon2_dinfix_dpsp_seed${seed}.txt"
+        --optimizer SGD \
+        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed${seed}.txt"
     done
   done
 done
+
+
+# LRS=(-10.25 -10.5 -10.75 -11) # SGD
+# LRS=(-11 -11.25 -11.5 -11.75 -12 -12.25 -12.5 -12.75 -13 -13.25) # SGD
+# SEEDS=(3 4 5)
+# for seed in "${SEEDS[@]}"; do
+#   for wid in 2048 4096 8192; do
+#     for lr in "${LRS[@]}"; do
+#       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
+#       $PYTHON -m scripts.MLP_sp \
+#         --width "$wid" \
+#         --lr "$lr" \
+#         --epochs 10 \
+#         --bs 500 \
+#         --mini_bs 500 \
+#         --noise 1.02294921875 \
+#         --seed "$seed" \
+#         --cifar_data CIFAR10 \
+#         --clipping_mode BK-MixOpt \
+#         --clipping_style layer-wise \
+#         --dimension 32 \
+#         --optimizer Adam \
+#         --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_Adam_depth5_s2l_epsilon2_dinfix_dpsp_seed${seed}.txt"
+#     done
+#   done
+# done
 
 
 
