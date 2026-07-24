@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 # LRS=(-2.5 -2 -1.5 -1 -0.5)
-# SEEDS=(1 3 4 5)
+# SEEDS=(3 4 5)
 # for seed in "${SEEDS[@]}"; do
 #   for s in 1 2 3 4 5; do
 #     for lr in "${LRS[@]}"; do
@@ -33,7 +33,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 # LRS=(-9 -8.5 -8 -7.5 -7)
-# SEEDS=(1 3 4 5)
+# SEEDS=(3 4 5)
 # for seed in "${SEEDS[@]}"; do
 #   for s in 1 2 3 4 5; do
 #     for lr in "${LRS[@]}"; do
