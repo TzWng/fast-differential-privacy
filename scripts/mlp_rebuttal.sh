@@ -140,7 +140,7 @@ for wid in 2048 4096 8192; do
       --optimizer Adam \
       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_Adam_depth5_s2l_epsilon2_dinfix_dpsp_seed1.txt"
   done
-
+done
 
 LRS=(-13.5 -13 -12.5 -12 -11.5 -11 -10.5) 
 LRS=(-10.5 -10.75 -11 -11.25) 
