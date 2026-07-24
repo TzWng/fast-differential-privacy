@@ -108,8 +108,8 @@ done
 # LRS=(-6.25 -6.5 -6.75 -7 -7.25) # muon
 # SEEDS=(1)
 # for seed in "${SEEDS[@]}"; do
-#   for lr in "${LRS[@]}"; do
-#     for wid in 512 1024 2048 4096 8192; do
+#   for wid in 512 1024 2048 4096 8192; do
+#     for lr in "${LRS[@]}"; do
 #       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
 #       $PYTHON -m scripts.dpmup_sgd \
 #         --width "$wid" \
