@@ -7,7 +7,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 LRS=(-10.5 -10 -9.5 -9 -8.5) # muon
 LRS=(-8 -7.5) # muon
-SEEDS=(1)
+SEEDS=(2)
 for seed in "${SEEDS[@]}"; do
   for wid in 256 512; do
     for lr in "${LRS[@]}"; do
