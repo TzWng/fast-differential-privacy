@@ -17,6 +17,7 @@ def main(args):
 
     # Data
     print('==> Preparing data..')
+    data_root = '/content/drive/MyDrive/DP_muP/data/' 
 
     transformation = torchvision.transforms.Compose([
         torchvision.transforms.Resize(args.dimension),
@@ -25,8 +26,8 @@ def main(args):
     ])
 
     if args.dataset == 'CIFAR10':
-        trainset = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
-        testset = torchvision.datasets.CIFAR10(root='data/', train=False, download=True, transform=transformation)
+        trainset = torchvision.datasets.CIFAR10(root=data_root, train=True, download=True, transform=transformation)
+        testset = torchvision.datasets.CIFAR10(root=data_root, train=False, download=True, transform=transformation)
     elif args.dataset == 'CIFAR100':
         trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
         testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
@@ -178,16 +179,40 @@ def main(args):
         print('Epoch: ', epoch, len(trainloader), 'Train Loss: %.3f | Acc: %.3f%% (%d/%d)'
               % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
-        return train_loss / (batch_idx + 1)
+        return train_loss / (batch_idx + 1), 100. * correct / total
 
+    def test(epoch):
+        net.eval()
+        test_loss = 0
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for batch_idx, (inputs, targets) in enumerate(tqdm(testloader)):
+                inputs, targets = inputs.to(device), targets.to(device)
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
+
+                test_loss += loss.item()
+                _, predicted = outputs.max(1)
+                total += targets.size(0)
+                correct += predicted.eq(targets).sum().item()
+
+            print('Epoch: ', epoch, len(testloader), 'Test Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                  % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+            
+            return test_loss / (batch_idx + 1), 100. * correct / total
+
+
+    train_acc = test_acc = float('nan')
     for epoch in range(args.epochs):
-        train_loss = train(epoch)
+        train_loss, train_acc = train(epoch)
+        test_loss, test_acc = test(epoch)
         if math.isnan(train_loss):
             break
 
     logger = ExecutionLogger(args.log_path)
     # logger.log(log2lr=args.lr, train_loss=train_loss, depth=args.layer, batch=args.bs, sigma=args.noise)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=192*args.scale, batch=args.bs, sigma=noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, train_acc=train_acc, test_acc=test_acc, width=192*args.scale, batch=args.bs, sigma=noise)
 
 
 
@@ -216,6 +241,7 @@ if __name__ == "__main__":
     parser.add_argument("--mini_bs", type=int, default=512)
     parser.add_argument("--epsilon", type=float, default=2.0)
     parser.add_argument('--noise', default=1, type=float)
+    parser.add_argument('--seed', default=4, type=int)
     parser.add_argument("--clipping_mode", type=str, default="BK-ghost")
     parser.add_argument("--clipping_style", nargs="+", type=str, default="layer-wise")
     parser.add_argument('--scale', default=1, type=float)
@@ -231,5 +257,5 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
-    torch.manual_seed(2)
+    torch.manual_seed(args.seed)
     main(args)
