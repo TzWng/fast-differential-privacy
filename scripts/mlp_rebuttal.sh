@@ -24,7 +24,7 @@ for seed in "${SEEDS[@]}"; do
         --clipping_style layer-wise \
         --dimension 32 \
         --optimizer muon \
-        --log_path "/content/drive/MyDrive/DP_muP/logs/MLP_muonall_depth5_l2s_epsilon2_dinfix_dpmup_seed${seed}.txt"
+        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_muonall_depth5_l2s_epsilon2_dinfix_dpmup_seed${seed}.txt"
     done
   done
 done
