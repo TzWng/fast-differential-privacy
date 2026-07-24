@@ -17,7 +17,7 @@ for seed in "${SEEDS[@]}"; do
         --bs 500 \
         --mini_bs 500 \
         --epsilon 2 \
-        --noise 0.9036090970039368 \
+        --noise 2 \
         --seed "$seed" \
         --scale "$s" \
         --clipping_mode BK-MixOpt \
