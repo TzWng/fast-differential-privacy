@@ -4,30 +4,30 @@ PYTHON=python3.10
 PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
-# LRS=(-9.5 -9 -8.5) # muon
-# LRS=(-8.75 -8.25) # muon
-# SEEDS=(1 2)
-# for seed in "${SEEDS[@]}"; do
-#   for wid in 256 512 1024 2048 4096 8192; do
-#     for lr in "${LRS[@]}"; do
-#       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
-#       $PYTHON -m scripts.MLP_muon \
-#         --width "$wid" \
-#         --lr "$lr" \
-#         --epochs 10 \
-#         --bs 500 \
-#         --mini_bs 500 \
-#         --noise 1.02294921875 \
-#         --seed "$seed" \
-#         --cifar_data CIFAR10 \
-#         --clipping_mode BK-MixOpt \
-#         --clipping_style layer-wise \
-#         --dimension 32 \
-#         --optimizer muon \
-#         --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_muonall_depth5_l2s_epsilon2_dinfix_dpmup_seed${seed}.txt"
-#     done
-#   done
-# done
+LRS=(-9.5 -9 -8.5) # muon
+LRS=(-8.75 -8.25) # muon
+SEEDS=(1 2)
+for seed in "${SEEDS[@]}"; do
+  for wid in 256 512 1024 2048 4096 8192; do
+    for lr in "${LRS[@]}"; do
+      echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
+      $PYTHON -m scripts.MLP_muon \
+        --width "$wid" \
+        --lr "$lr" \
+        --epochs 10 \
+        --bs 500 \
+        --mini_bs 500 \
+        --noise 1.02294921875 \
+        --seed "$seed" \
+        --cifar_data CIFAR10 \
+        --clipping_mode BK-MixOpt \
+        --clipping_style layer-wise \
+        --dimension 32 \
+        --optimizer muon \
+        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_muonall_depth5_l2s_epsilon2_dinfix_dpmup_seed${seed}.txt"
+    done
+  done
+done
 
 # LRS=(-9.5 -9 -8.5) # muon
 # LRS=(-9 -8.75 -8.5 -8.25 -8) # muon
@@ -154,27 +154,27 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 
-LRS=(-6.75 -6.5 -6.25 -6 -5.75) # muon
-LRS=(-6 -6.25) # muon
-SEEDS=(5)
-for seed in "${SEEDS[@]}"; do
-  for wid in 8192; do
-    for lr in "${LRS[@]}"; do
-      echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
-      $PYTHON -m scripts.dpmup_sgd \
-        --width "$wid" \
-        --lr "$lr" \
-        --epochs 10 \
-        --bs 500 \
-        --mini_bs 500 \
-        --noise 7.067494947837502 \
-        --seed "$seed" \
-        --cifar_data CIFAR10 \
-        --clipping_mode BK-MixOpt \
-        --clipping_style layer-wise \
-        --dimension 32 \
-        --optimizer muon \
-        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_muon_depth5_s2l_epsilon2_dinfix_dpmup_seed${seed}.txt"
-    done
-  done
-done
+# LRS=(-6.75 -6.5 -6.25 -6 -5.75) # muon
+# LRS=(-6 -6.25) # muon
+# SEEDS=(5)
+# for seed in "${SEEDS[@]}"; do
+#   for wid in 8192; do
+#     for lr in "${LRS[@]}"; do
+#       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
+#       $PYTHON -m scripts.dpmup_sgd \
+#         --width "$wid" \
+#         --lr "$lr" \
+#         --epochs 10 \
+#         --bs 500 \
+#         --mini_bs 500 \
+#         --noise 7.067494947837502 \
+#         --seed "$seed" \
+#         --cifar_data CIFAR10 \
+#         --clipping_mode BK-MixOpt \
+#         --clipping_style layer-wise \
+#         --dimension 32 \
+#         --optimizer muon \
+#         --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_muon_depth5_s2l_epsilon2_dinfix_dpmup_seed${seed}.txt"
+#     done
+#   done
+# done
