@@ -157,6 +157,8 @@ def main(args):
     # Data
     print('==> Preparing data..')
 
+    data_root = '/content/drive/MyDrive/DP_muP/data/' 
+
     transformation = torchvision.transforms.Compose([
         torchvision.transforms.Resize(args.dimension),
         torchvision.transforms.ToTensor(),
@@ -164,8 +166,8 @@ def main(args):
     ])
 
     if args.cifar_data == 'CIFAR10':
-        trainset = torchvision.datasets.CIFAR10(root='data/', train=True, download=True, transform=transformation)
-        testset = torchvision.datasets.CIFAR10(root='data/', train=False, download=True, transform=transformation)
+        trainset = torchvision.datasets.CIFAR10(root=data_root, train=True, download=True, transform=transformation)
+        testset = torchvision.datasets.CIFAR10(root=data_root, train=False, download=True, transform=transformation)
     elif args.cifar_data == 'CIFAR100':
         trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
         testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
@@ -257,7 +259,7 @@ def main(args):
         print('Epoch: ', epoch, len(trainloader), 'Train Loss: %.3f | Acc: %.3f%% (%d/%d)'
               % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
-        return train_loss / (batch_idx + 1)
+        return train_loss / (batch_idx + 1), 100. * correct / total
 
     def test(epoch):
         net.eval()
@@ -278,21 +280,21 @@ def main(args):
             print('Epoch: ', epoch, len(testloader), 'Test Loss: %.3f | Acc: %.3f%% (%d/%d)'
                   % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
             
-            return test_loss / (batch_idx + 1)
+            return test_loss / (batch_idx + 1), 100. * correct / total
 
+    train_acc = test_acc = float('nan')
     for epoch in range(args.epochs):
-        train_loss = train(epoch)
-        # test_loss = test(epoch)
+        train_loss, train_acc = train(epoch)
+        test_loss, test_acc = test(epoch)
         if math.isnan(train_loss):
             break
-
+            
     logger = ExecutionLogger(args.log_path)
-    logger.log(log2lr=args.lr, train_loss=train_loss, width=args.width, batch=args.bs, sigma=args.noise)
+    logger.log(log2lr=args.lr, train_loss=train_loss, train_acc=train_acc, test_acc=test_acc, width=args.width, batch=args.bs, sigma=noise)
 
 
 from fastDP import PrivacyEngine 
 import math, torch, os, torchvision 
-torch.manual_seed(2) 
 import torch.optim as optim 
 from torchvision import datasets, transforms 
 from opacus.validators import ModuleValidator 
@@ -314,6 +316,7 @@ if __name__ == '__main__':
     parser.add_argument('--mini_bs', type=int, default=512)
     parser.add_argument('--epsilon', default=2, type=float)
     parser.add_argument('--noise', default=1, type=float)
+    parser.add_argument('--seed', default=4, type=int)
     parser.add_argument('--clipping_mode', default='BK-ghost', type=str)
     parser.add_argument('--clipping_style', default='layer-wise', nargs='+', type=str)
     parser.add_argument('--scale', default=1, type=int)
@@ -328,5 +331,5 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    torch.manual_seed(2)
+    torch.manual_seed(args.seed)
     main(args)
