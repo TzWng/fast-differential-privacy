@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-2 -1.5 -1 -0.5)
-SEEDS=(1 2 3 4 5)
+SEEDS=(2)
 for seed in "${SEEDS[@]}"; do
   for s in 1 2; do
     for lr in "${LRS[@]}"; do
