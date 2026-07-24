@@ -5,11 +5,11 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-10.5 -10 -9.5 -9 -8.5) # muon
-LRS=(-8 -7.5) # muon
+LRS=(-9.5 -9 -8.5) # muon
+LRS=(-9.5 -9 -8.5 -8 -7.5) # muon
 SEEDS=(2)
 for seed in "${SEEDS[@]}"; do
-  for wid in 256 512; do
+  for wid in 1024 2048 4096 8192; do
     for lr in "${LRS[@]}"; do
       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
       $PYTHON -m scripts.MLP_muon \
@@ -78,29 +78,29 @@ done
 # done
 
 
-LRS=(-4.25) # SGD
-SEEDS=(5 4 3 2 1)
-for seed in "${SEEDS[@]}"; do
-  for wid in 8192; do
-    for lr in "${LRS[@]}"; do
-      echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
-      $PYTHON -m scripts.MLP_sp \
-        --width "$wid" \
-        --lr "$lr" \
-        --epochs 10 \
-        --bs 500 \
-        --mini_bs 500 \
-        --noise 1.02294921875 \
-        --seed "$seed" \
-        --cifar_data CIFAR10 \
-        --clipping_mode BK-MixOpt \
-        --clipping_style layer-wise \
-        --dimension 32 \
-        --optimizer SGD \
-        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed${seed}.txt"
-    done
-  done
-done
+# LRS=(-4.25) # SGD
+# SEEDS=(5 4 3 2 1)
+# for seed in "${SEEDS[@]}"; do
+#   for wid in 8192; do
+#     for lr in "${LRS[@]}"; do
+#       echo "Running width=$wid, seed=$seed, lr=$lr, dim=32"
+#       $PYTHON -m scripts.MLP_sp \
+#         --width "$wid" \
+#         --lr "$lr" \
+#         --epochs 10 \
+#         --bs 500 \
+#         --mini_bs 500 \
+#         --noise 1.02294921875 \
+#         --seed "$seed" \
+#         --cifar_data CIFAR10 \
+#         --clipping_mode BK-MixOpt \
+#         --clipping_style layer-wise \
+#         --dimension 32 \
+#         --optimizer SGD \
+#         --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/MLP_SGD_depth5_s2l_epsilon2_dinfix_dpsp_seed${seed}.txt"
+#     done
+#   done
+# done
 
 
 # LRS=(-10.25 -10.5 -10.75 -11) # SGD
