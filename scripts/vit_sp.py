@@ -137,15 +137,14 @@ def main(args):
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)): 
                 
                 for group in optimizer.param_groups:
-                    name = group.get("name", "")
                     param = group["params"][0]
-                    print(name, param.requires_grad, hasattr(param, "private_grad"))
-                    # grad = param.private_grad         
-                   
-                    # if grad is not None and grad.ndim in (1, 2):
-                    #     grad_sign = torch.sign(grad / args.bs)
-                    #     spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
-                    #     print(f"Spectral norm for {name}: {spec.item():.2f}")
+                    name = name_of.get(id(param), "")
+                    grad = getattr(param, "private_grad", None)
+                    if grad is not None and grad.ndim in (1, 2):
+                        grad_sign = torch.sign(grad / args.bs)
+                        spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
+                        print(f"Spectral norm for {name}: {spec.item():.2f}")
+            
                                     
                 optimizer.step()
                 optimizer.zero_grad()
