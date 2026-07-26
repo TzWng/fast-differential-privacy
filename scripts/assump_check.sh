@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-8)
-for s in 1; do
+for s in 2; do
   for lr in "${LRS[@]}"; do
     echo "Running seed=$seed, scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_sp \
