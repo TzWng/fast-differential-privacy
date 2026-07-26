@@ -29,8 +29,8 @@ def main(args):
         trainset = torchvision.datasets.CIFAR10(root=data_root, train=True, download=True, transform=transformation)
         testset = torchvision.datasets.CIFAR10(root=data_root, train=False, download=True, transform=transformation)
     elif args.dataset == 'CIFAR100':
-        trainset = torchvision.datasets.CIFAR100(root='data/', train=True, download=True, transform=transformation)
-        testset = torchvision.datasets.CIFAR100(root='data/', train=False, download=True, transform=transformation)
+        trainset = torchvision.datasets.CIFAR100(root=data_root, train=True, download=True, transform=transformation)
+        testset = torchvision.datasets.CIFAR100(root=data_root, train=False, download=True, transform=transformation)
     else:
         return "Must specify datasets as CIFAR10 or CIFAR100"
 
