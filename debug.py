@@ -416,7 +416,7 @@ while True:
                 # === 每个 iter 输出 NSR（private_grad 上测, 单次噪声）===
                 if master_process and any(k in n for k in TARGET_KEYS):
                     S = p.private_grad.detach().float()                 # signal = 裁剪求和梯度
-                    noise_m = noise * C_l_of(n) * torch.randn_like(S)  # 单次噪声, std=σ·C_l
+                    noise_m = noise * torch.randn_like(S)  # 单次噪声, std=σ·C_l
                     sn_sig   = torch.linalg.matrix_norm(S, ord=2).item()
                     sn_noise = torch.linalg.matrix_norm(noise_m, ord=2).item()
                     print(f"[iter {iter_num}] {n.replace('module.','')}: "
