@@ -6,7 +6,7 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(0)
-for s in 1; do
+for s in 3; do
   for lr in "${LRS[@]}"; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_sp \
