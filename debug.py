@@ -352,10 +352,6 @@ X, Y = get_batch('train') # fetch the very first batch
 t0 = time.time()
 local_iter_num = 0 # number of iterations in the lifetime of this process
 raw_model = model.module if ddp else model # unwrap DDP container if needed
-if master_process:
-    for n, p in raw_model.named_parameters():
-        if p.requires_grad and p.dim() >= 2:
-            print("param:", n, tuple(p.shape))
 running_mfu = -1.0
 while True:
 
