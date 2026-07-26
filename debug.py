@@ -412,20 +412,26 @@ while True:
             if hasattr(p, 'private_grad'):
                 if ddp:
                     torch.distributed.all_reduce(p.private_grad.contiguous(), op=torch.distributed.ReduceOp.SUM)
-                    
-                # === 每个 iter 输出 NSR（private_grad 上测, 单次噪声）===
-                if master_process and any(k in n for k in TARGET_KEYS):
-                    S = p.private_grad.detach().float()                 # signal = 裁剪求和梯度
-                    noise_m = noise * torch.randn_like(S)  # 单次噪声, std=σ·C_l
-                    sn_sig   = torch.linalg.matrix_norm(S, ord=2).item()
-                    sn_noise = torch.linalg.matrix_norm(noise_m, ord=2).item()
-                    print(f"[iter {iter_num}] {n.replace('module.','')}: "
-                          f"signal={sn_sig:.4f} noise={sn_noise:.4f} NSR={sn_noise/sn_sig:.4f}")
-
                 
                 p.grad = p.private_grad / ddp_world_size / p.batch_size
                 
                 del p.private_grad
+
+    # === NSR：用 p.grad（平均尺度）===
+    if master_process:
+        for n, p in raw_model.named_parameters():
+            if p.grad is None or not any(k in n for k in TARGET_KEYS):
+                continue
+            key   = n.replace('module.', '')
+            C_l   = clip_dict[key]
+            denom = ddp_world_size * getattr(p, 'batch_size', total_bs)   # 和 p.grad 完全相同的归一化
+            S = p.grad.detach().float()
+            noise = (NOISE_MULT * C_l / denom) * torch.randn_like(S)      # ← 平均尺度噪声，除以同样的 world×B
+            sn_sig   = torch.linalg.matrix_norm(S, ord=2).item()
+            sn_noise = torch.linalg.matrix_norm(noise, ord=2).item()
+            nsr = sn_noise / sn_sig if sn_sig > 0 else float('nan')
+            print(f"[iter {iter_num}] {key}: signal={sn_sig:.6f} noise={sn_noise:.6f} "
+                  f"NSR={nsr:.4f} | max|S|={S.abs().max().item():.3e}")
 
     # # ====== 每个 iter 都测 p.grad 的谱范数 ======
     # if master_process:
