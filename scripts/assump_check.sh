@@ -12,8 +12,8 @@ for s in 3; do
     $PYTHON -m scripts.vit_sp \
       --lr "$lr" \
       --epochs 3 \
-      --bs 125 \
-      --mini_bs 125 \
+      --bs 250 \
+      --mini_bs 250 \
       --epsilon 2 \
       --noise 2 \
       --scale "$s" \
