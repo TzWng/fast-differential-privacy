@@ -144,16 +144,25 @@ def main(args):
                            "blocks.10.mlp.fc2.weight",
                            "head.weight"]
 
+                # for name, param in net.named_parameters():
+                #     grad = getattr(param, "private_grad", None)
+                #     if grad is None or grad.ndim != 2:                 # 只要 2-D
+                #         continue
+                #     if target_layers and not any(t in name for t in target_layers):  # 不在挑选列表就跳过
+                #         continue
+                #     grad_sign = torch.sign(grad / args.bs)
+                #     spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
+                #     print(f"Spectral norm for {name}: {spec.item():.2f}")
+
                 for name, param in net.named_parameters():
                     grad = getattr(param, "private_grad", None)
-                    if grad is None or grad.ndim != 2:                 # 只要 2-D
+                    if not torch.is_tensor(grad) or grad.ndim != 2:
                         continue
-                    if target_layers and not any(t in name for t in target_layers):  # 不在挑选列表就跳过
+                    if target_layers and not any(t in name for t in target_layers):
                         continue
-                    grad_sign = torch.sign(grad / args.bs)
-                    spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
-                    print(f"Spectral norm for {name}: {spec.item():.2f}")
-            
+                    spec = torch.linalg.matrix_norm(grad / args.bs, ord=2).clamp(min=eps)
+                    print(f"Spectral norm for {name}: {spec.item():.4f}")
+                        
                                                 
                 optimizer.step()
                 optimizer.zero_grad()
