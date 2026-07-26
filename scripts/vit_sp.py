@@ -136,7 +136,7 @@ def main(args):
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)): 
                 
-                targets = ["blocks.5.attn.qkv.weight",
+                target_layers = ["blocks.5.attn.qkv.weight",
                            "blocks.5.mlp.fc1.weight",
                            "blocks.5.mlp.fc2.weight",
                            "blocks.10.attn.qkv.weight",
@@ -148,7 +148,7 @@ def main(args):
                     grad = getattr(param, "private_grad", None)
                     if grad is None or grad.ndim != 2:                 # 只要 2-D
                         continue
-                    if targets and not any(t in name for t in targets):  # 不在挑选列表就跳过
+                    if target_layers and not any(t in name for t in target_layers):  # 不在挑选列表就跳过
                         continue
                     grad_sign = torch.sign(grad / args.bs)
                     spec = torch.linalg.norm(grad_sign, ord=2).clamp(min=eps)
