@@ -6,24 +6,22 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 LRS=(-8)
-for seed in "${SEEDS[@]}"; do
-  for s in 1; do
-    for lr in "${LRS[@]}"; do
-      echo "Running seed=$seed, scale=$s, lr=$lr"
-      $PYTHON -m scripts.vit_sp \
-        --lr "$lr" \
-        --epochs 3 \
-        --bs 500 \
-        --mini_bs 500 \
-        --epsilon 2 \
-        --noise 2 \
-        --scale "$s" \
-        --clipping_mode BK-MixOpt \
-        --clipping_style layer-wise \
-        --dataset CIFAR10 \
-        --dimension 224 \
-        --optimizer Adam \
-        --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/temp.txt"
-    done
+for s in 1; do
+  for lr in "${LRS[@]}"; do
+    echo "Running seed=$seed, scale=$s, lr=$lr"
+    $PYTHON -m scripts.vit_sp \
+      --lr "$lr" \
+      --epochs 3 \
+      --bs 500 \
+      --mini_bs 500 \
+      --epsilon 2 \
+      --noise 2 \
+      --scale "$s" \
+      --clipping_mode BK-MixOpt \
+      --clipping_style layer-wise \
+      --dataset CIFAR10 \
+      --dimension 224 \
+      --optimizer Adam \
+      --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/temp.txt"
   done
 done
