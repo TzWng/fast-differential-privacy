@@ -135,7 +135,7 @@ def main(args):
             loss.backward()
             
             if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)): 
-                
+                name_of = {id(p): n for n, p in net.named_parameters()}   # 参数 -> 层名映射
                 for group in optimizer.param_groups:
                     param = group["params"][0]
                     name = name_of.get(id(param), "")
