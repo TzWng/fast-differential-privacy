@@ -19,7 +19,7 @@ for s in 5; do
       --scale "$s" \
       --clipping_mode BK-MixOpt \
       --clipping_style layer-wise \
-      --dataset CIFAR10 \
+      --dataset CIFAR100 \
       --dimension 224 \
       --optimizer SGD \
       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/temp.txt"
