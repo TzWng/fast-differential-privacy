@@ -5,10 +5,10 @@ PROJECT_ROOT=/content/fast-differential-privacy
 export PYTHONPATH="$PROJECT_ROOT"
 
 
-LRS=(-8)
+LRS=(0)
 for s in 5; do
   for lr in "${LRS[@]}"; do
-    echo "Running seed=$seed, scale=$s, lr=$lr"
+    echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_sp \
       --lr "$lr" \
       --epochs 3 \
