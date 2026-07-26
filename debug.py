@@ -46,7 +46,7 @@ eval_only = False # if True, script exits right after the first eval
 always_save_checkpoint = False # if True, always save a checkpoint after each eval
 init_from = 'scratch' # 'scratch' or 'resume' or 'gpt2*'
 # wandb logging
-wandb_log = True # disabled by default
+wandb_log = False # disabled by default
 wandb_project = 'DPscaling'
 # data
 dataset = 'shakespeare_char'
@@ -186,13 +186,20 @@ if init_from == 'scratch':
     model_shapes = get_shapes(model)
     print(model_shapes)
 
-    noise = _get_noise4target(base_shapes, model_shapes, base_noise=0.9682751666851359)
-    print("current noise is", noise)
-    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
+    # noise = _get_noise4target(base_shapes, model_shapes, base_noise=0.9682751666851359)
+    # print("current noise is", noise)
+    # clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
+    # D_prime_vector = torch.stack(list(clip_dict.values()))
+    # print(clip_dict)
+    # target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 0.9682751666851359, noise, learning_rate)
+    # print(target_lrs)
+
+    noise = 0.9682751666851359
+    clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
-    target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 0.9682751666851359, noise, learning_rate)
-    print(target_lrs)
+    # === standard：所有层统一 learning_rate，不做 μP 逐层 lr 缩放 ===
+    target_lrs = {}
 
 
 elif init_from == 'resume':
@@ -287,6 +294,17 @@ if compile:
     unoptimized_model = model
     model = torch.compile(model) # requires PyTorch 2.0
 
+LOG_NORM_ITER = 0          # 在第几个 iteration 测
+TARGET_KEYS = [            # 先跑下面 ② 看真实名字，再回来填
+    'h.5.attn.c_attn.weight',
+    'h.5.mlp.c_fc.weight',
+    'h.5.mlp.c_proj.weight',
+    'h.10.attn.c_attn.weight',
+    'h.10.mlp.c_fc.weight',
+    'h.10.mlp.c_proj.weight',
+    'lm_head.weight',
+]
+
 # wrap model into DDP container
 if ddp:
     model = DDP(model, device_ids=[ddp_local_rank])
@@ -333,6 +351,10 @@ X, Y = get_batch('train') # fetch the very first batch
 t0 = time.time()
 local_iter_num = 0 # number of iterations in the lifetime of this process
 raw_model = model.module if ddp else model # unwrap DDP container if needed
+if master_process:
+    for n, p in raw_model.named_parameters():
+        if p.requires_grad and p.dim() >= 2:
+            print("param:", n, tuple(p.shape))
 running_mfu = -1.0
 while True:
 
@@ -398,6 +420,17 @@ while True:
                 p.grad = p.private_grad / ddp_world_size / p.batch_size
                 
                 del p.private_grad
+
+    # ====== 每个 iter 都测 p.grad 的谱范数 ======
+    if master_process:
+        for n, p in raw_model.named_parameters():
+            if p.grad is None:
+                continue
+            if any(k in n for k in TARGET_KEYS):
+                S = p.grad.detach().sign()                       # 符号矩阵，元素∈{-1,0,+1}
+                sn = torch.linalg.matrix_norm(S.float(), ord=2).item()
+                print(f"[iter {iter_num}] Spectral norm (p.grad) for {n}: {sn:.4f}")
+    # ==========================================
 
     # # clip the gradient
     # if grad_clip != 0.0:
