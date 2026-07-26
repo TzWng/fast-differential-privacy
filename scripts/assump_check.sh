@@ -21,7 +21,7 @@ for s in 1; do
       --clipping_style layer-wise \
       --dataset CIFAR100 \
       --dimension 224 \
-      --optimizer SGD \
+      --optimizer Adam \
       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/temp.txt"
   done
 done
