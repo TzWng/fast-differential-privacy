@@ -52,7 +52,6 @@ wandb_project = 'DPscaling'
 dataset = 'shakespeare_char'
 gradient_accumulation_steps = 8 # used to simulate larger batch sizes
 batch_size = 8 # if gradient_accumulation_steps > 1, this is the micro-batch size
-batch_size = 8 # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 1024
 # model
 n_layer = 36
@@ -60,7 +59,7 @@ n_head = 5
 dropout = 0.0 # for pretraining 0 is good, for finetuning try 0.1+
 bias = False # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
-learning_rate = 16e-3 # max learning rate
+learning_rate = 4e-3 # max learning rate
 total_compute = 1e16
 weight_decay = 1e-1
 beta1 = 0.9
@@ -187,20 +186,20 @@ if init_from == 'scratch':
     model_shapes = get_shapes(model)
     print(model_shapes)
 
-    # noise = _get_noise4target(base_shapes, model_shapes, base_noise=0.9682751666851359)
-    # print("current noise is", noise)
-    # clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
-    # D_prime_vector = torch.stack(list(clip_dict.values()))
-    # print(clip_dict)
-    # target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 0.9682751666851359, noise, learning_rate)
-    # print(target_lrs)
-
-    noise = 0.9682751666851359
-    clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
+    noise = _get_noise4target(base_shapes, model_shapes, base_noise=0.9682751666851359)
+    print("current noise is", noise)
+    clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
     print(clip_dict)
-    # === standard：所有层统一 learning_rate，不做 μP 逐层 lr 缩放 ===
-    target_lrs = {}
+    target_lrs = _get_lr4target_adam(base_shapes, model_shapes, 0.9682751666851359, noise, learning_rate)
+    print(target_lrs)
+
+    # noise = 0.9682751666851359
+    # clip_dict = _get_clip4target(base_shapes, base_shapes, target_noise=noise)
+    # D_prime_vector = torch.stack(list(clip_dict.values()))
+    # print(clip_dict)
+    # # === standard：所有层统一 learning_rate，不做 μP 逐层 lr 缩放 ===
+    # target_lrs = {}
 
 
 elif init_from == 'resume':
@@ -277,7 +276,7 @@ if enable_DP==True:
                 batch_size=total_bs,
                 num_steps=max_iters,
                 sample_size=len_data,
-                noise_multiplier=noise,
+                noise_multiplier=0,
                 num_GPUs=ddp_world_size,
                 torch_seed_is_fixed=False,
                 epochs=99999, # this is not used when noise_multiplier is provided
@@ -413,21 +412,31 @@ while True:
             if hasattr(p, 'private_grad'):
                 if ddp:
                     torch.distributed.all_reduce(p.private_grad.contiguous(), op=torch.distributed.ReduceOp.SUM)
+                    
+                # === 每个 iter 输出 NSR（private_grad 上测, 单次噪声）===
+                if master_process and any(k in n for k in TARGET_KEYS):
+                    S = p.private_grad.detach().float()                 # signal = 裁剪求和梯度
+                    noise = NOISE_MULT * C_l_of(n) * torch.randn_like(S)  # 单次噪声, std=σ·C_l
+                    sn_sig   = torch.linalg.matrix_norm(S, ord=2).item()
+                    sn_noise = torch.linalg.matrix_norm(noise, ord=2).item()
+                    print(f"[iter {iter_num}] {n.replace('module.','')}: "
+                          f"signal={sn_sig:.4f} noise={sn_noise:.4f} NSR={sn_noise/sn_sig:.4f}")
+
                 
                 p.grad = p.private_grad / ddp_world_size / p.batch_size
                 
                 del p.private_grad
 
-    # ====== 每个 iter 都测 p.grad 的谱范数 ======
-    if master_process:
-        for n, p in raw_model.named_parameters():
-            if p.grad is None:
-                continue
-            if any(k in n for k in TARGET_KEYS):
-                S = p.grad.detach().sign()                       # 符号矩阵，元素∈{-1,0,+1}
-                sn = torch.linalg.matrix_norm(S.float(), ord=2).item()
-                print(f"[iter {iter_num}] Spectral norm (p.grad) for {n}: {sn:.4f}")
-    # ==========================================
+    # # ====== 每个 iter 都测 p.grad 的谱范数 ======
+    # if master_process:
+    #     for n, p in raw_model.named_parameters():
+    #         if p.grad is None:
+    #             continue
+    #         if any(k in n for k in TARGET_KEYS):
+    #             S = p.grad.detach().sign()                       # 符号矩阵，元素∈{-1,0,+1}
+    #             sn = torch.linalg.matrix_norm(S.float(), ord=2).item()
+    #             print(f"[iter {iter_num}] Spectral norm (p.grad) for {n}: {sn:.4f}")
+    # # ==========================================
 
     # # clip the gradient
     # if grad_clip != 0.0:
