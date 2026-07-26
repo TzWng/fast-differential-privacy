@@ -13,7 +13,7 @@ for s in 1; do
       --lr "$lr" \
       --epochs 3 \
       --bs 250 \
-      --mini_bs 259 \
+      --mini_bs 250 \
       --epsilon 2 \
       --noise 2 \
       --scale "$s" \
