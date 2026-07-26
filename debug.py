@@ -426,9 +426,9 @@ while True:
             C_l   = clip_dict[key]
             denom = ddp_world_size * getattr(p, 'batch_size', total_bs)   # 和 p.grad 完全相同的归一化
             S = p.grad.detach().float()
-            noise = (NOISE_MULT * C_l / denom) * torch.randn_like(S)      # ← 平均尺度噪声，除以同样的 world×B
+            noise_m = (noise * C_l / denom) * torch.randn_like(S)      # ← 平均尺度噪声，除以同样的 world×B
             sn_sig   = torch.linalg.matrix_norm(S, ord=2).item()
-            sn_noise = torch.linalg.matrix_norm(noise, ord=2).item()
+            sn_noise = torch.linalg.matrix_norm(noise_m, ord=2).item()
             nsr = sn_noise / sn_sig if sn_sig > 0 else float('nan')
             print(f"[iter {iter_num}] {key}: signal={sn_sig:.6f} noise={sn_noise:.6f} "
                   f"NSR={nsr:.4f} | max|S|={S.abs().max().item():.3e}")
