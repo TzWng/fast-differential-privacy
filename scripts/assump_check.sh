@@ -34,8 +34,8 @@ for s in 1 2 3 4 5; do
     $PYTHON -m scripts.vit_muon_sgd \
       --lr "$lr" \
       --epochs 2 \
-      --bs 250 \
-      --mini_bs 250 \
+      --bs 125 \
+      --mini_bs 125 \
       --epsilon 2 \
       --noise 2 \
       --scale "$s" \
