@@ -33,7 +33,7 @@ for s in 1 2 3 4 5; do
     echo "Running scale=$s, lr=$lr"
     $PYTHON -m scripts.vit_muon_sgd \
       --lr "$lr" \
-      --epochs 1 \
+      --epochs 2 \
       --bs 250 \
       --mini_bs 250 \
       --epsilon 2 \
