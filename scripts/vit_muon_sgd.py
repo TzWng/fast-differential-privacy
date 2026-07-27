@@ -217,6 +217,16 @@ def main(args):
     clip_dict = _get_clip4target(base_shapes, model_shapes, target_noise=noise)
     D_prime_vector = torch.stack(list(clip_dict.values()))
 
+    NOISE_MULT = noise                      # μP 噪声乘子（引擎设成 0 了，合成噪声要用它）
+    TARGET_KEYS = [
+        'blocks.5.attn.qkv.weight', 'blocks.5.mlp.fc1.weight', 'blocks.5.mlp.fc2.weight',
+        'blocks.10.attn.qkv.weight', 'blocks.10.mlp.fc1.weight', 'blocks.10.mlp.fc2.weight',
+        'head.weight',
+    ]
+    
+    MEASURE_STEPS = {5, 10}                  # 在哪些 optimizer step 测
+    step_state = {'n': 0}                    # optimizer step 计数器
+
     net = ModuleValidator.fix(net)
     net = net.to(device)
 
@@ -277,7 +287,8 @@ def main(args):
             net,
             batch_size=args.bs,
             sample_size=len(trainset),
-            noise_multiplier=noise,
+            # noise_multiplier=noise,
+            noise_multiplier=0,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
             clipping_coe=D_prime_vector,
@@ -304,8 +315,28 @@ def main(args):
             loss = criterion(outputs, targets) / n_acc_steps
             loss.backward()
             
-            if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):                
+            if ((batch_idx + 1) % n_acc_steps == 0) or ((batch_idx + 1) == len(trainloader)):    
                 optimizer.step()
+
+                # === NSR 测量（p.grad = signal, 合成 noise）===
+                step_state['n'] += 1
+                s = step_state['n']
+                if s in MEASURE_STEPS:
+                    for n, p in net.named_parameters():
+                        if p.grad is None or not any(k in n for k in TARGET_KEYS):
+                            continue
+                        C_l = clip_dict.get(n, None)
+                        if C_l is None:
+                            print(f"[step {s}] {n}: no clip in clip_dict, skip"); continue
+                        if torch.is_tensor(C_l): C_l = C_l.item()
+                        S = p.grad.detach().float()
+                        noise = (NOISE_MULT * C_l / args.bs) * torch.randn_like(S)   # 平均尺度：÷B
+                        sn_sig   = torch.linalg.matrix_norm(S, ord=2).item()
+                        sn_noise = torch.linalg.matrix_norm(noise, ord=2).item()
+                        nsr = sn_noise / sn_sig if sn_sig > 0 else float('nan')
+                        print(f"[step {s}] {n}: signal={sn_sig:.6f} noise={sn_noise:.6f} "
+                              f"NSR={nsr:.4f} | max|S|={S.abs().max().item():.3e}")
+                        
                 optimizer.zero_grad()
 
             train_loss += loss.item()
