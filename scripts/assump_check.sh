@@ -43,7 +43,7 @@ for s in 1 2 3 4 5; do
       --clipping_style layer-wise \
       --dataset CIFAR10 \
       --dimension 224 \
-      --optimizer Adam \
+      --optimizer muon \
       --log_path "/content/drive/MyDrive/DP_muP/logs_rebuttal/temp.txt"
   done
 done
